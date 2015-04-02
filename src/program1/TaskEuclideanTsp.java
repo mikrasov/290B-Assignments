@@ -1,20 +1,29 @@
 package program1;
 
 import java.rmi.RemoteException;
+import java.util.List;
 
-public class TaskEuclideanTsp implements Task{
+public class TaskEuclideanTsp implements Task<List<Integer>>{
 
+	/**
+	 * Creates a new task that solves the Traveling salesman problem
+	 * 
+	 * @param cities	codes the x and y coordinates of city[i]: cities[i][0] is the 
+	 * 					x-coordinate of city[i] and cities[i][1] is the y-coordinate 
+	 * 					of city[i].
+	 */
 	public TaskEuclideanTsp(double[][] cities) {
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public Object execute() throws RemoteException {
+	public List<Integer> execute() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/**
+	 * Computes Euclidean distance between two points
 	 * @param x1 x coordinate of city 1
 	 * @param x2 x coordinate of city 2
 	 * @param y1 y coordinate of city 1
