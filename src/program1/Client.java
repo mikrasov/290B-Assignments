@@ -1,9 +1,6 @@
 package program1;
 
 
-import api.Computer;
-import api.Task;
-import computer.ComputerImpl;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.net.MalformedURLException;
@@ -12,6 +9,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
