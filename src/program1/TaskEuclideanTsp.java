@@ -21,7 +21,7 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
 	}
 
 	@Override
-	public List<Integer> execute() throws RemoteException {
+	public List<Integer> execute() {
 		
 		LinkedList<Integer> order = new LinkedList<Integer>();
 		LinkedList<City> candidates = new LinkedList<City>();

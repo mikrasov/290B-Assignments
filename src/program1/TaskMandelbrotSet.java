@@ -20,7 +20,7 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 	
 	
 	@Override
-	public Integer[][] execute() throws RemoteException {
+	public Integer[][] execute() {
 		// TODO Auto-generated method stub
 		return null;
 	}
