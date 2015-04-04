@@ -1,9 +1,11 @@
 package program1;
 
-import java.rmi.RemoteException;
 
 public class TaskMandelbrotSet implements Task<Integer[][]> {
 
+	private double lowerLeftX, lowerLeftY, edgeLength;
+	private int nPixels, iterationLimit;
+	
 	/**
 	 * Constructs a new Task that computes the Mandlebrot Set
 	 * 
@@ -14,15 +16,22 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 	 * @param iterationLimit defines when the representative point of a region is considered to be in the Mandelbrot set.
 	 */
 	public TaskMandelbrotSet(double lowerLeftX, double lowerLeftY, double edgeLength, int nPixels, int iterationLimit) {
-		// TODO Auto-generated constructor stub
+		this.lowerLeftX = lowerLeftX;
+		this.lowerLeftY = lowerLeftY;
+		this.edgeLength = edgeLength;
+		this.nPixels = nPixels;
+		this.iterationLimit = iterationLimit;
 	}
 
 	
 	
 	@Override
 	public Integer[][] execute() {
-		// TODO Auto-generated method stub
-		return null;
+		Integer[][] count = new Integer[nPixels][nPixels];
+		
+		// TODO Fill Out
+		
+		return count;
 	}
 
 }
