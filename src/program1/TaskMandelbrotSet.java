@@ -35,7 +35,7 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
             //Shift will move the lower left corner by a constant amount of edgeLength/imageSize.
             double shift = edgeLength/nPixels;
             //Save the value of the lower left coordinate x-value, since this is the value you will reset to at the end of each row.
-            double saveCornerX = lowerLeftX;
+            double saveCornerX = lowerX;
 
             //For loop iterates over the 2D array
             for(int i = 0; i < count.length; i++)
@@ -43,7 +43,7 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
                     for(int j = 0; j < count.length; j++)
                     {
                             //Get the iteration count for the current coordinates and save them in the iterationCounts array.
-                            int myIterationCount = getIterationCount(lowerLeftX, lowerLeftY);
+                            int myIterationCount = getIterationCount(lowerX, lowerY);
                             count[i][j] = myIterationCount;
 
                             //shift x coordinate
