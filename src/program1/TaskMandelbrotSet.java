@@ -60,7 +60,7 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
             return count;
 	}
         
-        private int getIterationCount( double x0, double y0 )
+        private int getIterationCount( double y0, double x0 )
         {
         // your code goes here.
             double x = 0;
