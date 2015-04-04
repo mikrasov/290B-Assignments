@@ -1,7 +1,5 @@
 package program1;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
