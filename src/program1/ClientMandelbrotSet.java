@@ -33,7 +33,7 @@ public class ClientMandelbrotSet extends Client<Integer[][]>
     /**
      * Run the MandelbrotSet visualizer client.
      * @param args unused 
-     * @throws java.rmi.RemoteException 
+     * @throws java.rmi.RemoteException s
      */
     public static void main( String[] args ) throws Exception
     {  

@@ -27,21 +27,21 @@ public class ComputerImpl implements Computer{
 	 */
 	public static void main(String[] args) throws AccessException, RemoteException, InterruptedException {
 		
-		// Set Secutiry Manager 
-		System.setSecurityManager( new SecurityManager() );
+            // Set Secutiry Manager 
+            System.setSecurityManager( new SecurityManager() );
 
-		// Create Registry on JVM
-        Registry registry = LocateRegistry.createRegistry( Computer.PORT );
+            // Create Registry on JVM
+            Registry registry = LocateRegistry.createRegistry( Computer.PORT );
 
-        // Create Computer
-     	ComputerImpl computer = new ComputerImpl();
-        registry.rebind( Computer.SERVICE_NAME, computer );
+            // Create Computer
+            ComputerImpl computer = new ComputerImpl();
+            registry.rebind( Computer.SERVICE_NAME, computer );
 
-        //Print Acknowledgement
-        System.out.println("Computer ready and registered as '"+Computer.SERVICE_NAME+"' on port "+Computer.PORT);
-        
-        //Wait to recieve request
-        while(true) Thread.sleep(1000);
+            //Print Acknowledgement
+            System.out.println("Computer ready and registered as '"+Computer.SERVICE_NAME+"' on port "+Computer.PORT);
+
+            //Wait to recieve request
+            while(true) Thread.sleep(1000);
 	}
 
 }

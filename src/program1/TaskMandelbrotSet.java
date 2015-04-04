@@ -3,8 +3,8 @@ package program1;
 
 public class TaskMandelbrotSet implements Task<Integer[][]> {
 
-	private final double lowerLeftX, lowerLeftY, edgeLength;
-	private final int nPixels, iterationLimit;
+	private double lowerLeftX, lowerLeftY, edgeLength;
+	private int nPixels, iterationLimit;
 	
 	/**
 	 * Constructs a new Task that computes the Mandlebrot Set
@@ -24,13 +24,58 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 	}
 
 	
+	
 	@Override
 	public Integer[][] execute() {
-		Integer[][] count = new Integer[nPixels][nPixels];
+            Integer[][] count = new Integer[nPixels][nPixels];
 		
-		// TODO Fill Out
+            //Shift will move the lower left corner by a constant amount of edgeLength/imageSize.
+            double shift = edgeLength/nPixels;
+            //Save the value of the lower left coordinate x-value, since this is the value you will reset to at the end of each row.
+            double saveCornerX = lowerLeftX;
+
+            //For loop iterates over the 2D array
+            for(int i = 0; i < count.length; i++)
+            {
+                    for(int j = 0; j < count.length; j++)
+                    {
+                            //Get the iteration count for the current coordinates and save them in the iterationCounts array.
+                            int myIterationCount = getIterationCount(lowerLeftX, lowerLeftY);
+                            count[i][j] = myIterationCount;
+
+                            //shift x coordinate
+                            lowerLeftX += shift;
+
+                    }
+
+                    //shift the y coordinate down and reset the x coordinate
+                    lowerLeftY += shift;
+                    lowerLeftX = saveCornerX;
+            }
 		
-		return count;
+	
+            return count;
 	}
+        
+        private int getIterationCount( double x0, double y0 )
+        {
+        // your code goes here.
+            double x = 0;
+            double y = 0;
+            int iteration = 0;
+
+            while ((x*x + y*y <= 2) && iteration < iterationLimit )
+            {
+                    double xTemp = x*x - y*y + x0;
+                    y = 2*x*y + y0;
+
+                    x = xTemp;
+
+                    iteration = iteration + 1;
+            }
+
+            return iteration;
+
+        }
 
 }

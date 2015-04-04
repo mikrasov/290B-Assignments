@@ -3,3 +3,12 @@
 *.classpath
 .project
 *.prefs
+.DS_Store
+build/*
+
+manifest.mf
+
+nbproject/*
+
+build.xml
+/dist/
