@@ -5,7 +5,7 @@ import java.util.List;
 
 public class TaskEuclideanTsp implements Task<List<Integer>>{
 
-	double[][] cities;
+	private final double[][] cities;
 	
 	/**
 	 * Creates a new task that solves the Traveling salesman problem

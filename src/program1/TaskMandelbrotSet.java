@@ -3,8 +3,8 @@ package program1;
 
 public class TaskMandelbrotSet implements Task<Integer[][]> {
 
-	private double lowerLeftX, lowerLeftY, edgeLength;
-	private int nPixels, iterationLimit;
+	private final double lowerLeftX, lowerLeftY, edgeLength;
+	private final int nPixels, iterationLimit;
 	
 	/**
 	 * Constructs a new Task that computes the Mandlebrot Set
@@ -29,6 +29,9 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 	public Integer[][] execute() {
             Integer[][] count = new Integer[nPixels][nPixels];
 		
+            double lowerX = this.lowerLeftX;
+            double lowerY = this.lowerLeftY;
+            
             //Shift will move the lower left corner by a constant amount of edgeLength/imageSize.
             double shift = edgeLength/nPixels;
             //Save the value of the lower left coordinate x-value, since this is the value you will reset to at the end of each row.
@@ -44,13 +47,13 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
                             count[i][j] = myIterationCount;
 
                             //shift x coordinate
-                            lowerLeftX += shift;
+                            lowerX += shift;
 
                     }
 
                     //shift the y coordinate down and reset the x coordinate
-                    lowerLeftY += shift;
-                    lowerLeftX = saveCornerX;
+                    lowerY += shift;
+                    lowerX = saveCornerX;
             }
 		
 	
