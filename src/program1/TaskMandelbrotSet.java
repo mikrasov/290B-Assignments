@@ -3,8 +3,8 @@ package program1;
 
 public class TaskMandelbrotSet implements Task<Integer[][]> {
 
-	private double lowerLeftX, lowerLeftY, edgeLength;
-	private int nPixels, iterationLimit;
+	private final double lowerLeftX, lowerLeftY, edgeLength;
+	private final int nPixels, iterationLimit;
 	
 	/**
 	 * Constructs a new Task that computes the Mandlebrot Set
@@ -23,7 +23,6 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 		this.iterationLimit = iterationLimit;
 	}
 
-	
 	
 	@Override
 	public Integer[][] execute() {
