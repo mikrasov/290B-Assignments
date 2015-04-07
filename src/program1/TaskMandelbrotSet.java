@@ -67,7 +67,7 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
             double y = 0;
             int iteration = 0;
 
-            while ((x*x + y*y <= 2) && iteration < iterationLimit )
+            while ((x*x + y*y <= 4) && iteration < iterationLimit )
             {
                     double xTemp = x*x - y*y + x0;
                     y = 2*x*y + y0;
