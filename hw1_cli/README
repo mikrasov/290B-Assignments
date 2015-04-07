@@ -2,20 +2,13 @@ I created the directory hw1_cli so that we have a place separate from the netbea
 
 
 
-To execute:
-
+**To execute:**
 
 cd hw1_cli
-
-
 ant dist
-
-
 ant runComputer
 
-*and in separate terminal window*:
+**and in separate terminal window:**
 
 ant runMandelbrotClient
-
-
 ant runTSPClient
