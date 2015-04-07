@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project1" default="dist" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  
+  <!-- codebase properties -->
+  <property name="computer_file_codebase" location="/Users/Roman/CS290B-cappello/project1/src/computer/" />
+  <!-- <property name="computer_web_codebase" value="http://www.cs.ucsb.edu/~cappello/cs290b/hw1/computer/" />   -->
+  <property name="client_file_codebase" location="/Users/Roman/CS290B-cappello/project1/src/client/" />
+  <!-- <property name="client_web_codebase" value="http://www.cs.ucsb.edu/~cappello/cs290b/hw1/client/" /> -->
+
+  <target name="compile" description="compile the source">
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>  
+  
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+
+  <target name="dist" depends="compile" description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}"/>
+
+    <!-- Make computer jar file -->
+    <jar jarfile="${dist}/computer.jar" basedir="${build}" includes="computer/** api/**"/>
+    
+    <!-- Make client jar file -->
+    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/**"/>
+    
+    <!-- Copy client's task classes to client's codebase --> 
+<!--     <mkdir dir="${client_file_codebase}/tasks"/>
+    <copy todir="${client_file_codebase}/tasks">
+      <fileset dir="${build}/tasks/"/>
+    </copy> -->
+  </target>
+  
+  <target name="javadoc" description="create javadocs">
+  	<javadoc packagenames="tasks.*,api.*" sourcepath="${src}" destdir="documents/javadoc" />
+  </target>
+  
+  <target name="runComputer" description="run computer" >
+  	<java classpath="${build}" classname="program1.ComputerImpl" fork="true">
+  	  <jvmarg value="-Djava.rmi.server.codebase=${computer_web_codebase}"/>
+  	  <jvmarg value="-Djava.security.policy=policy"/>
+  	  <classpath>
+  	    <pathelement location="dist/computer.jar"/>
+  	  </classpath>
+  	</java>
+  </target>  
+  
+  <target name="runMandelbrotClient" description="run mandelbrot client" >
+  	<java classpath="${build}" classname="program1.ClientMandelbrotSet" fork="true">
+  	  <!-- <jvmarg value="-Djava.rmi.server.codebase=${client_web_codebase}"/> -->
+  	  <jvmarg value="-Djava.security.policy=policy"/>
+  	  <arg value="localhost"/>
+  	  <classpath>
+  	    <pathelement location="dist/client.jar"/>
+  	  </classpath>
+  	</java>
+  </target>
+
+  <target name="runTSPClient" description="run tsp client" >
+    <java classpath="${build}" classname="program1.ClientEuclideanTsp" fork="true">
+      <!-- <jvmarg value="-Djava.rmi.server.codebase=${client_web_codebase}"/> -->
+      <jvmarg value="-Djava.security.policy=policy"/>
+      <arg value="localhost"/>
+      <classpath>
+        <pathelement location="dist/client.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${client_file_codebase}/tasks"/>
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+  
+</project>
+

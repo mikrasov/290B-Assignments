@@ -1,0 +1,14 @@
+I created the directory hw1_cli so that we have a place separate from the netbeans project to compile with ant. This is also the directory that we will be turning in.
+
+
+
+**To execute:**
+
+cd hw1_cli
+ant dist
+ant runComputer
+
+**and in separate terminal window:**
+
+ant runMandelbrotClient
+ant runTSPClient
