@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 
 import program1.api.Computer;
 import program1.api.Task;
-import system.ComputerImpl;
+import program1.system.ComputerImpl;
 
 /**
  *

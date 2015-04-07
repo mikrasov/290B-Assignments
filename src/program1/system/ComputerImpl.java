@@ -1,4 +1,4 @@
-package system;
+package program1.system;
 
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
