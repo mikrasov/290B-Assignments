@@ -1,4 +1,4 @@
-package program1;
+package program1.client;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+import program1.tasks.TaskEuclideanTsp;
 
 /**
  *

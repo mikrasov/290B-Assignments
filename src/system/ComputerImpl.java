@@ -1,9 +1,12 @@
-package program1;
+package system;
 
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
+import program1.api.Computer;
+import program1.api.Task;
 
 public class ComputerImpl implements Computer{
 

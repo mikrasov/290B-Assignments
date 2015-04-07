@@ -1,7 +1,9 @@
-package program1;
+package program1.tasks;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import program1.api.Task;
 
 public class TaskEuclideanTsp implements Task<List<Integer>>{
 

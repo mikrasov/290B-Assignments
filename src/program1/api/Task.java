@@ -1,4 +1,4 @@
-package program1;
+package program1.api;
 
 import java.io.Serializable;
 

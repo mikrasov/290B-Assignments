@@ -1,4 +1,6 @@
-package program1;
+package program1.tasks;
+
+import program1.api.Task;
 
 
 public class TaskMandelbrotSet implements Task<Integer[][]> {

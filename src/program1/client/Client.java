@@ -1,4 +1,4 @@
-package program1;
+package program1.client;
 
 
 import java.awt.BorderLayout;
@@ -13,6 +13,10 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+
+import program1.api.Computer;
+import program1.api.Task;
+import system.ComputerImpl;
 
 /**
  *

@@ -1,4 +1,4 @@
-package program1;
+package program1.client;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,6 +10,8 @@ import java.rmi.RemoteException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+import program1.tasks.TaskMandelbrotSet;
 
 /**
  *
