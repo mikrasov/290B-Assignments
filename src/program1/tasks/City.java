@@ -2,9 +2,18 @@ package program1.tasks;
 
 import java.util.List;
 
+/**
+ * An object that represents a city with euclidiean coordinates
+ * 
+ * @author Michael, Roman
+ *
+ */
 public class City {
 
+	/** ID of the city in an ordering */
 	private int id;
+	
+	/** Euclidean coordinates */
 	private double x, y;
 	
 	/**
@@ -39,7 +48,6 @@ public class City {
 		
 			if( distanceTo(target) <= distanceTo(closest) )
 				closest = target;
-				
 		}
 		return closest;
 	}

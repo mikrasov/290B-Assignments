@@ -5,8 +5,14 @@ import java.util.List;
 
 import program1.api.Task;
 
+/**
+ * An implementation of Task that solves the Traveling Salesman PRoblem
+ * @author Michael, Roman
+ *
+ */
 public class TaskEuclideanTsp implements Task<List<Integer>>{
 
+	/** Internal representation of the cities*/
 	private final double[][] cities;
 	
 	/**
@@ -21,7 +27,10 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
 	}
 
 	@Override
-        
+    /**
+     * Computes traveling salesman route (not guranteed to be optimal) 
+     * @return an aproximate order of cities to visit represented by their ID
+     */
 	public List<Integer> execute() {
 		
 		LinkedList<Integer> order = new LinkedList<Integer>();
@@ -32,7 +41,6 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
 			candidates.add(new City(c, cities[c][0], cities[c][1]));
 		}
 		
-
 		//Set starting point
 		City current  = candidates.removeFirst();
 		order.add(current.getID());

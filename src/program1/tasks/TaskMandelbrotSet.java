@@ -2,9 +2,14 @@ package program1.tasks;
 
 import program1.api.Task;
 
-
+/**
+ * Tasks Implementation that computes the Mandelbrot Set
+ * @author Michael, Roman
+ *
+ */
 public class TaskMandelbrotSet implements Task<Integer[][]> {
 
+	
 	private final double lowerLeftX, lowerLeftY, edgeLength;
 	private final int nPixels, iterationLimit;
 	
@@ -28,6 +33,10 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 	
 	
 	@Override
+	/**
+	 * Computes Mandelbrot Set
+	 * @return an array of pixel color values
+	 */
 	public Integer[][] execute() {
             Integer[][] count = new Integer[nPixels][nPixels];
 		
@@ -50,7 +59,6 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 
                             //shift x coordinate
                             lowerX += shift;
-
                     }
 
                     //shift the y coordinate down and reset the x coordinate
@@ -61,26 +69,28 @@ public class TaskMandelbrotSet implements Task<Integer[][]> {
 	
             return count;
 	}
-        
-        private int getIterationCount( double y0, double x0 )
-        {
-        // your code goes here.
-            double x = 0;
-            double y = 0;
-            int iteration = 0;
+	
+	/**
+	 * Compute the iteration count of a single pixel
+	 * @param y0 coordinate
+	 * @param x0 coordinate
+	 * @return pixel value 
+	 */
+	private int getIterationCount( double y0, double x0 ) {
+	    double x = 0;
+	    double y = 0;
+	    int iteration = 0;
+	
+	    while ((x*x + y*y <= 4) && iteration < iterationLimit ){
+            double xTemp = x*x - y*y + x0;
+            y = 2*x*y + y0;
 
-            while ((x*x + y*y <= 4) && iteration < iterationLimit )
-            {
-                    double xTemp = x*x - y*y + x0;
-                    y = 2*x*y + y0;
+            x = xTemp;
 
-                    x = xTemp;
-
-                    iteration = iteration + 1;
-            }
-
-            return iteration;
-
-        }
+            iteration = iteration + 1;
+	    }
+	
+	    return iteration;	
+	}
 
 }
