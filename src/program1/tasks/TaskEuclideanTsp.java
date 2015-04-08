@@ -3,6 +3,10 @@ package program1.tasks;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
+
 import program1.api.Task;
 
 /**
@@ -32,8 +36,6 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
      * @return an aproximate order of cities to visit represented by their ID
      */
 	public List<Integer> execute() {
-		
-		LinkedList<Integer> order = new LinkedList<Integer>();
 		LinkedList<City> candidates = new LinkedList<City>();
 				
 		//Add locations to candidates as City objects
@@ -41,17 +43,35 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
 			candidates.add(new City(c, cities[c][0], cities[c][1]));
 		}
 		
-		//Set starting point
-		City current  = candidates.removeFirst();
-		order.add(current.getID());
-	
-		// Do while candidates remain
-		while(!candidates.isEmpty()){
-			City next = current.closestCity(candidates);	// Get next city
-			candidates.remove(next);						// Remove from candidates
-			order.add(next.getID());						// Add to output
-			current = next;									// Set as next hop
+		
+		ICombinatoricsVector<City> originalVector = Factory.createVector(candidates);
+
+		// Create the permutation generator by calling the appropriate method in the Factory class
+		Generator<City> generator = Factory.createPermutationGenerator(originalVector);
+
+		double bestLength = Double.MAX_VALUE;
+		ICombinatoricsVector<City> bestOrder = null;
+		for (ICombinatoricsVector<City> perm : generator) {
+			
+			City current =null;
+			double currentLength = 0;
+			for(City next: perm){
+				
+				//Skip first city
+				if(current != null)
+					currentLength += current.distanceTo(next);
+		
+				current = next;
+			}
+			
+			//if current perm is better then what is on record
+			if(currentLength <= bestLength)
+				bestOrder = perm;
 		}
+
+		//Translate city list to ordering
+		LinkedList<Integer> order = new LinkedList<Integer>();
+		for(City c: bestOrder) order.add(c.getID());
 		
 		return order;
 	}
