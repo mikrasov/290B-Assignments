@@ -1,6 +1,12 @@
 package system;
 
+import ComputerImpl;
+
+import java.rmi.AccessException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.LinkedList;
 import java.util.List;
 
 import api.Result;
@@ -9,6 +15,8 @@ import api.Task;
 
 public class SpaceImpl implements Space{
 
+	private List<Computer> computers = new LinkedList<Computer>();
+	
 	public SpaceImpl() {
 		// TODO Auto-generated constructor stub
 	}
@@ -33,8 +41,26 @@ public class SpaceImpl implements Space{
 
 	@Override
 	public void register(Computer computer) throws RemoteException {
-		// TODO Auto-generated method stub
+		computers.add(computer);
 		
 	}
 
+	public static void main(String[] args) throws AccessException, RemoteException, InterruptedException {
+		
+        // Set Secutiry Manager 
+        System.setSecurityManager( new SecurityManager() );
+
+        // Create Registry on JVM
+        Registry registry = LocateRegistry.createRegistry( Space.PORT );
+
+        // Create Space
+        SpaceImpl space = new SpaceImpl();
+        registry.rebind( Space.SERVICE_NAME, space );
+
+        //Print Acknowledgement
+        System.out.println("Computer ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
+
+        //Wait to receive request
+        while(true) Thread.sleep(1000);
+}
 }
