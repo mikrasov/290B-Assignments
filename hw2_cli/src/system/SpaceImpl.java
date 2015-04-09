@@ -1,7 +1,5 @@
 package system;
 
-import ComputerImpl;
-
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -16,6 +14,9 @@ import api.Task;
 public class SpaceImpl implements Space{
 
 	private List<Computer> computers = new LinkedList<Computer>();
+
+	private List<Task> tasks = new LinkedList<Task>();
+	private List<Result> results = new LinkedList<Result>();
 	
 	public SpaceImpl() {
 		// TODO Auto-generated constructor stub
