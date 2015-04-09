@@ -1,6 +1,5 @@
 package program1.tasks;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.paukov.combinatorics.Factory;
@@ -36,44 +35,57 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
      * @return an aproximate order of cities to visit represented by their ID
      */
 	public List<Integer> execute() {
-		LinkedList<City> candidates = new LinkedList<City>();
-				
-		//Add locations to candidates as City objects
-		for(int c=0; c < cities.length; c++){
-			candidates.add(new City(c, cities[c][0], cities[c][1]));
+		double[][] distances = new double[cities.length][cities.length];
+
+		//Construct vector of all city IDs
+		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
+		
+		//Go through each city
+		for(int src=0; src < cities.length; src++){
+
+			//Add to list of all cities
+			originalVector.addValue(src);
+			
+			//Compute distance to neighbors (that are not already computed)
+			for(int dest=src+1; dest < cities.length; dest++){
+				distances[src][dest] = distance(cities[src][0],cities[src][1],cities[dest][0],cities[dest][1]);
+			}
 		}
 		
-		
-		ICombinatoricsVector<City> originalVector = Factory.createVector(candidates);
-
 		// Create the permutation generator by calling the appropriate method in the Factory class
-		Generator<City> generator = Factory.createPermutationGenerator(originalVector);
+		Generator<Integer> generator = Factory.createPermutationGenerator(originalVector);
 
+
+		//Go through all permutations
 		double bestLength = Double.MAX_VALUE;
-		ICombinatoricsVector<City> bestOrder = null;
-		for (ICombinatoricsVector<City> perm : generator) {
-			
-			City current =null;
+		ICombinatoricsVector<Integer> bestOrder = null;
+		for (ICombinatoricsVector<Integer> perm : generator) {
+	
 			double currentLength = 0;
-			for(City next: perm){
+			
+			//Sum Lengths
+			for(int i=1; i<perm.getSize(); i++){
+				int src = perm.getValue(i-1);
+				int dest = perm.getValue(i);
 				
-				//Skip first city
-				if(current != null)
-					currentLength += current.distanceTo(next);
-		
-				current = next;
+				//Compensate for triangular matrix
+				if(src < dest) 
+					currentLength += distances[src][dest];
+				else
+					currentLength += distances[dest][src]; 
 			}
 			
-			//if current perm is better then what is on record
-			if(currentLength <= bestLength)
+			//if current permutation is better then what is on record
+			if(currentLength <= bestLength){
 				bestOrder = perm;
+				bestLength = currentLength;
+			}
 		}
-
-		//Translate city list to ordering
-		LinkedList<Integer> order = new LinkedList<Integer>();
-		for(City c: bestOrder) order.add(c.getID());
-		
-		return order;
+		return bestOrder.getVector();
+	}
+	
+	private double distance(double x1, double y1, double x2, double y2){
+		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
 	}
 	
 }
