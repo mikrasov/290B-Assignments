@@ -29,8 +29,8 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
 
 	@Override
     /**
-     * Computes traveling salesman route (not guranteed to be optimal) 
-     * @return an aproximate order of cities to visit represented by their ID
+     * Computes traveling salesman route 
+     * @return order of cities to visit represented by their ID
      */
 	public List<Integer> execute() {
 		double[][] distances = new double[cities.length][cities.length];
@@ -82,8 +82,15 @@ public class TaskEuclideanTsp implements Task<List<Integer>>{
 		return bestOrder.getVector();
 	}
 	
+	/**
+	 * Calculates the euclidian distance between two cities
+	 * @param x1 x position of city 1
+	 * @param y1 y position of city 1
+	 * @param x2 x position of city 2
+	 * @param y2 y position of city 2
+	 * @return the euclidean distance
+	 */
 	private double distance(double x1, double y1, double x2, double y2){
 		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
 	}
-	
 }
