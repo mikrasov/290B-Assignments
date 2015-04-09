@@ -13,6 +13,12 @@ ant runComputer <br>
 
 <h2>*To execute client (in seperate terminal window:)**</h2>
 <code>
-ant runMandelbrotClient <br>
-ant runTSPClient <br>
+ant -Darg0={ip_address_of_host_running_server} runMandelbrotClient <br>
+ant -Darg0={ip_address_of_host_running_server} runTSPClient <br>
+
+examples:
+
+ant -Darg0=128.111.43.42 runMandelbrotClient (if runComputer is running on 128.111.43.42)
+ant -Darg0=localhost runTSPClient (if runComputer is running on localhost)
+
 </code>
