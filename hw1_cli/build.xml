@@ -25,7 +25,11 @@
     <mkdir dir="${build}"/>  
   
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpath="${lib}/combinatoricslib-2.0.jar"/>
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath>
+        <pathelement path="${lib}/combinatoricslib-2.0.jar"/>
+      </classpath>
+    </javac>
   </target>
 
   <target name="dist" depends="compile" description="generate the distribution" >
@@ -36,7 +40,12 @@
     <jar jarfile="${dist}/computer.jar" basedir="${build}" includes="computer/** api/**"/>
     
     <!-- Make client jar file -->
-    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/**"/>
+    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/**">
+       <zipgroupfileset dir="${lib}" includes="combinatoricslib-2.0.jar" />
+       <manifest>
+        <attribute name="Main-Class" value="org.paukov.combinatorics"/>
+      </manifest>
+    </jar>
     
     <!-- Copy client's task classes to client's codebase --> 
 <!--     <mkdir dir="${client_file_codebase}/tasks"/>
