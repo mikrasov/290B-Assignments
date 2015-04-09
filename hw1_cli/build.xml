@@ -54,9 +54,9 @@
     </copy> -->
   </target>
   
-  <target name="javadoc" description="create javadocs">
-  	<javadoc packagenames="tasks.*,api.*" sourcepath="${src}" destdir="documents/javadoc" />
-  </target>
+  <!-- <target name="javadoc" description="create javadocs">
+  	<javadoc packagenames="tasks.*,api.*,client.*,system.*" sourcepath="${src}" destdir="documents/javadoc" />
+  </target> -->
   
   <target name="runComputer" description="run computer" >
   	<java classpath="${build}" classname="program1.ComputerImpl" fork="true">
