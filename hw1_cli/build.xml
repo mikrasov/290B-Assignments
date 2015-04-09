@@ -5,6 +5,14 @@
   <property name="src" location="src"/>
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
+  <property name="lib" location="library"/>
+
+  <!-- <path id="combinatorics_jar">
+    <pathelement location="${lib}/combinatoricslib-2.0.jar"/>
+  </path>
+  <path id="classpath">
+    <pathelement location="${src}"/>
+  </path> -->
   
   <!-- codebase properties -->
   <property name="computer_file_codebase" location="/Users/Roman/CS290B-cappello/project1/src/computer/" />
@@ -17,7 +25,7 @@
     <mkdir dir="${build}"/>  
   
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}" classpath="${lib}/combinatoricslib-2.0.jar"/>
   </target>
 
   <target name="dist" depends="compile" description="generate the distribution" >
