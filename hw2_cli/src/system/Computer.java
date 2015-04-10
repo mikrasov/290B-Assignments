@@ -28,5 +28,15 @@ public class Computer extends UnicastRemoteObject
 		*/
 		
 		//Register with space
+		
+		
+		while(true){
+			//	Wait for an available Task from the ComputeSpace.
+			//  Execute the Task.
+			// Put the Task result back into the ComputeSpace.	
+        	
+        	Thread.sleep(100);
+        }
+		
 	}
 }

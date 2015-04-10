@@ -62,6 +62,10 @@ public class SpaceImpl implements Space{
         System.out.println("Computer ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
 
         //Wait to receive request
-        while(true) Thread.sleep(1000);
+        while(true){
+        	
+        	
+        	Thread.sleep(100);
+        }
 }
 }
