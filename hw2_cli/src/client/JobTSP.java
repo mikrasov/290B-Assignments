@@ -23,9 +23,6 @@ public class JobTSP implements Job<List<Integer>> {
 	private long numTotalPermutationsSent = 0;
 	private long numTotalPermutationsRecieved = 0;
 	
-	private List<Integer> bestOrder;
-	private double bestLength;
-	
 	public JobTSP(double[][] cities) {
 		this.cities = cities;
 	}
@@ -84,12 +81,11 @@ public class JobTSP implements Job<List<Integer>> {
 	}
 	
 	@Override
-	public void collectResults(Space space) {
+	public List<Integer> collectResults(Space space) {
 	
-		//Reset results
-		bestOrder = null;
-		bestLength = Double.MAX_VALUE;
-		
+		List<Integer> bestOrder = null;
+		double bestLength  = Double.MAX_VALUE;
+
 		while(!isJobComplete()){
 			try{
 				Result<ChunkTSP> result = space.take();
@@ -108,16 +104,12 @@ public class JobTSP implements Job<List<Integer>> {
 			try {Thread.sleep(TAKE_TIMER);} catch (InterruptedException e1) {}
 		}
 		
+		return bestOrder;
 	}
 
 	@Override
 	public boolean isJobComplete() {
 		return numTotalPermutationsRecieved >= numTotalPermutationsSent;
-	}
-
-	@Override
-	public List<Integer> getResult() {
-		return bestOrder;
 	}
 
 }

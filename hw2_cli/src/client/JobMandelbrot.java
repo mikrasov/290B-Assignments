@@ -11,12 +11,12 @@ public class JobMandelbrot implements Job<Integer[][]> {
 	@Override
 	public void generateTasks(Space space) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public void collectResults(Space space) {
+	public Integer[][]  collectResults(Space space) {
 		// TODO Auto-generated method stub
+		return null;
 		
 	}
 
@@ -26,10 +26,6 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		return false;
 	}
 
-	@Override
-	public Integer[][] getResult() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 }

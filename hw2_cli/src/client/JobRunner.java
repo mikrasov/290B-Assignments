@@ -17,13 +17,7 @@ public abstract class JobRunner<T> {
 	public T run(){
 		Space space = getSpace();
 		job.generateTasks(space);
-		job.collectResults(space);
-		
-		//Wait till job is complete
-		while(!job.isJobComplete()) try {Thread.sleep(WAIT_TIME);} catch (InterruptedException e) {}
-		
-		//Return result
-		return job.getResult();
+		return job.collectResults(space);
 	}
 	
 }
