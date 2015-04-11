@@ -124,6 +124,9 @@ public class ClientTSP extends Client<List<Integer>> {
     }
 
 	public static void main(String[] args) {
-		
+
+        ClientTSP clientTSP = new ClientTSP("localhost");
+		clientTSP.begin();
+        clientTSP.jobRunner.run();
 	}
 }
