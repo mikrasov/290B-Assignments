@@ -48,6 +48,9 @@ public class Client<T> extends JFrame
         setVisible( true );
     }
   
+    public T run(){
+    	return jobRunner.run();
+    }
 	
 
 }
