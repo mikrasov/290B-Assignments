@@ -10,5 +10,6 @@ import java.util.concurrent.Callable;
 public interface Task<V> extends Serializable, Callable<V> 
 { 
     @Override
-    V call(); 
+    V call();
+
 }

@@ -1,24 +1,27 @@
 package system;
 
-import java.rmi.AccessException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import api.Result;
 import api.Space;
 import api.Task;
+import client.Client;
 
 public abstract class SpaceAbstract extends UnicastRemoteObject implements Space{
 
-	private BlockingQueue<ComputerAbstract> computers = new LinkedBlockingQueue<ComputerAbstract>();
-
+	private BlockingQueue<Computer> allComputers = new LinkedBlockingQueue<Computer>();
+	private BlockingQueue<Computer> availableComputers = new LinkedBlockingQueue<Computer>();
+	
 	private BlockingQueue<Task> tasks = new LinkedBlockingQueue<Task>();
 	private BlockingQueue<Result> results = new LinkedBlockingQueue<Result>();
+	
+	private ConcurrentMap<Task, Client> assigned;
+	
 	
 	public SpaceAbstract() throws RemoteException {
 		super();
@@ -49,13 +52,17 @@ public abstract class SpaceAbstract extends UnicastRemoteObject implements Space
 
 	@Override
 	public void exit() throws RemoteException {
-		for(ComputerAbstract c: computers)
-			c.exit();
+		while(!allComputers.isEmpty()) try {
+				allComputers.take().exit();
+		} catch (InterruptedException e) {}
+		
+		System.exit(0);
 	}
 
 	@Override
-	public void register(ComputerAbstract computer) throws RemoteException {
-		computers.add(computer);	
+	public void register(Computer computer) throws RemoteException {
+		availableComputers.add(computer);
+		allComputers.add(computer);
 	}
 
 }

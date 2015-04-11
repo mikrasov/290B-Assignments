@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import system.ComputerAbstract;
+import system.Computer;
 
 /**
  *
@@ -23,5 +23,5 @@ public interface Space extends Remote
 
     void exit() throws RemoteException;
     
-    void register( ComputerAbstract computer ) throws RemoteException;
+    void register( Computer computer ) throws RemoteException;
 }
