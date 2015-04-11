@@ -1,20 +1,27 @@
 package client;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
 import api.Space;
 
 public class JobRunnerLocal extends JobRunner {
 
-	private Space local;
+	private Space space;
 
-	public JobRunnerLocal(Job job) {
+	public JobRunnerLocal(Job job, String domainName) throws MalformedURLException, RemoteException, NotBoundException {
 		super(job);
-		// TODO Auto-generated constructor stub
+		
+		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
+        space = (Space) Naming.lookup( url );
+
 	}
 
 	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
+	public Space getSpace() {
+		return space;
 	}
 
 }

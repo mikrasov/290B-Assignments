@@ -115,4 +115,10 @@ public class JobTSP implements Job {
 		return numTotalPermutationsRecieved >= numTotalPermutationsSent;
 	}
 
+	@Override
+	public Object getResult() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -1,23 +1,24 @@
 package client;
 
+import java.rmi.RemoteException;
+
+import system.SpaceLocal;
 import api.Space;
 
 public class JobRunnerDistributed extends JobRunner {
 
-	private Space local;
+	private Space space;
 
-	public JobRunnerDistributed(Job job) {
+	public JobRunnerDistributed(Job job) throws RemoteException {
 		super(job);
-		// TODO Auto-generated constructor stub
-		
-		//String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
-        //space = ( domainName == null ) ? new SpaceAbstract() : (Space) Naming.lookup( url );
+
+		space = new SpaceLocal();		
 	}
 
 	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
+	public Space getSpace() {
+		return space;
 	}
 
+	
 }

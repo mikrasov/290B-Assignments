@@ -2,10 +2,6 @@ package system;
 
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-
-import api.Space;
 
 public class SpaceLocal extends SpaceAbstract {
 

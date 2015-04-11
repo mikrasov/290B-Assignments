@@ -9,4 +9,6 @@ public interface Job {
 	public void collectResults(Space space);
 	
 	public boolean isJobComplete();
+	
+	public Object getResult();
 }
