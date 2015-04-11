@@ -24,6 +24,11 @@ public class Computer extends UnicastRemoteObject  {
 		return task.call();
 	}
 	
+	public void exit() throws RemoteException {
+		System.exit(0);
+		
+	}
+	
 	public static void main(String[] args) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
 		
 		//	Wait for an available Task from the ComputeSpace.

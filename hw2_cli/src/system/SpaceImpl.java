@@ -4,27 +4,31 @@ import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.LinkedList;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import api.Result;
 import api.Space;
 import api.Task;
 
-public class SpaceImpl implements Space{
+public class SpaceImpl extends UnicastRemoteObject implements Space{
 
-	private List<Computer> computers = new LinkedList<Computer>();
+	private BlockingQueue<Computer> computers = new LinkedBlockingQueue<Computer>();
 
-	private List<Task> tasks = new LinkedList<Task>();
-	private List<Result> results = new LinkedList<Result>();
+	private BlockingQueue<Task> tasks = new LinkedBlockingQueue<Task>();
+	private BlockingQueue<Result> results = new LinkedBlockingQueue<Result>();
 	
-	public SpaceImpl() {
+	public SpaceImpl() throws RemoteException {
+		super();
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void putAll(List<Task> taskList) throws RemoteException {
-		// TODO Auto-generated method stub
+		for(Task task : taskList)
+			put(task);
 		
 	}
 
@@ -33,17 +37,25 @@ public class SpaceImpl implements Space{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 
 	@Override
-	public void exit() throws RemoteException {
-		// TODO Auto-generated method stub
+	public void put(Task task) throws RemoteException {
+		try {
+			tasks.put(task);
+		} catch (InterruptedException e) {}
 		
 	}
 
 	@Override
+	public void exit() throws RemoteException {
+		for(Computer c: computers)
+			c.exit();
+	}
+
+	@Override
 	public void register(Computer computer) throws RemoteException {
-		computers.add(computer);
-		
+		computers.add(computer);	
 	}
 
 	public static void main(String[] args) throws AccessException, RemoteException, InterruptedException {
@@ -67,11 +79,5 @@ public class SpaceImpl implements Space{
         	
         	Thread.sleep(100);
         }
-}
-
-	@Override
-	public void put(Task task) throws RemoteException {
-		// TODO Auto-generated method stub
-		
 	}
 }
