@@ -11,7 +11,7 @@ import java.rmi.RemoteException;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class ClientMandelbro extends Client<Integer[][]> {
+public class ClientMandelbrot extends Client<Integer[][]> {
 
 	private static final double LOWER_LEFT_X = -0.7510975859375;
     private static final double LOWER_LEFT_Y = 0.1315680625;
@@ -19,11 +19,11 @@ public class ClientMandelbro extends Client<Integer[][]> {
     private static final int N_PIXELS = 1024;
     private static final int ITERATION_LIMIT = 512;
     
-    public ClientMandelbro() throws RemoteException {
-		super("Mandelbrot Set Visualizer", new JobRunnerLocal<Integer[][]>(new JobMandelbrot()));
+    public ClientMandelbrot() throws RemoteException {
+		super("Mandelbrot Set Visualizer", new JobRunnerLocal<Integer[][]>(new JobMandelbrot(LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH, N_PIXELS, ITERATION_LIMIT)));
 	}
 	
-	public ClientMandelbro(String domainName) throws RemoteException, MalformedURLException, NotBoundException{
+	public ClientMandelbrot(String domainName) throws RemoteException, MalformedURLException, NotBoundException{
 		super("Mandelbrot Set Visualizer", new JobRunnerDistributed<Integer[][]>(new JobMandelbrot(), domainName));
 	}
     
@@ -47,6 +47,12 @@ public class ClientMandelbro extends Client<Integer[][]> {
     }
 
 	public static void main(String[] args) {
+
+        ClientMandelbrot clientMandelbrot = new ClientTSP("localhost"); //change to args[0] later
+        clientMandelbrot.begin();
+        Integer[][] result = clientMandelbrot.run();
+        clientMandelbrot.add(clientMandelbrot.getLabel(result));
+        client.end();
 		
 	}
 }

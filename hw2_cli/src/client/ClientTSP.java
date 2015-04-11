@@ -125,8 +125,10 @@ public class ClientTSP extends Client<List<Integer>> {
 
 	public static void main(String[] args) {
 
-        ClientTSP clientTSP = new ClientTSP("localhost");
+        ClientTSP clientTSP = new ClientTSP("localhost"); //change to args[0] later
 		clientTSP.begin();
-        clientTSP.jobRunner.run();
+        final List<Integer> result = clientTSP.run();
+        clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));
+        client.end();
 	}
 }
