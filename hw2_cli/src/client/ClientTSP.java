@@ -33,9 +33,9 @@ public class ClientTSP extends Client {
     	{ 3, 6 }
     };
     
-	public ClientTSP(String domainName)
+	public ClientTSP(String domainName, JobRunner jobRunner)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Traveling Salesman", domainName, new JobTSP(CITIES));
+		super("Traveling Salesman", domainName, jobRunner);
 	}
 	
 	public JLabel getLabel( final Integer[] tour )

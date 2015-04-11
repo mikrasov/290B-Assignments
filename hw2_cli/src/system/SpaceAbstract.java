@@ -13,14 +13,14 @@ import api.Result;
 import api.Space;
 import api.Task;
 
-public class SpaceImpl extends UnicastRemoteObject implements Space{
+public abstract class SpaceAbstract extends UnicastRemoteObject implements Space{
 
-	private BlockingQueue<Computer> computers = new LinkedBlockingQueue<Computer>();
+	private BlockingQueue<ComputerAbstract> computers = new LinkedBlockingQueue<ComputerAbstract>();
 
 	private BlockingQueue<Task> tasks = new LinkedBlockingQueue<Task>();
 	private BlockingQueue<Result> results = new LinkedBlockingQueue<Result>();
 	
-	public SpaceImpl() throws RemoteException {
+	public SpaceAbstract() throws RemoteException {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -49,35 +49,13 @@ public class SpaceImpl extends UnicastRemoteObject implements Space{
 
 	@Override
 	public void exit() throws RemoteException {
-		for(Computer c: computers)
+		for(ComputerAbstract c: computers)
 			c.exit();
 	}
 
 	@Override
-	public void register(Computer computer) throws RemoteException {
+	public void register(ComputerAbstract computer) throws RemoteException {
 		computers.add(computer);	
 	}
 
-	public static void main(String[] args) throws AccessException, RemoteException, InterruptedException {
-		
-        // Set Secutiry Manager 
-        System.setSecurityManager( new SecurityManager() );
-
-        // Create Registry on JVM
-        Registry registry = LocateRegistry.createRegistry( Space.PORT );
-
-        // Create Space
-        SpaceImpl space = new SpaceImpl();
-        registry.rebind( Space.SERVICE_NAME, space );
-
-        //Print Acknowledgement
-        System.out.println("Computer ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
-
-        //Wait to receive request
-        while(true){
-        	
-        	
-        	Thread.sleep(100);
-        }
-	}
 }

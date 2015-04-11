@@ -1,9 +1,11 @@
 package client;
 
-public class JobRunner {
+public abstract class JobRunner {
 
-	public JobRunner() {
-		// TODO Auto-generated constructor stub
+	public JobRunner(Job job){
+		
 	}
-
+	
+	public abstract void run();
+	
 }

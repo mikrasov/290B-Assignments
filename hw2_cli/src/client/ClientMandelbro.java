@@ -19,9 +19,9 @@ public class ClientMandelbro extends Client {
     private static final int N_PIXELS = 1024;
     private static final int ITERATION_LIMIT = 512;
     
-	public ClientMandelbro(String domainName, Job job)
+	public ClientMandelbro(String domainName, JobRunner jobRunner)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Mandelbrot Set Visualizer", domainName, job);
+		super("Mandelbrot Set Visualizer", domainName, jobRunner);
 	}
     
     public JLabel getLabel( Integer[][] counts )

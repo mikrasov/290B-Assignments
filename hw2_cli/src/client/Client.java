@@ -13,26 +13,23 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import system.SpaceImpl;
+import system.SpaceAbstract;
 import api.Space;
 
 public class Client<T> extends JFrame
 {
-    final protected Job job;
-    final protected Space space;
+    final protected JobRunner jobRunner;
     
     protected T taskReturnValue;
     private long clientStartTime;
 
-	public Client( final String title, final String domainName, final Job job ) 
+	public Client( final String title, final String domainName, final JobRunner jobRunner ) 
             throws RemoteException, NotBoundException, MalformedURLException
     {     
-        this.job = job;
         setTitle( title );
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         
-        String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
-        space = ( domainName == null ) ? new SpaceImpl() : (Space) Naming.lookup( url );
+        this.jobRunner = jobRunner;
     }
     
     public void begin() { clientStartTime = System.nanoTime(); }
