@@ -7,13 +7,14 @@ import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class ClientTSP extends Client {
+public class ClientTSP extends Client<List<Integer>> {
 
 
 	private static final int NUM_PIXALS = 600;
@@ -33,9 +34,13 @@ public class ClientTSP extends Client {
     	{ 3, 6 }
     };
     
-	public ClientTSP(String domainName, JobRunner jobRunner)
+	public ClientTSP() throws RemoteException{
+		super("Traveling Salesman", new JobRunnerLocal<List<Integer>>( new JobTSP(CITIES)));
+	}
+	
+	public ClientTSP(String domainName)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Traveling Salesman", domainName, jobRunner);
+		super("Traveling Salesman", new JobRunnerDistributed<List<Integer>>(new JobTSP(CITIES), domainName));
 	}
 	
 	public JLabel getLabel( final Integer[] tour )

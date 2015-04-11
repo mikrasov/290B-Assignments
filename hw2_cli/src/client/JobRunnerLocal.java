@@ -5,17 +5,17 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
+import system.SpaceLocal;
 import api.Space;
 
 public class JobRunnerLocal<T> extends JobRunner<T> {
 
 	private Space space;
 
-	public JobRunnerLocal(Job<T> job, String domainName) throws MalformedURLException, RemoteException, NotBoundException {
+	public JobRunnerLocal(Job<T> job) throws RemoteException {
 		super(job);
 		
-		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
-        space = (Space) Naming.lookup( url );
+		space = new SpaceLocal();
 
 	}
 

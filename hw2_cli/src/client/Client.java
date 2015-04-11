@@ -18,13 +18,12 @@ import api.Space;
 
 public class Client<T> extends JFrame
 {
-    final protected JobRunner jobRunner;
+    final protected JobRunner<T> jobRunner;
     
     protected T taskReturnValue;
     private long clientStartTime;
 
-	public Client( final String title, final String domainName, final JobRunner jobRunner ) 
-            throws RemoteException, NotBoundException, MalformedURLException
+	public Client( final String title, final JobRunner<T> jobRunner ) 
     {     
         setTitle( title );
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );

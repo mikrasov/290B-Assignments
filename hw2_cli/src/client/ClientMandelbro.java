@@ -11,7 +11,7 @@ import java.rmi.RemoteException;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class ClientMandelbro extends Client {
+public class ClientMandelbro extends Client<Integer[][]> {
 
 	private static final double LOWER_LEFT_X = -0.7510975859375;
     private static final double LOWER_LEFT_Y = 0.1315680625;
@@ -19,9 +19,12 @@ public class ClientMandelbro extends Client {
     private static final int N_PIXELS = 1024;
     private static final int ITERATION_LIMIT = 512;
     
-	public ClientMandelbro(String domainName, JobRunner jobRunner)
-			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Mandelbrot Set Visualizer", domainName, jobRunner);
+    public ClientMandelbro() throws RemoteException {
+		super("Mandelbrot Set Visualizer", new JobRunnerLocal<Integer[][]>(new JobMandelbrot()));
+	}
+	
+	public ClientMandelbro(String domainName) throws RemoteException, MalformedURLException, NotBoundException{
+		super("Mandelbrot Set Visualizer", new JobRunnerDistributed<Integer[][]>(new JobMandelbrot(), domainName));
 	}
     
     public JLabel getLabel( Integer[][] counts )
