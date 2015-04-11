@@ -6,17 +6,12 @@ import api.Task;
 
 public class TaskTSP implements Task<ChunkTSP> {
 
-	private static int ID_GENERATOR = 0;
-	
-	private final int id;
 	private final double[][] cities;
 	private List<List<Integer>> permutations;
 	
 	public TaskTSP(double[][] cities, List<List<Integer>> permutations) {
 		this.permutations = permutations;
 		this.cities = cities;
-		
-		id = ID_GENERATOR++;
 	}
 
 	@Override
@@ -63,13 +58,4 @@ public class TaskTSP implements Task<ChunkTSP> {
 		return distance(cities[city1][0],cities[city1][1],cities[city2][0],cities[city2][1]);
 	}
 	
-	@Override
-	public boolean equals(Object arg0) {
-		return ((TaskTSP)arg0).id == this.id;
-	}
-	
-	@Override
-	public int hashCode() {
-		return id;
-	}
 }

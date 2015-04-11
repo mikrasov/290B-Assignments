@@ -1,6 +1,8 @@
 package system;
 
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -87,10 +89,7 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 			Thread.sleep(CYCLE_TIME);
 		} catch (InterruptedException e) {}
 	}
-	
-	
-
-	
+		
 	private class Dispatcher extends Thread{
 		
 		private Task task;
@@ -116,5 +115,22 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 		}
 	}
 	
+	public static void main(String[] args) throws RemoteException, InterruptedException {
+		// Set Security Manager 
+        System.setSecurityManager( new SecurityManager() );
+
+        // Create Registry on JVM
+        Registry registry = LocateRegistry.createRegistry( Space.PORT );
+
+        // Create Space
+        SpaceImp space = new SpaceImp();
+        registry.rebind( Space.SERVICE_NAME, space );
+
+        //Print Acknowledgement
+        System.out.println("Space ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
+
+        //Start space
+        space.startSpace();
+	}
 
 }
