@@ -68,4 +68,10 @@ public class SpaceImpl implements Space{
         	Thread.sleep(100);
         }
 }
+
+	@Override
+	public void put(Task task) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 }

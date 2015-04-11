@@ -1,42 +1,39 @@
 package system;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import api.Result;
+import api.Space;
 import api.Task;
 
-public class Computer extends UnicastRemoteObject 
-{
+public class Computer extends UnicastRemoteObject  {
 
+    private Space space;
     
-    protected Computer() throws RemoteException {
+    protected Computer(final String domainName) throws RemoteException, MalformedURLException, NotBoundException {
 		super();
-		// TODO Auto-generated constructor stub
+        
+        String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
+        space = (Space) Naming.lookup( url );
 	}
     
-	public Result execute(Task t){
-		
-		//TODO: implement
-		return null;
+	public <V> V execute(Task<V> task){
+		return task.call();
 	}
 	
-	public static void main(String[] args) {
-		/* TODO: Its main method gets the domain name of its Space's machine from the 
-		 command line. Using Naming.lookup, it gets a remote reference to the Space 
-		service from the rmiregistry.
-		*/
+	public static void main(String[] args) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
 		
-		//Register with space
+		//	Wait for an available Task from the ComputeSpace.
+		//  Execute the Task.
+		// Put the Task result back into the ComputeSpace.	
+    
+		if (args.length <1)
+			System.out.println("USAGE: Computer [domain name]");
 		
-		
-		while(true){
-			//	Wait for an available Task from the ComputeSpace.
-			//  Execute the Task.
-			// Put the Task result back into the ComputeSpace.	
-        	
-        	Thread.sleep(100);
-        }
-		
+		Computer computer = new Computer(args[0]);
+		while(true){Thread.sleep(100);}
 	}
 }

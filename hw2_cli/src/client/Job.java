@@ -7,4 +7,6 @@ public interface Job {
 	public void generateTasks(Space space);
 	
 	public void collectResults(Space space);
+	
+	public boolean isJobComplete();
 }
