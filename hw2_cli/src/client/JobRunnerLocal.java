@@ -7,11 +7,11 @@ import java.rmi.RemoteException;
 
 import api.Space;
 
-public class JobRunnerLocal extends JobRunner {
+public class JobRunnerLocal<T> extends JobRunner<T> {
 
 	private Space space;
 
-	public JobRunnerLocal(Job job, String domainName) throws MalformedURLException, RemoteException, NotBoundException {
+	public JobRunnerLocal(Job<T> job, String domainName) throws MalformedURLException, RemoteException, NotBoundException {
 		super(job);
 		
 		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;

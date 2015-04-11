@@ -5,11 +5,11 @@ import java.rmi.RemoteException;
 import system.SpaceLocal;
 import api.Space;
 
-public class JobRunnerDistributed extends JobRunner {
+public class JobRunnerDistributed<T> extends JobRunner<T> {
 
 	private Space space;
 
-	public JobRunnerDistributed(Job job) throws RemoteException {
+	public JobRunnerDistributed(Job<T> job) throws RemoteException {
 		super(job);
 
 		space = new SpaceLocal();		

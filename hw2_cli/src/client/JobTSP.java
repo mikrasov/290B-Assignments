@@ -13,7 +13,7 @@ import tasks.TaskTSP;
 import api.Result;
 import api.Space;
 
-public class JobTSP implements Job {
+public class JobTSP implements Job<List<Integer>> {
 
 	public static final int CHUNK_SIZE = 1000000;
 	public static final int RETRY_TIMER = 1000;
@@ -116,9 +116,8 @@ public class JobTSP implements Job {
 	}
 
 	@Override
-	public Object getResult() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Integer> getResult() {
+		return bestOrder;
 	}
 
 }
