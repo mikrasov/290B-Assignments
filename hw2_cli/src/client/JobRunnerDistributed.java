@@ -5,7 +5,6 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import system.SpaceLocal;
 import api.Space;
 
 public class JobRunnerDistributed<T> extends JobRunner<T> {

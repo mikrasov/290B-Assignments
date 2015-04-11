@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import system.SpaceAbstract;
+import system.SpaceImp;
 import api.Space;
 
 public class Client<T> extends JFrame

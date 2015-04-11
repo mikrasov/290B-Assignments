@@ -1,11 +1,8 @@
 package client;
 
-import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import system.SpaceLocal;
+import system.SpaceImp;
 import api.Space;
 
 public class JobRunnerLocal<T> extends JobRunner<T> {
@@ -15,7 +12,7 @@ public class JobRunnerLocal<T> extends JobRunner<T> {
 	public JobRunnerLocal(Job<T> job) throws RemoteException {
 		super(job);
 		
-		space = new SpaceLocal();
+		space = new SpaceImp();
 
 	}
 

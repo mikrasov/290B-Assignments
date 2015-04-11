@@ -23,5 +23,10 @@ public class TaskMandelbrot implements Task<Integer[][]> {
 	public boolean equals(Object arg0) {
 		return ((TaskMandelbrot)arg0).id == this.id;
 	}
+	
+	@Override
+	public int hashCode() {
+		return id;
+	}
 
 }

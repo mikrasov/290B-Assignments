@@ -67,4 +67,9 @@ public class TaskTSP implements Task<ChunkTSP> {
 	public boolean equals(Object arg0) {
 		return ((TaskTSP)arg0).id == this.id;
 	}
+	
+	@Override
+	public int hashCode() {
+		return id;
+	}
 }
