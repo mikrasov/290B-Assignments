@@ -16,7 +16,9 @@ import javax.swing.JLabel;
 
 public class ClientTSP extends Client<List<Integer>> {
 
-
+	/** Generated Serial ID	 */
+	private static final long serialVersionUID = 6128849463397846561L;
+	
 	private static final int NUM_PIXALS = 600;
     private static final double[][] CITIES = 
     {
@@ -123,12 +125,12 @@ public class ClientTSP extends Client<List<Integer>> {
         return stringBuilder.toString();
     }
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 
         ClientTSP clientTSP = new ClientTSP("localhost"); //change to args[0] later
 		clientTSP.begin();
         final List<Integer> result = clientTSP.run();
         clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));
-        client.end();
+        clientTSP.end();
 	}
 }

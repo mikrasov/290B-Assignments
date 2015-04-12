@@ -53,16 +53,16 @@ public class JobTSP implements Job<List<Integer>> {
 			numSent++;
 			
 			if(numSent % CHUNK_SIZE  == 0){
-				sendToSpace(permutationChunk, space);
+				sendToSpace(space, permutationChunk);
 				permutationChunk.clear();
 			}
 		}	
-		sendToSpace(permutationChunk, space); //Send remainder
+		sendToSpace(space, permutationChunk); //Send remainder
 		
 		numTotalPermutationsSent = numSent;
 	}
 
-	private void sendToSpace(List<List<Integer>> permutations, Space space) {
+	private void sendToSpace(Space space, List<List<Integer>> permutations) {
 		if(permutations.size() == 0) return; //Don't send empty list
 		
 		TaskTSP task = new TaskTSP(cities, permutations);

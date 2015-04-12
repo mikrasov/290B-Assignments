@@ -2,17 +2,17 @@ package tasks;
 
 import api.Task;
 
-public class TaskMandelbrot implements Task<Integer[]> {
+public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 	
 	/** Serial ID */
 	private static final long serialVersionUID = -3791740955684740328L;
 	
-	private final int[] counts;
+	private final Integer[] counts;
 	private final int index;
 	private double lowerX;
 	private final double lowerY;
 	private final double shift;
-	public TaskMandelbrot(int[] counts, int index, double lowerX, double lowerY, double shift) {
+	public TaskMandelbrot(Integer[] counts, int index, double lowerX, double lowerY, double shift) {
 		this.counts = counts;
 		this.index = index;
 		this.lowerX = lowerX;
@@ -37,6 +37,7 @@ public class TaskMandelbrot implements Task<Integer[]> {
         double y = 0;
         int iteration = 0;
 
+        /*
         while ((x*x + y*y <= 4) && iteration < iterationLimit )
         {
                 double xTemp = x*x - y*y + x0;
@@ -46,6 +47,7 @@ public class TaskMandelbrot implements Task<Integer[]> {
 
                 iteration = iteration + 1;
         }
+		*/
 
         return iteration;
 

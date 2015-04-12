@@ -1,10 +1,19 @@
 package client;
 
+import java.rmi.RemoteException;
+
+import tasks.ChunkMandelbrot;
+import tasks.TaskMandelbrot;
+import api.Result;
 import api.Space;
 
 public class JobMandelbrot implements Job<Integer[][]> {
 
-	private final double LOWER_LEFT_X, double LOWER_LEFT_Y, double EDGE_LENGTH;
+	public static final int CHUNK_SIZE = 1000000;
+	public static final int RETRY_TIMER = 1000;
+	public static final int TAKE_TIMER = 500;
+	
+	private final double LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH;
 	private final int N_PIXELS, ITERATION_LIMIT;
 	private Integer[][] count;
 
@@ -34,13 +43,13 @@ public class JobMandelbrot implements Job<Integer[][]> {
 
 		//Now make each row a task to send to space
 		for(int i = 0; i < count.length; i++){
-			sendToSpace(count[i], i, lowerX, lowerY, shift);
+			sendToSpace(space, count[i], i, lowerX, lowerY, shift);
 			numTotalTasksSent++;
 			lowerY += shift;
 		}
 	}
 
-	private void sendToSpace(int[] countsToCompute, int index, double lowerX, double lowerY, double shift) {
+	private void sendToSpace(Space space, Integer[] countsToCompute, int index, double lowerX, double lowerY, double shift) {
 		TaskMandelbrot task = new TaskMandelbrot(countsToCompute, index, lowerX, lowerY, shift);
 		boolean success = false;
 
@@ -56,12 +65,12 @@ public class JobMandelbrot implements Job<Integer[][]> {
 
 	@Override
 	public Integer[][]  collectResults(Space space) {
-		while(!isJobComplete) {
+		while(!isJobComplete()) {
 			try{
 				Result<ChunkMandelbrot> result = space.take();
 				numTotalTasksReceived++;
 				int indexOfResult = result.getTaskReturnValue().getRowID();
-				int[] rowResult = result.getTaskReturnValue().getCounts();
+				Integer[] rowResult = result.getTaskReturnValue().getCounts();
 				count[indexOfResult] = rowResult;
 			}catch(RemoteException e){
 				System.err.println("RMI Error when sending task! Rerying in "+RETRY_TIMER+" ...");

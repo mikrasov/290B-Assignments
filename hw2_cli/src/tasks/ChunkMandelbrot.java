@@ -1,13 +1,11 @@
 package tasks;
 
-import java.util.List;
-
 public class ChunkMandelbrot {
 
 	private final int row_id;
-	private final int[] row_counts;
+	private final Integer[] row_counts;
 	
-	public ChunkMandelbrot(int row_id, int[] row_counts) {
+	public ChunkMandelbrot(int row_id, Integer[] row_counts) {
 		this.row_id = row_id;
 		this.row_counts = row_counts;
 	}
@@ -16,7 +14,7 @@ public class ChunkMandelbrot {
 		return row_id;
 	}
 
-	public int[] getCounts() {
+	public Integer[] getCounts() {
 		return row_counts;
 	}
 

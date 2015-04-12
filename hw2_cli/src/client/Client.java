@@ -2,10 +2,6 @@ package client;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,12 +9,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import system.SpaceImp;
-import api.Space;
-
 public class Client<T> extends JFrame
 {
-    final protected JobRunner<T> jobRunner;
+    /** Generated Serial ID	 */
+	private static final long serialVersionUID = 6912770951537378627L;
+
+	final protected JobRunner<T> jobRunner;
     
     protected T taskReturnValue;
     private long clientStartTime;
