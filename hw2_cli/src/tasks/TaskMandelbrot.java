@@ -4,6 +4,9 @@ import api.Task;
 
 public class TaskMandelbrot implements Task<Integer[]> {
 	
+	/** Serial ID */
+	private static final long serialVersionUID = -3791740955684740328L;
+	
 	private final int[] counts;
 	private final int index;
 	private double lowerX;
@@ -47,15 +50,4 @@ public class TaskMandelbrot implements Task<Integer[]> {
         return iteration;
 
     }
-	
-	@Override
-	public boolean equals(Object arg0) {
-		return ((TaskMandelbrot)arg0).id == this.id;
-	}
-	
-	@Override
-	public int hashCode() {
-		return id;
-	}
-
 }
