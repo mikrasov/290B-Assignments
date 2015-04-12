@@ -1,17 +1,16 @@
 package system;
 
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import api.Result;
 import api.Space;
 import api.Task;
-import client.Client;
 
 public class SpaceImp extends UnicastRemoteObject implements Space{
 
@@ -23,18 +22,9 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 	
 	private BlockingQueue<Task> tasks = new LinkedBlockingQueue<Task>();
 	private BlockingQueue<Result> results = new LinkedBlockingQueue<Result>();
-	
-	private ConcurrentMap<Task, Computer> assigned = new ConcurrentHashMap<Task, Computer>();
-	
-	
-	private Thread taskAssigner = new TaskAssigner();
-	private Thread resultCollector = new ResultCollecter();
-	
-	
-	
+		
 	public SpaceImp() throws RemoteException {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -89,46 +79,58 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 	@Override
 	public void startSpace() {
 		isRunning = true;
-		
-		taskAssigner.start();
-		resultCollector.start();
+
+		while(isRunning) try {
+			if(!tasks.isEmpty() && !availableComputers.isEmpty()){
+				Task task = tasks.take();
+				new Dispatcher(task).start();
+			}
+
+			Thread.sleep(CYCLE_TIME);
+		} catch (InterruptedException e) {}
 	}
-	
-	
-	private class TaskAssigner extends Thread{
-
-		@Override
-		public void run() {
-			while(isRunning) try {
-				
-				//Assign new tasks
-				if(!tasks.isEmpty()){
-					Computer computer = availableComputers.take();
-					Task task = tasks.take();
-					
-					computer.assign(task);
-					assigned.putIfAbsent(task, computer);
-				}
-
-				Thread.sleep(CYCLE_TIME);
-			} catch (InterruptedException e) {}
-			
+		
+	private class Dispatcher extends Thread{
+		
+		private Task task;
+		
+		public Dispatcher(Task task) {
+			this.task = task;
 		}
 		
-	}
-	
-	private class ResultCollecter extends Thread{
-
 		@Override
 		public void run() {
-			while(isRunning) try {
-				
-			
-				Thread.sleep(CYCLE_TIME);
-			} catch (InterruptedException e) {}
-			
+			try{
+				Computer computer = availableComputers.take();
+				Result result = (Result) computer.execute(task);
+				results.put(result);
+			}
+			catch(RemoteException e){
+				try {
+					System.err.println("RMI Error when dispatching task to Computer, abandoning computer and trying again");
+					tasks.put(task);
+				} catch (InterruptedException e1) {	}
+			}
+			catch (InterruptedException e) {} 
 		}
-		
+	}
+	
+	public static void main(String[] args) throws RemoteException, InterruptedException {
+		// Set Security Manager 
+        System.setSecurityManager( new SecurityManager() );
+
+        // Create Registry on JVM
+        Registry registry = LocateRegistry.createRegistry( Space.PORT );
+
+        // Create Space
+        SpaceImp space = new SpaceImp();
+        registry.rebind( Space.SERVICE_NAME, space );
+
+        //Print Acknowledgement
+        System.out.println("Space ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
+
+        //Start space
+        space.startSpace();
 	}
 
 }

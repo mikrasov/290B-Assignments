@@ -1,39 +1,49 @@
 package system;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import api.Result;
+import api.Space;
 import api.Task;
 
 public class ComputerImp extends UnicastRemoteObject implements Computer {
 
-	protected ComputerImp() throws RemoteException {
+	/** Serialization ID */
+	private static final long serialVersionUID = 6076192830229815531L;
+
+	protected ComputerImp(Space space) throws RemoteException {
 		super();
-	}
-	
-	@Override
-	public void assign(Task task) {
-		// TODO Auto-generated method stub
-		
+		space.register(this);
 	}
 
 	@Override
-	public boolean hasResult() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Result getResult() {
-		// TODO Auto-generated method stub
-		return null;
+	public <T> T execute(Task<T> task) throws RemoteException {
+		return task.call();
 	}
 
 	@Override
 	public void exit() throws RemoteException {
-		// TODO Auto-generated method stub
-		
+		System.exit(0);
 	}
 	
+	public static void main(String[] args) {
+		
+		if(args.length < 0){
+			System.err.println("USAGE: Computer [Domain Name]");
+			System.exit(0);
+		}
+		
+		String domainName = args[0];
+		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
+        
+		try {
+			Space space = (Space) Naming.lookup( url );
+			Computer computer = new ComputerImp(space);
+		} catch (MalformedURLException | RemoteException | NotBoundException e) {
+			System.err.println("No Space found at "+url);
+		}		
+	}
 }
