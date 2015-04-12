@@ -9,12 +9,14 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 	
 	private final Integer[] counts;
 	private final int index;
-	private double lowerX;
+	private final double lowerX;
 	private final double lowerY;
 	private final double shift;
-	public TaskMandelbrot(Integer[] counts, int index, double lowerX, double lowerY, double shift) {
+	private final int iterationLimit;
+	public TaskMandelbrot(Integer[] counts, int index, int iterationLimit, double lowerX, double lowerY, double shift) {
 		this.counts = counts;
 		this.index = index;
+		this.iterationLimit = iterationLimit;
 		this.lowerX = lowerX;
 		this.lowerY = lowerY;
 		this.shift = shift;
@@ -22,10 +24,14 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 
 	@Override
 	public ChunkMandelbrot call() {
+		
+		double x = lowerX;
+		double y = lowerY;
+		
 		for(int j = 0; j < counts.length; j++){
-			int myIterationCount = getIterationCount(lowerX, lowerY);
+			int myIterationCount = getIterationCount(x, y);
 			counts[j] = myIterationCount;
-			lowerX += shift;
+			x += shift;
 		}
 
 		return new ChunkMandelbrot(index, counts);
@@ -37,7 +43,7 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
         double y = 0;
         int iteration = 0;
 
-        /*
+        
         while ((x*x + y*y <= 4) && iteration < iterationLimit )
         {
                 double xTemp = x*x - y*y + x0;
@@ -47,8 +53,7 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 
                 iteration = iteration + 1;
         }
-		*/
-
+		
         return iteration;
 
     }

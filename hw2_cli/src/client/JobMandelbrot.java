@@ -34,7 +34,6 @@ public class JobMandelbrot implements Job<Integer[][]> {
 
 	@Override
 	public void generateTasks(Space space) {
-		
 		double lowerX = this.LOWER_LEFT_X;
 		double lowerY = this.LOWER_LEFT_Y;
 
@@ -50,7 +49,7 @@ public class JobMandelbrot implements Job<Integer[][]> {
 	}
 
 	private void sendToSpace(Space space, Integer[] countsToCompute, int index, double lowerX, double lowerY, double shift) {
-		TaskMandelbrot task = new TaskMandelbrot(countsToCompute, index, lowerX, lowerY, shift);
+		TaskMandelbrot task = new TaskMandelbrot(countsToCompute, index, ITERATION_LIMIT, lowerX, lowerY, shift);
 		boolean success = false;
 
 		while(!success) try {
@@ -82,14 +81,11 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		}
 
 		return count;
-		
 	}
 
 	@Override
 	public boolean isJobComplete() {
 		return numTotalTasksReceived >= numTotalTasksSent;
 	}
-
-
 
 }
