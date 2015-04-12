@@ -2,24 +2,42 @@ package tasks;
 
 import java.util.List;
 
+import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
+
 import api.Task;
 
 public class TaskTSP implements Task<ChunkTSP> {
 
+	/** Generate Serial ID */
+	private static final long serialVersionUID = -5028721366363840694L;
 	private final double[][] cities;
-	private List<List<Integer>> permutations;
+	private final int from, to;
 	
-	public TaskTSP(double[][] cities, List<List<Integer>> permutations) {
-		this.permutations = permutations;
+	public TaskTSP(double[][] cities, int from, int to) {
 		this.cities = cities;
+		this.from = from;
+		this.to = to;
 	}
 
 	@Override
 	public ChunkTSP call() {
 		
+		//Construct vector of all city IDs
+		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
+		
+		//Add all cities to original vector
+		for(int src=0; src < cities.length; src++)
+			originalVector.addValue(src);
+		
+		// Create the permutation generator by calling the appropriate method in the Factory class
+		Generator<Integer> generator = Factory.createPermutationGenerator(originalVector);
+
+		
 		double bestLength = Double.MAX_VALUE;
 		List<Integer> bestOrder = null;
-		for(List<Integer> perm : permutations){
+		for(ICombinatoricsVector<Integer> perm : generator.generateObjectsRange(from, to)){
 	
 			double currentLength = 0;
 			
@@ -34,7 +52,7 @@ public class TaskTSP implements Task<ChunkTSP> {
 			
 			//if current permutation is better then what is on record
 			if(currentLength <= bestLength){
-				bestOrder = perm;
+				bestOrder = perm.getVector();
 				bestLength = currentLength;
 			}
 		}
@@ -58,4 +76,8 @@ public class TaskTSP implements Task<ChunkTSP> {
 		return distance(cities[city1][0],cities[city1][1],cities[city2][0],cities[city2][1]);
 	}
 	
+	@Override
+	public String toString() {
+		return "TSP_Task["+from+" to "+to+"]";
+	}
 }

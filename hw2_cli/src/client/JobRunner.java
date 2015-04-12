@@ -1,5 +1,7 @@
 package client;
 
+import java.rmi.RemoteException;
+
 import api.Space;
 
 public abstract class JobRunner<T> {
@@ -14,9 +16,13 @@ public abstract class JobRunner<T> {
 	
 	public abstract Space getSpace();
 	
-	public T run(){
+	public T run() throws RemoteException{
 		Space space = getSpace();
+		
+		System.out.println("--> Generating Tasks");
 		job.generateTasks(space);
+		
+		System.out.println("<-- Collecting Results");
 		return job.collectResults(space);
 	}
 	

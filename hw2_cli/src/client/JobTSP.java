@@ -15,23 +15,20 @@ import api.Space;
 
 public class JobTSP implements Job<List<Integer>> {
 
-	public static final int CHUNK_SIZE = 1000000;
+	public static final int CHUNK_SIZE = 10000000;
 	public static final int RETRY_TIMER = 1000;
 	public static final int TAKE_TIMER = 500;
 	
 	private final double[][] cities;
-	private long numTotalPermutationsSent = 0;
-	private long numTotalPermutationsRecieved = 0;
+	private int numTotalPermutationsSent = 0;
+	private int numTotalPermutationsRecieved = 0;
 	
 	public JobTSP(double[][] cities) {
 		this.cities = cities;
 	}
 
 	@Override
-	public void generateTasks(Space space) {
-		
-		//Lock number permutations sent 
-		numTotalPermutationsSent = Long.MAX_VALUE;
+	public void generateTasks(Space space) throws RemoteException {
 		
 		//Construct vector of all city IDs
 		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
@@ -43,41 +40,30 @@ public class JobTSP implements Job<List<Integer>> {
 		// Create the permutation generator by calling the appropriate method in the Factory class
 		Generator<Integer> generator = Factory.createPermutationGenerator(originalVector);
 
+		//Total number of expected objects
+		numTotalPermutationsSent = (int) generator.getNumberOfGeneratedObjects();
 
 		//Send to space 
-		List<List<Integer>> permutationChunk = new LinkedList< List<Integer> >();
-		long numSent = 0;
-		for(ICombinatoricsVector<Integer> perm : generator){
-				
-			permutationChunk.add( perm.getVector() );
-			numSent++;
-			
-			if(numSent % CHUNK_SIZE  == 0){
-				sendToSpace(space, permutationChunk);
-				permutationChunk.clear();
-			}
-		}	
-		sendToSpace(space, permutationChunk); //Send remainder
 		
-		numTotalPermutationsSent = numSent;
+		int from = 0;
+		
+		for(int to=CHUNK_SIZE; to<numTotalPermutationsSent; to+=CHUNK_SIZE){			
+			sendToSpace(space, from, to);
+			from = to;
+	
+		}	
+		
+		//Send remainder
+		int to = numTotalPermutationsSent;
+		sendToSpace(space, from, to); 
 	}
 
-	private void sendToSpace(Space space, List<List<Integer>> permutations) {
-		if(permutations.size() == 0) return; //Don't send empty list
+	private void sendToSpace(Space space, int from, int to) throws RemoteException {
+
+		TaskTSP task = new TaskTSP(cities, from, to);
+		System.out.println("Sending Task: "+task);
+		space.put(task);
 		
-		TaskTSP task = new TaskTSP(cities, permutations);
-		boolean success = false;
-		
-		while(!success) try {
-			space.put(task);
-		} catch (Exception e) {
-			System.err.println("RMI Error when sending task! Rerying in "+RETRY_TIMER+" ...");
-			try {Thread.sleep(RETRY_TIMER);} catch (InterruptedException e1) {}
-		} finally {
-			success = true;
-		}
-		
-			
 	}
 	
 	@Override

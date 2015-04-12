@@ -2,6 +2,7 @@ package client;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +45,7 @@ public class Client<T> extends JFrame
         setVisible( true );
     }
   
-    public T run(){
+    public T run() throws RemoteException{
     	return jobRunner.run();
     }
 	

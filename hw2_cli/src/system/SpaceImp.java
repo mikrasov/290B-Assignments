@@ -50,8 +50,10 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 
 	@Override
 	public void put(Task task) throws RemoteException {
+		System.out.println("Putting task");
 		try {
 			tasks.put(task);
+			System.out.println("Done");
 		} catch (InterruptedException e) {}
 		
 	}
