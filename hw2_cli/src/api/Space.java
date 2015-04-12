@@ -27,5 +27,5 @@ public interface Space extends Remote
     
     void register( Computer computer ) throws RemoteException;
     
-    void startSpace();
+    void startSpace() throws RemoteException;
 }

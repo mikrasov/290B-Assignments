@@ -14,6 +14,9 @@ import api.Task;
 
 public class SpaceImp extends UnicastRemoteObject implements Space{
 
+	/** Generate Serial ID	 */
+	private static final long serialVersionUID = -4984737327501341125L;
+
 	private static final int CYCLE_TIME = 1000;
 	
 	private boolean isRunning = false;
@@ -77,7 +80,7 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 	}
 
 	@Override
-	public void startSpace() {
+	public void startSpace() throws RemoteException {
 		isRunning = true;
 
 		while(isRunning) try {

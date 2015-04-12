@@ -127,7 +127,15 @@ public class ClientTSP extends Client<List<Integer>> {
 
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 
-        ClientTSP clientTSP = new ClientTSP("localhost"); //change to args[0] later
+		String domain;
+		if(args.length > 0)
+			domain = args[0];
+		else
+			domain = "localhost";
+		
+		System.out.println("Starting Client 'TSP' on Space @ "+domain);
+		
+        ClientTSP clientTSP = new ClientTSP(domain); 
 		clientTSP.begin();
         final List<Integer> result = clientTSP.run();
         clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));

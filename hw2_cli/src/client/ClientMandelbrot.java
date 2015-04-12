@@ -51,11 +51,18 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 
-        ClientMandelbrot clientMandelbrot = new ClientMandelbrot("localhost"); //change to args[0] later
+		String domain;
+		if(args.length > 0)
+			domain = args[0];
+		else
+			domain = "localhost";
+		
+		System.out.println("Starting Client 'Mandelbrot' on Space @ "+domain);
+		
+        ClientMandelbrot clientMandelbrot = new ClientMandelbrot(domain);
         clientMandelbrot.begin();
         Integer[][] result = clientMandelbrot.run();
         clientMandelbrot.add(clientMandelbrot.getLabel(result));
         clientMandelbrot.end();
-		
 	}
 }

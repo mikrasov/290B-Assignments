@@ -31,13 +31,15 @@ public class ComputerImp extends UnicastRemoteObject implements Computer {
 	
 	public static void main(String[] args) {
 		
-		if(args.length < 0){
-			System.err.println("USAGE: Computer [Domain Name]");
-			System.exit(0);
-		}
+		String domain;
+		if(args.length > 0)
+			domain = args[0];
+		else
+			domain = "localhost";
 		
-		String domainName = args[0];
-		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
+		System.out.println("Starting Computer on Space @ "+domain);
+				
+		String url = "rmi://" + domain + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
         
 		try {
 			Space space = (Space) Naming.lookup( url );
