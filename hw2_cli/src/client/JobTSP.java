@@ -89,6 +89,7 @@ public class JobTSP implements Job<List<Integer>> {
 		while(!isJobComplete()){
 			try{
 				Result<ChunkTSP> result = space.take();
+				numTotalPermutationsRecieved++;
 				
 				//If the resulting chunk is better then previous chunk use that
 				if(result.getTaskReturnValue().getBestLength() <= bestLength)
