@@ -37,7 +37,6 @@ public class JobMandelbrot implements Job<Integer[][]> {
 			sendToSpace(count[i], i, lowerX, lowerY, shift);
 			numTotalTasksSent++;
 			lowerY += shift;
-			lowerX = saveCornerX;
 		}
 	}
 
