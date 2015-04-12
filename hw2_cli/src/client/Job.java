@@ -8,7 +8,7 @@ public interface Job <T> {
 
 	public void generateTasks(Space space) throws RemoteException;
 	
-	public T collectResults(Space space);
+	public T collectResults(Space space) throws RemoteException;
 	
 	public boolean isJobComplete();
 	

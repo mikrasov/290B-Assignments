@@ -67,26 +67,20 @@ public class JobTSP implements Job<List<Integer>> {
 	}
 	
 	@Override
-	public List<Integer> collectResults(Space space) {
+	public List<Integer> collectResults(Space space) throws RemoteException {
 	
 		List<Integer> bestOrder = null;
 		double bestLength  = Double.MAX_VALUE;
 
 		while(!isJobComplete()){
-			try{
-				Result<ChunkTSP> result = space.take();
-				numTotalPermutationsRecieved++;
-				
-				//If the resulting chunk is better then previous chunk use that
-				if(result.getTaskReturnValue().getBestLength() <= bestLength)
-					bestOrder = result.getTaskReturnValue().getBestOrder();
-				
-			}catch(RemoteException e){
-				System.err.println("RMI Error when sending task! Rerying in "+RETRY_TIMER+" ...");
-				try {Thread.sleep(RETRY_TIMER);} catch (InterruptedException e1) {}
-				continue;
-			}
+			Result<ChunkTSP> result = space.take();
+			numTotalPermutationsRecieved++;
 			
+			//If the resulting chunk is better then previous chunk use that
+			if(result.getTaskReturnValue().getBestLength() <= bestLength)
+				bestOrder = result.getTaskReturnValue().getBestOrder();
+			
+		
 			// Wait before trying to take next one
 			try {Thread.sleep(TAKE_TIMER);} catch (InterruptedException e1) {}
 		}
