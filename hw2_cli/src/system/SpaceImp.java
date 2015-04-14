@@ -19,7 +19,7 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 	/** Generate Serial ID	 */
 	private static final long serialVersionUID = -4984737327501341125L;
 
-	private static final int CYCLE_TIME = 1000;
+	private static final int CYCLE_TIME = 50;
 	
 	private boolean isRunning = false;
 	private BlockingQueue<Computer> allComputers = new LinkedBlockingQueue<Computer>();
