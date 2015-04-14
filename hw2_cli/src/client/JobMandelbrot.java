@@ -90,7 +90,7 @@ public class JobMandelbrot implements Job<Integer[][]> {
 			try {Thread.sleep(TAKE_TIMER);} catch (InterruptedException e1) {}
 		}
 
-		System.out.println("Mandelbrot result collection complete.")
+		System.out.println("Mandelbrot result collection complete.");
 
 		return count;
 	}
