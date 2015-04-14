@@ -26,6 +26,7 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 
 	@Override
 	public Result<ChunkTSP> call() {
+		long clientStartTime = System.nanoTime();
 		
 		//Construct vector of all city IDs
 		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
@@ -60,7 +61,7 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 			}
 		}
 		
-		Result<ChunkTSP> result = new Result<ChunkTSP>(new ChunkTSP(bestOrder, bestLength), 0);
+		Result<ChunkTSP> result = new Result<ChunkTSP>(new ChunkTSP(bestOrder, bestLength),  System.nanoTime() - clientStartTime);
 		return result;
 	}
 
@@ -73,27 +74,26 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	 * @param y2 y position of city 2
 	 * @return the euclidean distance
 	 */
-	private static double eclidianDistance(double x1, double y1, double x2, double y2){
+	private static double euclideanDistance(double x1, double y1, double x2, double y2){
 		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
 	}
 	
-	private double eclidianDistance(int city1, int city2){
-		return eclidianDistance(cities[city1][0],cities[city1][1],cities[city2][0],cities[city2][1]);
+	private double euclideanDistance(int city1, int city2){
+		return euclideanDistance(cities[city1][0],cities[city1][1],cities[city2][0],cities[city2][1]);
 	}
 	
 	private double distance(int src, int dest){
-		
-		
+
 		//Compensate for triangular matrix
 		if(src < dest){
 			if(distances[src][dest] == null) 
-				distances[src][dest] = eclidianDistance(src, dest);
+				distances[src][dest] = euclideanDistance(src, dest);
 			return distances[src][dest];
 			
 		}
 		else{
 			if(distances[dest][src] == null) 
-				distances[dest][src] = eclidianDistance(dest, src);
+				distances[dest][src] = euclideanDistance(dest, src);
 			return distances[dest][src];
 		}
 	}

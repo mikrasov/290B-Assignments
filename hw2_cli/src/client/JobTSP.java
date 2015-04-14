@@ -2,6 +2,8 @@ package client;
 
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
@@ -76,7 +78,9 @@ public class JobTSP implements Job<List<Integer>> {
 			numBlocksRecieved++;
 			
 			System.out.println("<-- Recieved: "+numBlocksRecieved+" of "+numBlocksSent);
-			
+			Logger.getLogger( Client.class.getCanonicalName() )
+            .log(Level.INFO, "Task time: {0} ms.", ( result.getTaskRunTime() / 1000000 ));
+
 			//If the resulting chunk is better then previous chunk use that
 			if(result.getTaskReturnValue().getBestLength() <= bestLength)
 				bestOrder = result.getTaskReturnValue().getBestOrder();
@@ -86,6 +90,7 @@ public class JobTSP implements Job<List<Integer>> {
 			try {Thread.sleep(TAKE_TIMER);} catch (InterruptedException e1) {}
 		}
 		
+		System.out.println("-- DONE --");
 		return bestOrder;
 	}
 

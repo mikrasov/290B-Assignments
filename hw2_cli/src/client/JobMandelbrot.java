@@ -1,16 +1,18 @@
 package client;
 
 import java.rmi.RemoteException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import tasks.ChunkMandelbrot;
 import tasks.TaskMandelbrot;
+import tasks.TaskTSP;
 import api.Result;
 import api.Space;
 
 public class JobMandelbrot implements Job<Integer[][]> {
 
 	public static final int CHUNK_SIZE = 1000000;
-	public static final int RETRY_TIMER = 200;
 	public static final int TAKE_TIMER = 50;
 	
 	private final double LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH;
@@ -35,7 +37,7 @@ public class JobMandelbrot implements Job<Integer[][]> {
 	}
 
 	@Override
-	public void generateTasks(Space space) {
+	public void generateTasks(Space space) throws RemoteException {
 		double lowerX = this.LOWER_LEFT_X;
 		double lowerY = this.LOWER_LEFT_Y;
 
@@ -45,46 +47,36 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		//Now make each row a task to send to space
 		for(int i = 0; i < count.length; i++){
 			sendToSpace(space, count[i], i, lowerX, lowerY, shift);
-			numBlocksSent++;
 			lowerY += shift;
 		}
 	}
 
-	private void sendToSpace(Space space, Integer[] countsToCompute, int index, double lowerX, double lowerY, double shift) {
+	private void sendToSpace(Space space, Integer[] countsToCompute, int index, double lowerX, double lowerY, double shift) throws RemoteException {
 		TaskMandelbrot task = new TaskMandelbrot(countsToCompute, index, ITERATION_LIMIT, lowerX, lowerY, shift);
-		boolean success = false;
-
-		while(!success) try {
-			space.put(task);
-		} catch (Exception e) {
-			System.err.println("RMI Error when sending task! Rerying in "+RETRY_TIMER+" ...");
-			try {Thread.sleep(RETRY_TIMER);} catch (InterruptedException e1) {}
-		} finally {
-			success = true;
-		}
+		System.out.println("--> Sending Task: "+task);
+		space.put(task);
+		numBlocksSent++;
 	}
 
 	@Override
-	public Integer[][]  collectResults(Space space) {
+	public Integer[][]  collectResults(Space space) throws RemoteException {
 		while(!isJobComplete()) {
-			try{
-				Result<ChunkMandelbrot> result = space.take();
-				numBlocksReceived++;
-				
-				System.out.println("<-- Recieved: "+numBlocksReceived+" of "+numBlocksSent);
-				
-				int indexOfResult = result.getTaskReturnValue().getRowID();
-				Integer[] rowResult = result.getTaskReturnValue().getCounts();
-				count[indexOfResult] = rowResult;
-			}catch(RemoteException e){
-				System.err.println("RMI Error when sending task! Rerying in "+RETRY_TIMER+" ...");
-				try {Thread.sleep(RETRY_TIMER);} catch (InterruptedException e1) {}
-				continue;
-			}
+			Result<ChunkMandelbrot> result = space.take();
+			numBlocksReceived++;
+			
+			System.out.println("<-- Recieved: "+numBlocksReceived+" of "+numBlocksSent);
+			Logger.getLogger( Client.class.getCanonicalName() )
+            .log(Level.INFO, "Task time: {0} ms.", ( result.getTaskRunTime() / 1000000 ));
+
+			int indexOfResult = result.getTaskReturnValue().getRowID();
+			Integer[] rowResult = result.getTaskReturnValue().getCounts();
+			count[indexOfResult] = rowResult;
+		
 			// Wait before trying to take next one
 			try {Thread.sleep(TAKE_TIMER);} catch (InterruptedException e1) {}
 		}
-
+		
+		System.out.println("-- DONE --");
 		return count;
 	}
 
