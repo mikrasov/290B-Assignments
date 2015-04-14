@@ -1,9 +1,13 @@
 package tasks;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ChunkTSP {
+public class ChunkTSP implements Serializable{
 
+	/** Serial Version UID*/
+	private static final long serialVersionUID = -4883401114192734278L;
+	
 	private final List<Integer> bestOrder;
 	private final double bestLength;
 	

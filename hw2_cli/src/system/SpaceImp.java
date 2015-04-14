@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import api.Computer;
 import api.Result;
 import api.Space;
 import api.Task;
-import api.Computer;
 
 
 public class SpaceImp extends UnicastRemoteObject implements Space{
@@ -52,10 +52,9 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 
 	@Override
 	public void put(Task task) throws RemoteException {
-		System.out.println("Putting task");
+		System.out.println("Task Recieved");
 		try {
 			tasks.put(task);
-			System.out.println("Done");
 		} catch (InterruptedException e) {}
 		
 	}
@@ -73,6 +72,7 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 
 	@Override
 	public void register(Computer computer) throws RemoteException {
+		System.out.println("Registering computer "+computer.getName());
 		allComputers.add(computer);
 		availableComputers.add(computer);
 	}
@@ -112,13 +112,14 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 				Result result = (Result) computer.execute(task);
 				results.put(result);
 			}
-			catch(RemoteException e){
+			catch(RemoteException e1){
 				try {
 					System.err.println("RMI Error when dispatching task to Computer, abandoning computer and trying again");
 					tasks.put(task);
-				} catch (InterruptedException e1) {	}
+				} catch (InterruptedException e3) {	}
+				System.err.println(e1);
 			}
-			catch (InterruptedException e) {} 
+			catch (InterruptedException e2) {} 
 		}
 	}
 	

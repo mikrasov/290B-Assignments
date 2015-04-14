@@ -21,13 +21,9 @@ public class ClientMandelbrot extends Client<Integer[][]> {
     private static final double EDGE_LENGTH = 0.01611;
     private static final int N_PIXELS = 1024;
     private static final int ITERATION_LIMIT = 512;
-    
-    public ClientMandelbrot() throws RemoteException {
-		super("Mandelbrot Set Visualizer", new JobRunnerLocal<Integer[][]>(new JobMandelbrot(LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH, N_PIXELS, ITERATION_LIMIT)));
-	}
 	
 	public ClientMandelbrot(String domainName) throws RemoteException, MalformedURLException, NotBoundException{
-		super("Mandelbrot Set Visualizer", new JobRunnerDistributed<Integer[][]>(new JobMandelbrot(LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH, N_PIXELS, ITERATION_LIMIT), domainName));
+		super("Mandelbrot Set Visualizer", new JobRunner<Integer[][]>(new JobMandelbrot(LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH, N_PIXELS, ITERATION_LIMIT), domainName));
 	}
     
     public JLabel getLabel( Integer[][] counts )

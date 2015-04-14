@@ -1,24 +1,29 @@
 package client;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import api.Space;
 
-public abstract class JobRunner<T> {
+public class JobRunner<T> {
 
 	public static final int WAIT_TIME = 500;
 	
 	protected final Job<T> job;
 	
-	public JobRunner(Job<T> job){
-		this.job = job;
-	}
+	private Space space;
 	
-	public abstract Space getSpace();
+	public JobRunner(Job<T> job, String domainName) throws MalformedURLException, RemoteException, NotBoundException{
+		this.job = job;
+		
+		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
+        space = (Space) Naming.lookup( url );		
+	}
+
 	
 	public T run() throws RemoteException{
-		Space space = getSpace();
-		
 		System.out.println("--> Generating Tasks");
 		job.generateTasks(space);
 		

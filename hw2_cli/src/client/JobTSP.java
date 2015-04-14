@@ -14,7 +14,7 @@ import api.Space;
 
 public class JobTSP implements Job<List<Integer>> {
 
-	public static final int CHUNK_SIZE = 10000000;
+	public static final int CHUNK_SIZE = 100000;
 	public static final int RETRY_TIMER = 1000;
 	public static final int TAKE_TIMER = 500;
 	

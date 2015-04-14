@@ -36,13 +36,9 @@ public class ClientTSP extends Client<List<Integer>> {
     	{ 3, 6 }
     };
     
-	public ClientTSP() throws RemoteException{
-		super("Traveling Salesman", new JobRunnerLocal<List<Integer>>( new JobTSP(CITIES)));
-	}
-	
 	public ClientTSP(String domainName)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Traveling Salesman", new JobRunnerDistributed<List<Integer>>(new JobTSP(CITIES), domainName));
+		super("Traveling Salesman", new JobRunner<List<Integer>>(new JobTSP(CITIES), domainName));
 	}
 	
 	public JLabel getLabel( final Integer[] tour )

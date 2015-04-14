@@ -1,7 +1,12 @@
 package tasks;
 
-public class ChunkMandelbrot {
+import java.io.Serializable;
 
+public class ChunkMandelbrot  implements Serializable {
+
+	/** Serial Version UID*/
+	private static final long serialVersionUID = 7288785475371729862L;
+	
 	private final int row_id;
 	private final Integer[] row_counts;
 	
