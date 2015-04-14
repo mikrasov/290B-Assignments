@@ -32,6 +32,11 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		this.N_PIXELS = N_PIXELS;
 		this.ITERATION_LIMIT = ITERATION_LIMIT;
 		count = new Integer[N_PIXELS][N_PIXELS];
+		System.out.println("LOWER_LEFT_X = " + this.LOWER_LEFT_X);
+		System.out.println("LOWER_LEFT_Y = " + this.LOWER_LEFT_Y);
+		System.out.println("EDGE LENGTH = " + this.EDGE_LENGTH);
+		System.out.println("N_PIXELS = " + this.N_PIXELS);
+		System.out.println("ITERATION_LIMIT = " + this.ITERATION_LIMIT);
 	}
 
 	@Override
@@ -84,6 +89,8 @@ public class JobMandelbrot implements Job<Integer[][]> {
 			// Wait before trying to take next one
 			try {Thread.sleep(TAKE_TIMER);} catch (InterruptedException e1) {}
 		}
+
+		System.out.println("Mandelbrot result collection complete.")
 
 		return count;
 	}
