@@ -20,6 +20,7 @@ public class ClientTSP extends Client<List<Integer>> {
 	private static final long serialVersionUID = 6128849463397846561L;
 	
 	private static final int NUM_PIXALS = 600;
+	private static final int DEFAULT_NUM_LOCAL_NODES = 4;
 	
 	private static final JobTSP[] JOBS= 
 	{
@@ -60,14 +61,10 @@ public class ClientTSP extends Client<List<Integer>> {
    
 	private final JobTSP job;
 	
-	protected ClientTSP(String domainName, JobTSP job)
+	protected ClientTSP(JobTSP job, JobRunner<List<Integer>> runner)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Traveling Salesman", new JobRunner<List<Integer>>(job, domainName));
+		super("Traveling Salesman", runner);
 		this.job = job;
-	}
-	
-	public ClientTSP(String domainName, double[][] cities) throws RemoteException, MalformedURLException, NotBoundException{
-		this(domainName, new JobTSP(cities));
 	}
 	
 	public JLabel getLabel( final Integer[] tour )
@@ -157,7 +154,11 @@ public class ClientTSP extends Client<List<Integer>> {
 		
 		System.out.println("Starting Client 'TSP' on Space @ "+domain+" Running Task "+taskNum);
 		
-        ClientTSP clientTSP = new ClientTSP(domain, JOBS[taskNum]); 
+		ClientTSP clientTSP;
+		if(domain.equalsIgnoreCase("jvm"))
+			clientTSP = new ClientTSP(JOBS[taskNum], new JobRunnerLocal<List<Integer>>(JOBS[taskNum], DEFAULT_NUM_LOCAL_NODES) ); 
+		else
+			clientTSP = new ClientTSP(JOBS[taskNum], new JobRunnerRemote<List<Integer>>(JOBS[taskNum], domain) ); 
 		clientTSP.begin();
         final List<Integer> result = clientTSP.run();
         clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));

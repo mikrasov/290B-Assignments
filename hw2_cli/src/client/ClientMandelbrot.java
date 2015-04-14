@@ -16,9 +16,8 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 	/** Generated Serial ID	 */
 	private static final long serialVersionUID = 3652205624558233024L;
 	
-	private final JobMandelbrot job;
-    
-    
+	private static final int DEFAULT_NUM_LOCAL_NODES = 4;
+	
     private static final JobMandelbrot[] JOBS = {
     	//Set 0: HW2 Full set
     	new JobMandelbrot(-0.7510975859375, 0.1315680625,  0.01611, 1024, 512),
@@ -27,15 +26,14 @@ public class ClientMandelbrot extends Client<Integer[][]> {
     	new JobMandelbrot(-2.0, -2.0, 4.0, 256, 64)
     };
     
+    private final JobMandelbrot job;
+    
 	
-    protected ClientMandelbrot(String domainName, JobMandelbrot job) throws RemoteException, MalformedURLException, NotBoundException{
-		super("Mandelbrot Set Visualizer", new JobRunner<Integer[][]>(job, domainName));
+    protected ClientMandelbrot(JobMandelbrot job, JobRunner<Integer[][]> runner) throws RemoteException, MalformedURLException, NotBoundException{
+		super("Mandelbrot Set Visualizer", runner);
 		this.job = job;
     }
-    
-	public ClientMandelbrot(String domainName, double LOWER_LEFT_X, double LOWER_LEFT_Y, double EDGE_LENGTH, int N_PIXELS, int ITERATION_LIMIT ) throws RemoteException, MalformedURLException, NotBoundException{
-		this(domainName, new JobMandelbrot(LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH, N_PIXELS, ITERATION_LIMIT) );
-	}
+
     
     public JLabel getLabel( Integer[][] counts )
     {
@@ -61,9 +59,16 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int taskNum = (args.length > 1)? Integer.parseInt(args[1]) : 0;
 		
+		
 		System.out.println("Starting Client 'Mandelbrot' on Space @ "+domain);
 		
-        ClientMandelbrot clientMandelbrot = new ClientMandelbrot(domain, JOBS[taskNum]);
+        ClientMandelbrot clientMandelbrot;
+        
+        if(domain.equalsIgnoreCase("jvm"))
+        	clientMandelbrot = new ClientMandelbrot(JOBS[taskNum], new JobRunnerLocal<Integer[][]>(JOBS[taskNum],DEFAULT_NUM_LOCAL_NODES));
+        else
+        	clientMandelbrot = new ClientMandelbrot(JOBS[taskNum], new JobRunnerRemote<Integer[][]>(JOBS[taskNum],domain));
+        
         clientMandelbrot.begin();
         Integer[][] result = clientMandelbrot.run();
         clientMandelbrot.add(clientMandelbrot.getLabel(result));

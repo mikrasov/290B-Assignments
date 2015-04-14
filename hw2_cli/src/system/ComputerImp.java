@@ -20,7 +20,7 @@ public class ComputerImp extends UnicastRemoteObject implements Computer {
 	
 	private final String name;
 	
-	protected ComputerImp(String name) throws RemoteException {
+	public ComputerImp(String name) throws RemoteException {
 		super();
 		this.name = name;
 	}
