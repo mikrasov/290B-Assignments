@@ -1,10 +1,8 @@
-package api;
+package program2;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
-
-import system.Computer;
 
 /**
  *

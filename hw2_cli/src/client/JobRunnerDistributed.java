@@ -1,11 +1,10 @@
-package client;
+package program2;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import api.Space;
 
 public class JobRunnerDistributed<T> extends JobRunner<T> {
 

@@ -1,8 +1,6 @@
-package system;
+package program2;
 
 import java.rmi.RemoteException;
-
-import api.Task;
 
 public interface Computer {
 

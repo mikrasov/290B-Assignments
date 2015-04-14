@@ -1,12 +1,10 @@
-package tasks;
+package program2;
 
 import java.util.List;
 
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
-
-import api.Task;
 
 public class TaskTSP implements Task<ChunkTSP> {
 

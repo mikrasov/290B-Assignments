@@ -1,4 +1,4 @@
-package tasks;
+package program2;
 
 public class ChunkMandelbrot {
 

@@ -1,4 +1,4 @@
-package client;
+package program2;
 
 import java.rmi.RemoteException;
 import java.util.LinkedList;
@@ -7,11 +7,6 @@ import java.util.List;
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
-
-import tasks.ChunkTSP;
-import tasks.TaskTSP;
-import api.Result;
-import api.Space;
 
 public class JobTSP implements Job<List<Integer>> {
 

@@ -1,4 +1,4 @@
-package client;
+package program2;
 
 import java.awt.Color;
 import java.awt.Graphics;
