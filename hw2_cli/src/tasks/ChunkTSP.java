@@ -11,10 +11,6 @@ public class ChunkTSP implements Serializable{
 	private final List<Integer> bestOrder;
 	private final double bestLength;
 	
-	/**
-	 * @param bestOrder
-	 * @param bestLength
-	 */
 	public ChunkTSP(List<Integer> bestOrder, double bestLength) {
 		this.bestOrder = bestOrder;
 		this.bestLength = bestLength;

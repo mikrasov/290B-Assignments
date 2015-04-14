@@ -47,12 +47,13 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 			toSend = results.take();
 		} catch (InterruptedException e) {}
 		
+		System.out.println("<-- Result Sent");
 		return toSend;
 	}
 
 	@Override
 	public void put(Task task) throws RemoteException {
-		System.out.println("Task Recieved");
+		System.out.println("--> Task Recieved: "+ task);
 		try {
 			tasks.put(task);
 		} catch (InterruptedException e) {}
@@ -73,8 +74,11 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 	@Override
 	public void register(Computer computer) throws RemoteException {
 		System.out.println("Registering computer "+computer.getName());
-		allComputers.add(computer);
-		availableComputers.add(computer);
+		try {
+			allComputers.put(computer);
+			availableComputers.put(computer);
+		} catch (InterruptedException e) {}
+		
 	}
 	
 
@@ -111,6 +115,7 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 				Computer computer = availableComputers.take();
 				Result result = (Result) computer.execute(task);
 				results.put(result);
+				availableComputers.put(computer);
 			}
 			catch(RemoteException e1){
 				try {

@@ -14,13 +14,13 @@ import api.Space;
 
 public class JobTSP implements Job<List<Integer>> {
 
-	public static final int CHUNK_SIZE = 100000;
+	public static final int CHUNK_SIZE = 1000000;
 	public static final int RETRY_TIMER = 1000;
 	public static final int TAKE_TIMER = 500;
 	
 	private final double[][] cities;
-	private int numTotalPermutationsSent = 0;
-	private int numTotalPermutationsRecieved = 0;
+	private int numBlocksSent = 0;
+	private int numBlocksRecieved = 0;
 	
 	public JobTSP(double[][] cities) {
 		this.cities = cities;
@@ -28,6 +28,8 @@ public class JobTSP implements Job<List<Integer>> {
 
 	@Override
 	public void generateTasks(Space space) throws RemoteException {
+		
+		int numTotalPermutationsSent = 0;
 		
 		//Construct vector of all city IDs
 		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
@@ -49,7 +51,6 @@ public class JobTSP implements Job<List<Integer>> {
 		for(int to=CHUNK_SIZE; to<numTotalPermutationsSent; to+=CHUNK_SIZE){			
 			sendToSpace(space, from, to);
 			from = to;
-	
 		}	
 		
 		//Send remainder
@@ -60,9 +61,9 @@ public class JobTSP implements Job<List<Integer>> {
 	private void sendToSpace(Space space, int from, int to) throws RemoteException {
 
 		TaskTSP task = new TaskTSP(cities, from, to);
-		System.out.println("Sending Task: "+task);
+		System.out.println("--> Sending Task: "+task);
 		space.put(task);
-		
+		numBlocksSent++;
 	}
 	
 	@Override
@@ -73,7 +74,9 @@ public class JobTSP implements Job<List<Integer>> {
 
 		while(!isJobComplete()){
 			Result<ChunkTSP> result = space.take();
-			numTotalPermutationsRecieved++;
+			numBlocksRecieved++;
+			
+			System.out.println("<-- Recieved: "+numBlocksRecieved+" of "+numBlocksSent);
 			
 			//If the resulting chunk is better then previous chunk use that
 			if(result.getTaskReturnValue().getBestLength() <= bestLength)
@@ -89,7 +92,7 @@ public class JobTSP implements Job<List<Integer>> {
 
 	@Override
 	public boolean isJobComplete() {
-		return numTotalPermutationsRecieved >= numTotalPermutationsSent;
+		return numBlocksRecieved >= numBlocksSent;
 	}
 
 }

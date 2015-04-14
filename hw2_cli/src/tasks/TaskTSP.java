@@ -7,8 +7,9 @@ import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
 
 import api.Task;
+import api.Result;
 
-public class TaskTSP implements Task<ChunkTSP> {
+public class TaskTSP implements Task<Result<ChunkTSP>> {
 
 	/** Generate Serial ID */
 	private static final long serialVersionUID = -5028721366363840694L;
@@ -22,7 +23,7 @@ public class TaskTSP implements Task<ChunkTSP> {
 	}
 
 	@Override
-	public ChunkTSP call() {
+	public Result<ChunkTSP> call() {
 		
 		//Construct vector of all city IDs
 		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
@@ -56,7 +57,9 @@ public class TaskTSP implements Task<ChunkTSP> {
 				bestLength = currentLength;
 			}
 		}
-		return new ChunkTSP(bestOrder, bestLength);
+		
+		Result<ChunkTSP> result = new Result<ChunkTSP>(new ChunkTSP(bestOrder, bestLength), 0);
+		return result;
 	}
 
 

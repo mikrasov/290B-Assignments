@@ -1,8 +1,9 @@
 package tasks;
 
 import api.Task;
+import api.Result;
 
-public class TaskMandelbrot implements Task<ChunkMandelbrot> {
+public class TaskMandelbrot implements Task< Result<ChunkMandelbrot> > {
 	
 	/** Serial ID */
 	private static final long serialVersionUID = -3791740955684740328L;
@@ -13,6 +14,7 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 	private final double lowerY;
 	private final double shift;
 	private final int iterationLimit;
+	
 	public TaskMandelbrot(Integer[] counts, int index, int iterationLimit, double lowerX, double lowerY, double shift) {
 		this.counts = counts;
 		this.index = index;
@@ -23,7 +25,7 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 	}
 
 	@Override
-	public ChunkMandelbrot call() {
+	public Result<ChunkMandelbrot> call() {
 		
 		double x = lowerX;
 		double y = lowerY;
@@ -34,27 +36,28 @@ public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 			x += shift;
 		}
 
-		return new ChunkMandelbrot(index, counts);
+		Result<ChunkMandelbrot> result = new Result<ChunkMandelbrot>(new ChunkMandelbrot(index, counts), 0);
+		return result;
 	}
 	
-	private int getIterationCount( double y0, double x0 )
-    {
+	private int getIterationCount( double y0, double x0 ){
         double x = 0;
         double y = 0;
         int iteration = 0;
 
-        
-        while ((x*x + y*y <= 4) && iteration < iterationLimit )
-        {
-                double xTemp = x*x - y*y + x0;
-                y = 2*x*y + y0;
+        while ((x*x + y*y <= 4) && iteration < iterationLimit ) {
+            double xTemp = x*x - y*y + x0;
+            y = 2*x*y + y0;
 
-                x = xTemp;
+            x = xTemp;
 
-                iteration = iteration + 1;
+            iteration = iteration + 1;
         }
-		
         return iteration;
-
     }
+	
+	@Override
+	public String toString() {
+		return "TaskMandelbrot[" + index + "]";
+	}
 }
