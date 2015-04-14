@@ -58,12 +58,12 @@ public class ClientTSP extends Client<List<Integer>> {
 	
     };
    
-	private final double[][] CITIES;
+	private final JobTSP job;
 	
 	protected ClientTSP(String domainName, JobTSP job)
 			throws RemoteException, NotBoundException, MalformedURLException {
 		super("Traveling Salesman", new JobRunner<List<Integer>>(job, domainName));
-		this.CITIES = job.getCities();
+		this.job = job;
 	}
 	
 	public ClientTSP(String domainName, double[][] cities) throws RemoteException, MalformedURLException, NotBoundException{
@@ -76,9 +76,9 @@ public class ClientTSP extends Client<List<Integer>> {
 
         // display the graph graphically, as it were
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins
-        double minX = CITIES[0][0], maxX = CITIES[0][0];
-        double minY = CITIES[0][1], maxY = CITIES[0][1];
-        for ( double[] cities : CITIES ) 
+        double minX = job.getCities()[0][0], maxX = job.getCities()[0][0];
+        double minY = job.getCities()[0][1], maxY = job.getCities()[0][1];
+        for ( double[] cities : job.getCities() ) 
         {
             if ( cities[0] < minX ) 
                 minX = cities[0];
@@ -92,11 +92,11 @@ public class ClientTSP extends Client<List<Integer>> {
 
         // scale points to fit in unit square
         final double side = Math.max( maxX - minX, maxY - minY );
-        double[][] scaledCities = new double[CITIES.length][2];
-        for ( int i = 0; i < CITIES.length; i++ )
+        double[][] scaledCities = new double[job.getCities().length][2];
+        for ( int i = 0; i < job.getCities().length; i++ )
         {
-            scaledCities[i][0] = ( CITIES[i][0] - minX ) / side;
-            scaledCities[i][1] = ( CITIES[i][1] - minY ) / side;
+            scaledCities[i][0] = ( job.getCities()[i][0] - minX ) / side;
+            scaledCities[i][1] = ( job.getCities()[i][1] - minY ) / side;
         }
 
         final Image image = new BufferedImage( NUM_PIXALS, NUM_PIXALS, BufferedImage.TYPE_INT_ARGB );
@@ -110,7 +110,7 @@ public class ClientTSP extends Client<List<Integer>> {
         int city1 = tour[0], city2;
         x1 = margin + (int) ( scaledCities[city1][0]*field );
         y1 = margin + (int) ( scaledCities[city1][1]*field );
-        for ( int i = 1; i < CITIES.length; i++ )
+        for ( int i = 1; i < job.getCities().length; i++ )
         {
             city2 = tour[i];
             x2 = margin + (int) ( scaledCities[city2][0]*field );
@@ -127,7 +127,7 @@ public class ClientTSP extends Client<List<Integer>> {
         // draw vertices
         final int VERTEX_DIAMETER = 6;
         graphics.setColor( Color.RED );
-        for ( int i = 0; i < CITIES.length; i++ )
+        for ( int i = 0; i < job.getCities().length; i++ )
         {
             int x = margin + (int) ( scaledCities[i][0]*field );
             int y = margin + (int) ( scaledCities[i][1]*field );

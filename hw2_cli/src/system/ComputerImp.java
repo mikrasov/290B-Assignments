@@ -58,6 +58,7 @@ public class ComputerImp extends UnicastRemoteObject implements Computer {
 			space.register(computer);
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			System.err.println("No Space found at "+url);
+			System.err.println(e);
 		}		
 	}
 

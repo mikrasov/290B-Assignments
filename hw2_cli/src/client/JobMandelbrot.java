@@ -14,6 +14,8 @@ public class JobMandelbrot implements Job<Integer[][]> {
 	public static final int TAKE_TIMER = 500;
 	
 	private final double LOWER_LEFT_X, LOWER_LEFT_Y, EDGE_LENGTH;
+
+
 	private final int N_PIXELS, ITERATION_LIMIT;
 	private Integer[][] count;
 
@@ -88,4 +90,23 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		return numTotalTasksReceived >= numTotalTasksSent;
 	}
 
+	public double getLOWER_LEFT_X() {
+		return LOWER_LEFT_X;
+	}
+
+	public double getLOWER_LEFT_Y() {
+		return LOWER_LEFT_Y;
+	}
+
+	public double getEDGE_LENGTH() {
+		return EDGE_LENGTH;
+	}
+
+	public int getN_PIXELS() {
+		return N_PIXELS;
+	}
+
+	public int getITERATION_LIMIT() {
+		return ITERATION_LIMIT;
+	}
 }
