@@ -1,6 +1,11 @@
-package program2;
+package client;
 
 import java.rmi.RemoteException;
+
+import tasks.ChunkMandelbrot;
+import tasks.TaskMandelbrot;
+import api.Result;
+import api.Space;
 
 public class JobMandelbrot implements Job<Integer[][]> {
 

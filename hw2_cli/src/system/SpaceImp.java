@@ -1,4 +1,4 @@
-package program2;
+package system;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -7,6 +7,11 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import api.Result;
+import api.Space;
+import api.Task;
+import api.Computer;
 
 
 public class SpaceImp extends UnicastRemoteObject implements Space{

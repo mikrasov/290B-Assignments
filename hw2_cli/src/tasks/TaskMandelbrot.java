@@ -1,4 +1,6 @@
-package program2;
+package tasks;
+
+import api.Task;
 
 public class TaskMandelbrot implements Task<ChunkMandelbrot> {
 	

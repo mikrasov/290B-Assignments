@@ -1,6 +1,9 @@
-package program2;
+package client;
 
 import java.rmi.RemoteException;
+
+import system.SpaceImp;
+import api.Space;
 
 public class JobRunnerLocal<T> extends JobRunner<T> {
 

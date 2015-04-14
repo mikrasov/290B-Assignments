@@ -1,10 +1,14 @@
-package program2;
+package system;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+
+import api.Space;
+import api.Task;
+import api.Computer;
 
 
 public class ComputerImp extends UnicastRemoteObject implements Computer {
