@@ -56,7 +56,7 @@ public class ClientMandelbrot extends Client<Integer[][]> {
         return iterationCount == job.getITERATION_LIMIT() ? Color.BLACK : Color.WHITE;
     }
 
-	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
+    public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int taskNum = (args.length > 1)? Integer.parseInt(args[1]) : 0;
