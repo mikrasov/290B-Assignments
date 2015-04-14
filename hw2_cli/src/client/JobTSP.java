@@ -95,4 +95,7 @@ public class JobTSP implements Job<List<Integer>> {
 		return numBlocksRecieved >= numBlocksSent;
 	}
 
+	public double[][] getCities(){
+		return cities;
+	}
 }

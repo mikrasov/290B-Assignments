@@ -20,25 +20,54 @@ public class ClientTSP extends Client<List<Integer>> {
 	private static final long serialVersionUID = 6128849463397846561L;
 	
 	private static final int NUM_PIXALS = 600;
-    private static final double[][] CITIES = 
-    {
-        { 1, 1 },
-    	{ 8, 1 },
-    	{ 8, 8 },
-    	{ 1, 8 },
-    	{ 2, 2 },
-    	{ 7, 2 },
-    	{ 7, 7 },
-    	{ 2, 7 },
-    	{ 3, 3 },
-    	{ 6, 3 },
-    	{ 6, 6 },
-    	{ 3, 6 }
+	
+	private static final JobTSP[] JOBS= 
+	{
+		//Set 0: Full Set of 12 cities for HW2
+		new JobTSP(  
+			new double[][]{
+				{ 1, 1 },
+		    	{ 8, 1 },
+		    	{ 8, 8 },
+		    	{ 1, 8 },
+		    	{ 2, 2 },
+		    	{ 7, 2 },
+		    	{ 7, 7 },
+		    	{ 2, 7 },
+		    	{ 3, 3 },
+		    	{ 6, 3 },
+		    	{ 6, 6 },
+		    	{ 3, 6 }
+			}
+		),
+		
+		// SET 1: Test Set of 10 cities
+		new JobTSP( new double[][]{
+				{ 6, 3 },
+		        { 2, 2 },
+		        { 5, 8 },
+		        { 1, 5 },
+		        { 1, 6 },
+		        { 2, 7 },
+		        { 2, 8 },
+		        { 6, 5 },
+		        { 1, 3 },
+		        { 6, 6 }
+			}
+		),
+	
     };
-    
-	public ClientTSP(String domainName)
+   
+	private final double[][] CITIES;
+	
+	protected ClientTSP(String domainName, JobTSP job)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Traveling Salesman", new JobRunner<List<Integer>>(new JobTSP(CITIES), domainName));
+		super("Traveling Salesman", new JobRunner<List<Integer>>(job, domainName));
+		this.CITIES = job.getCities();
+	}
+	
+	public ClientTSP(String domainName, double[][] cities) throws RemoteException, MalformedURLException, NotBoundException{
+		this(domainName, new JobTSP(cities));
 	}
 	
 	public JLabel getLabel( final Integer[] tour )
@@ -123,15 +152,12 @@ public class ClientTSP extends Client<List<Integer>> {
 
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 
-		String domain;
-		if(args.length > 0)
-			domain = args[0];
-		else
-			domain = "localhost";
+		String domain = (args.length > 0)? args[0] : "localhost";
+		int taskNum = (args.length > 1)? Integer.parseInt(args[1]) : 0;
 		
-		System.out.println("Starting Client 'TSP' on Space @ "+domain);
+		System.out.println("Starting Client 'TSP' on Space @ "+domain+" Running Task "+taskNum);
 		
-        ClientTSP clientTSP = new ClientTSP(domain); 
+        ClientTSP clientTSP = new ClientTSP(domain, JOBS[taskNum]); 
 		clientTSP.begin();
         final List<Integer> result = clientTSP.run();
         clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));
