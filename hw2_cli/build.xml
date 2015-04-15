@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project2" default="dist" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  <property name="lib" location="library"/>
+
+  <!-- <path id="combinatorics_jar">
+    <pathelement location="${lib}/combinatoricslib-2.0.jar"/>
+  </path>
+  <path id="classpath">
+    <pathelement location="${src}"/>
+  </path> -->
+  
+  <!-- codebase properties -->
+  <property name="computer_file_codebase" location="/Users/Roman/CS290B-cappello/project2/src/computer/" />
+  <!-- <property name="computer_web_codebase" value="http://www.cs.ucsb.edu/~cappello/cs290b/hw1/computer/" />   -->
+  <property name="client_file_codebase" location="/Users/Roman/CS290B-cappello/project2/src/client/" />
+  <!-- <property name="client_web_codebase" value="http://www.cs.ucsb.edu/~cappello/cs290b/hw1/client/" /> -->
+
+  <target name="compile" description="compile the source">
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>  
+  
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath>
+        <pathelement path="${lib}/combinatoricslib-2.0.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!--  Creates a computer.jar, space.jar, and client.jar, and tasks-dl.jar. -->
+
+  <target name="dist" depends="compile" description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}"/>
+
+    <!-- Make computer jar file -->
+    <jar jarfile="${dist}/computer.jar" basedir="${build}" includes="system/** api/**">
+       <zipgroupfileset dir="${lib}" includes="combinatoricslib-2.0.jar" />
+       <manifest>
+        <attribute name="Main-Class" value="org.paukov.combinatorics"/>
+      </manifest>
+    </jar>
+    
+    <!-- Make client jar file -->
+    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/**">
+       <zipgroupfileset dir="${lib}" includes="combinatoricslib-2.0.jar" />
+       <manifest>
+        <attribute name="Main-Class" value="org.paukov.combinatorics"/>
+      </manifest>
+    </jar>
+
+    <jar jarfile="${dist}/space.jar" basedir="${build}" includes="system/** api/**"/>
+
+    <jar jarfile="${dist}/tasks-dl.jar" basedir="${build}" includes="tasks/** api**"/>
+    
+
+  </target>
+  
+  <target name="runComputer" description="run computer" >
+    <java classpath="${build}" classname="system.ComputerImp" fork="true">
+      <jvmarg value="-Djava.security.policy=policy/policy"/>
+      <classpath>
+        <pathelement location="dist/computer.jar"/>
+      </classpath>
+    </java>
+  </target>  
+  
+  <target name="runSpace" description="run space" >
+    <java classpath="${build}" classname="system.SpaceImp" fork="true">
+      <!-- <jvmarg value="-Djava.rmi.server.codebase=${client_web_codebase}"/> -->
+      <arg value="${arg0}"/>
+      <arg value="${arg1}"/>
+      <jvmarg value="-Djava.security.policy=policy/policy"/>
+      <classpath>
+        <pathelement location="dist/space.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="runTspClient" description="run tsp client" >
+    <java classpath="${build}" classname="client.ClientTSP" fork="true">
+      <!-- <jvmarg value="-Djava.rmi.server.codebase=${client_web_codebase}"/> -->
+      <arg value="${arg0}"/>
+      <arg value="${arg1}"/>
+      <jvmarg value="-Djava.security.policy=policy/policy"/>
+      <classpath>
+        <pathelement location="dist/client.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="runMandelbrotSetClient" description="run mandelbrot client" >
+    <java classpath="${build}" classname="client.ClientMandelbrot" fork="true">
+      <arg value="${arg0}"/>
+      <arg value="${arg1}"/>
+      <jvmarg value="-Djava.security.policy=policy/policy"/>
+      <classpath>
+        <pathelement location="dist/client.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${client_file_codebase}/tasks"/>
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+  
+</project>
+
