@@ -46,12 +46,14 @@ public class TaskMandelbrot implements Task< Result<ChunkMandelbrot> > {
 	 */
 	@Override
 	public Result<ChunkMandelbrot> call() {
+
+		long clientStartTime = System.nanoTime();
 		
 		for(int j = 0; j < counts.length; j++){
 			counts[j] = getIterationCount(index, j, shift);
 		}
 
-		Result<ChunkMandelbrot> result = new Result<ChunkMandelbrot>(new ChunkMandelbrot(index, counts), 0);
+		Result<ChunkMandelbrot> result = new Result<ChunkMandelbrot>(new ChunkMandelbrot(index, counts), System.nanoTime() - clientStartTime);
 		return result;
 	}
 	
