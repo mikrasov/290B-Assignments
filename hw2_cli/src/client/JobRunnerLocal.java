@@ -16,6 +16,18 @@ public class JobRunnerLocal<T> extends JobRunner<T> {
 		super(job);
 		this.space = new SpaceImp();
 		
+		//Start local Space
+		Thread spaceRunner = new Thread( new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					space.startSpace();
+				} catch (RemoteException e) {}
+			}
+		});
+		spaceRunner.start();
+		
 		for(int i=0; i<numComputers; i++)
 			space.register( new ComputerImp("Local "+i));
 		

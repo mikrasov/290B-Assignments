@@ -11,9 +11,7 @@ import api.Computer;
 import api.Space;
 import api.Task;
 
-
 public class ComputerImp extends UnicastRemoteObject implements Computer {
-
 
 	/** Serial Version UID*/
 	private static final long serialVersionUID = -7947707930904891607L;
@@ -31,11 +29,6 @@ public class ComputerImp extends UnicastRemoteObject implements Computer {
 		T result = task.call();
 		System.out.println("<-- Returning Result");
 		return result;
-	}
-
-	@Override
-	public void exit() throws RemoteException {
-		System.exit(0);
 	}
 	
 	@Override

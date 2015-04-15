@@ -28,7 +28,6 @@ public class ClientMandelbrot extends Client<Integer[][]> {
     
     private final JobMandelbrot job;
     
-	
     protected ClientMandelbrot(JobMandelbrot job, JobRunner<Integer[][]> runner) throws RemoteException, MalformedURLException, NotBoundException{
 		super("Mandelbrot Set Visualizer", runner);
 		this.job = job;

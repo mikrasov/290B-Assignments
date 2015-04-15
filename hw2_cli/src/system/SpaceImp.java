@@ -33,13 +33,6 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 	}
 
 	@Override
-	public void putAll(List<Task> taskList) throws RemoteException {
-		for(Task task : taskList)
-			put(task);
-		
-	}
-
-	@Override
 	public Result take() throws RemoteException {
 		Result toSend = null;
 		
@@ -58,17 +51,6 @@ public class SpaceImp extends UnicastRemoteObject implements Space{
 			tasks.put(task);
 		} catch (InterruptedException e) {}
 		
-	}
-
-	@Override
-	public void exit() throws RemoteException {
-		isRunning = false;
-		while(!allComputers.isEmpty()) try {
-				allComputers.take().exit();
-		} catch (InterruptedException e) {}
-		
-		System.exit(0);
-
 	}
 
 	@Override
