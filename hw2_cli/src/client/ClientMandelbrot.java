@@ -30,7 +30,13 @@ public class ClientMandelbrot extends Client<Integer[][]> {
     
     protected ClientMandelbrot(JobMandelbrot job, JobRunner<Integer[][]> runner) throws RemoteException, MalformedURLException, NotBoundException{
 		super("Mandelbrot Set Visualizer", runner);
-		this.job = job;
+		this.job = job;	
+		System.out.println("Client parameters are as follows: ");
+		System.out.println("Lower X: " + job.getLOWER_LEFT_X());
+		System.out.println("Lower Y: " + job.getLOWER_LEFT_Y());
+		System.out.println("Iteration Limit: " + job.getITERATION_LIMIT());
+		System.out.println("Edge Length: " + job.getEDGE_LENGTH());
+		System.out.println("N Pixels: " + job.getN_PIXELS());
     }
 
     

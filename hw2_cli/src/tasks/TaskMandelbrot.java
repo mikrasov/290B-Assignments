@@ -47,13 +47,8 @@ public class TaskMandelbrot implements Task< Result<ChunkMandelbrot> > {
 	@Override
 	public Result<ChunkMandelbrot> call() {
 		
-		double x = lowerX;
-		double y = lowerY;
-		
 		for(int j = 0; j < counts.length; j++){
-			int myIterationCount = getIterationCount(x, y);
-			counts[j] = myIterationCount;
-			x += shift;
+			counts[j] = getIterationCount(index, j, shift);
 		}
 
 		Result<ChunkMandelbrot> result = new Result<ChunkMandelbrot>(new ChunkMandelbrot(index, counts), 0);
@@ -66,21 +61,20 @@ public class TaskMandelbrot implements Task< Result<ChunkMandelbrot> > {
 	 * @param x0 cord
 	 * @return count
 	 */
-	private int getIterationCount( double y0, double x0 ){
-        double x = 0;
-        double y = 0;
-        int iteration = 0;
+	private int getIterationCount( int row, int col, double delta ){
+		final double x0 = lowerX + row * delta;
+		final double y0 = lowerY + col * delta;
+		int iteration = 0;
 
-        while ((x*x + y*y <= 4) && iteration < iterationLimit ) {
-            double xTemp = x*x - y*y + x0;
-            y = 2*x*y + y0;
-
-            x = xTemp;
-
-            iteration = iteration + 1;
-        }
-        return iteration;
-    }
+		for ( double x = x0, y = y0; x*x + y*y <= 4.0 && iteration < iterationLimit; iteration++ )
+		{
+		    double xtemp = x*x - y*y + x0;
+		    y = 2*x*y + y0;
+		    x = xtemp;
+		}
+        	
+		return iteration;
+    	}
 	
 	@Override
 	public String toString() {

@@ -34,6 +34,11 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		this.N_PIXELS = N_PIXELS;
 		this.ITERATION_LIMIT = ITERATION_LIMIT;
 		count = new Integer[N_PIXELS][N_PIXELS];
+		//System.out.println("Lower X: " + LOWER_LEFT_X);
+		//System.out.println("Lower Y: " + LOWER_LEFT_Y);
+		//System.out.println("Iteration Limit: " + ITERATION_LIMIT);
+		//System.out.println("Edge Length: " + EDGE_LENGTH);
+		//System.out.println("N Pixels: " + N_PIXELS);
 	}
 
 	@Override
@@ -47,7 +52,6 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		//Now make each row a task to send to space
 		for(int i = 0; i < count.length; i++){
 			sendToSpace(space, count[i], i, lowerX, lowerY, shift);
-			lowerY += shift;
 		}
 	}
 
