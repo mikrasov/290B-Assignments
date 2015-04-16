@@ -24,7 +24,6 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	private static final long serialVersionUID = -5028721366363840694L;
 	private final double[][] cities;
 	private final int from, to;
-	private final double[][] distances;
 	
 	/**
 	 * Construct a new task for TSP
@@ -36,7 +35,6 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 		this.cities = cities;
 		this.from = from;
 		this.to = to;
-		distances = new double[cities.length][cities.length];
 	}
 
 	/**
@@ -45,18 +43,24 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	@Override
 	public Result<ChunkTSP> call() {
 		long clientStartTime = System.nanoTime();
-		
-		//Construct vector of all city IDs
+		double[][] distances = new double[cities.length][cities.length];
 		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
 		
-		//Add all cities to original vector
-		for(int src=0; src < cities.length; src++)
+		//Go through each city
+		for(int src=0; src < cities.length; src++){
+
+			//Add each city to vector of all cities
 			originalVector.addValue(src);
+			
+			//Compute distance to neighbors (that are not already computed)
+			for(int dest=src+1; dest < cities.length; dest++){
+				distances[src][dest] = euclideanDistance(src, dest);
+			}
+		}
 		
 		// Create the permutation generator by calling the appropriate method in the Factory class
 		Generator<Integer> generator = Factory.createPermutationGenerator(originalVector);
-
-		
+	
 		double bestLength = Double.MAX_VALUE;
 		List<Integer> bestOrder = null;
 		for(ICombinatoricsVector<Integer> perm : generator.generateObjectsRange(from, to)){
@@ -64,16 +68,16 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 			double currentLength = 0;
 			
 			//Sum Lengths
-			Integer src = null;
-			for(Integer dest: perm){
-				if(src != null) //skip first iteration
-					currentLength += distance(src,dest);
-				
+			int src = perm.getValue(perm.getSize()-1); //Add length of returning to start!
+			for(int dest: perm){
+				if(src < dest) //Compensate for triangular matrix
+					currentLength += distances[src][dest];
+					
+				else
+					currentLength += distances[dest][src];
+			
 				src = dest;
 			}
-			
-			//Add length of returning to start!
-			currentLength += distance(src, perm.getValue(0));
 			
 			//if current permutation is better then what is on record
 			if(currentLength <= bestLength){
@@ -100,57 +104,8 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
 	}
 	
-	/**
-	 * Compute distance between two cities (caches result)
-	 * @param src city
-	 * @param dest city
-	 * @return distance
-	 */
-	private double distance(int src, int dest){
-
-		//Compensate for triangular matrix
-		if(src == dest){
-			return 0;
-		}
-		else if(src < dest){
-			if(distances[src][dest] == 0) 
-				distances[src][dest] = euclideanDistance(src, dest);
-			return distances[src][dest];
-			
-		}
-		else{
-			if(distances[dest][src] == 0) 
-				distances[dest][src] = euclideanDistance(dest, src);
-			return distances[dest][src];
-		}
-	}
-	
 	@Override
 	public String toString() {
 		return "TSP_Task["+from+" to "+to+"]";
-	}
-	
-	
-	///TESTING CODE FOR TOURS
-	
-	public static double calcLength(int endCity, int[] tour){
-		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
-		
-		double bestLength = 0;
-		int src = endCity;
-		for(int dest : tour){
-			bestLength += task.distance(src, dest);
-			src = dest;
-		}
-		
-		return bestLength;
-	}
-	
-	public static void main(String[] args) {
-		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
-		
-		System.out.println("Prof Tour: "+ calcLength(3, new int[]{ 0, 4, 8, 9, 5, 1, 2, 6, 10, 11, 7, 3 }));
-		System.out.println("Our Tour: "+ calcLength(4, new int[]{ 1, 5, 9, 0, 8, 10, 6, 2, 3, 7, 11, 4 }));
-
 	}
 }
