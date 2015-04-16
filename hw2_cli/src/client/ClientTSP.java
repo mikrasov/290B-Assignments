@@ -61,16 +61,14 @@ public class ClientTSP extends Client<List<Integer>> {
    
 	private final JobTSP job;
 	
-	protected ClientTSP(JobTSP job, JobRunner<List<Integer>> runner)
+	protected ClientTSP(JobTSP job, JobRunner<List<Integer>> runner, Log log)
 			throws RemoteException, NotBoundException, MalformedURLException {
-		super("Traveling Salesman", runner);
+		super("Traveling Salesman", runner, log);
 		this.job = job;
 	}
 	
 	public JLabel getLabel( final Integer[] tour )
     {
-        Logger.getLogger( ClientTSP.class.getCanonicalName() ).log(Level.INFO, tourToString( tour ) );
-
         // display the graph graphically, as it were
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins
         double minX = job.getCities()[0][0], maxX = job.getCities()[0][0];
@@ -135,30 +133,24 @@ public class ClientTSP extends Client<List<Integer>> {
         final ImageIcon imageIcon = new ImageIcon( image );
         return new JLabel( imageIcon );
     }
-    
-    private String tourToString( Integer[] cities )
-    {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append( "Tour: " );
-        for ( Integer city : cities )
-        {
-            stringBuilder.append( city ).append( ' ' );
-        }
-        return stringBuilder.toString();
-    }
 
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int taskNum = (args.length > 1)? Integer.parseInt(args[1]) : 0;
+		String logName = (args.length > 2)? args[2] : "TSP";
 		
 		System.out.println("Starting Client 'TSP' on Space @ "+domain+" Running Task "+taskNum);
 		
+		Log log = new Log(logName);
+		JobTSP job = JOBS[taskNum];
+        job.setLog(log);
+        
 		ClientTSP clientTSP;
 		if(domain.equalsIgnoreCase("jvm"))
-			clientTSP = new ClientTSP(JOBS[taskNum], new JobRunnerLocal<List<Integer>>(JOBS[taskNum], DEFAULT_NUM_LOCAL_NODES) ); 
+			clientTSP = new ClientTSP(job, new JobRunnerLocal<List<Integer>>(JOBS[taskNum], DEFAULT_NUM_LOCAL_NODES), log ); 
 		else
-			clientTSP = new ClientTSP(JOBS[taskNum], new JobRunnerRemote<List<Integer>>(JOBS[taskNum], domain) ); 
+			clientTSP = new ClientTSP(job, new JobRunnerRemote<List<Integer>>(JOBS[taskNum], domain), log ); 
 		clientTSP.begin();
         final List<Integer> result = clientTSP.run();
         clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));

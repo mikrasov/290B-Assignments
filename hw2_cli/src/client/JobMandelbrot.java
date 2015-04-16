@@ -24,7 +24,7 @@ public class JobMandelbrot implements Job<Integer[][]> {
 	private long numBlocksReceived = 0;
 	private long numBlocksSent = 0;
 
-
+	private Log log = new Log();
 	public JobMandelbrot(double LOWER_LEFT_X, double LOWER_LEFT_Y,
 		double EDGE_LENGTH, int N_PIXELS, int ITERATION_LIMIT) {
 		
@@ -34,6 +34,7 @@ public class JobMandelbrot implements Job<Integer[][]> {
 		this.N_PIXELS = N_PIXELS;
 		this.ITERATION_LIMIT = ITERATION_LIMIT;
 		count = new Integer[N_PIXELS][N_PIXELS];
+		
 		//System.out.println("Lower X: " + LOWER_LEFT_X);
 		//System.out.println("Lower Y: " + LOWER_LEFT_Y);
 		//System.out.println("Iteration Limit: " + ITERATION_LIMIT);
@@ -69,9 +70,9 @@ public class JobMandelbrot implements Job<Integer[][]> {
 			numBlocksReceived++;
 			
 			System.out.println("<-- Recieved: "+numBlocksReceived+" of "+numBlocksSent);
-			Logger.getLogger( Client.class.getCanonicalName() )
-            .log(Level.INFO, "Task time: {0} ms.", ( result.getTaskRunTime() / 1000000 ));
 
+			log.log("Task time, "+result.getTaskRunTime() / 1000000.0);
+			
 			int indexOfResult = result.getTaskReturnValue().getRowID();
 			Integer[] rowResult = result.getTaskReturnValue().getCounts();
 			count[indexOfResult] = rowResult;
@@ -107,5 +108,10 @@ public class JobMandelbrot implements Job<Integer[][]> {
 
 	public int getITERATION_LIMIT() {
 		return ITERATION_LIMIT;
+	}
+
+	@Override
+	public void setLog(Log log) {
+		this.log = log;
 	}
 }

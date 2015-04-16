@@ -12,4 +12,6 @@ public interface Job <T> {
 	
 	public boolean isJobComplete();
 	
+	public void setLog(Log log);
+	
 }

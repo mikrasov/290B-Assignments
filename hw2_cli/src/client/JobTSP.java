@@ -2,8 +2,6 @@ package client;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
@@ -23,6 +21,7 @@ public class JobTSP implements Job<List<Integer>> {
 	private int numBlocksSent = 0;
 	private int numBlocksRecieved = 0;
 	
+	private Log log = new Log();
 	public JobTSP(double[][] cities) {
 		this.cities = cities;
 	}
@@ -78,9 +77,8 @@ public class JobTSP implements Job<List<Integer>> {
 			numBlocksRecieved++;
 			
 			System.out.println("<-- Recieved: "+numBlocksRecieved+" of "+numBlocksSent);
-			Logger.getLogger( Client.class.getCanonicalName() )
-            .log(Level.INFO, "Task time: {0} ms.", ( result.getTaskRunTime() / 1000000 ));
-
+		
+			log.log("Task time, "+result.getTaskRunTime() / 1000000.0);
 			//If the resulting chunk is better then previous chunk use that
 			if(result.getTaskReturnValue().getBestLength() <= bestLength)
 				bestOrder = result.getTaskReturnValue().getBestOrder();
@@ -91,8 +89,22 @@ public class JobTSP implements Job<List<Integer>> {
 		}
 		
 		System.out.println("-- DONE --");
+		log.log(tourToString( bestOrder, bestLength ));
+		
 		return bestOrder;
 	}
+	
+    private String tourToString( List<Integer> cities, double length )
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append( "Tour: " );
+        for ( Integer city : cities )
+        {
+            stringBuilder.append( city ).append( ' ' );
+        }
+        stringBuilder.append( " Length: "+length+"" );
+        return stringBuilder.toString();
+    }
 
 	@Override
 	public boolean isJobComplete() {
@@ -101,5 +113,10 @@ public class JobTSP implements Job<List<Integer>> {
 
 	public double[][] getCities(){
 		return cities;
+	}
+
+	@Override
+	public void setLog(Log log) {
+		this.log = log;
 	}
 }

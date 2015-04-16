@@ -28,8 +28,8 @@ public class ClientMandelbrot extends Client<Integer[][]> {
     
     private final JobMandelbrot job;
     
-    protected ClientMandelbrot(JobMandelbrot job, JobRunner<Integer[][]> runner) throws RemoteException, MalformedURLException, NotBoundException{
-		super("Mandelbrot Set Visualizer", runner);
+    protected ClientMandelbrot(JobMandelbrot job, JobRunner<Integer[][]> runner, Log log) throws RemoteException, MalformedURLException, NotBoundException{
+		super("Mandelbrot Set Visualizer", runner, log);
 		this.job = job;	
 		System.out.println("Client parameters are as follows: ");
 		System.out.println("Lower X: " + job.getLOWER_LEFT_X());
@@ -63,16 +63,21 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int taskNum = (args.length > 1)? Integer.parseInt(args[1]) : 0;
-		
+		String logName = (args.length > 2)? args[2] : "TSP";
+
 		
 		System.out.println("Starting Client 'Mandelbrot' on Space @ "+domain);
+				
+		Log log = new Log(logName);
 		
-        ClientMandelbrot clientMandelbrot;
+		JobMandelbrot job = JOBS[taskNum];
+        job.setLog(log);
         
+        ClientMandelbrot clientMandelbrot;
         if(domain.equalsIgnoreCase("jvm"))
-        	clientMandelbrot = new ClientMandelbrot(JOBS[taskNum], new JobRunnerLocal<Integer[][]>(JOBS[taskNum],DEFAULT_NUM_LOCAL_NODES));
+        	clientMandelbrot = new ClientMandelbrot(job, new JobRunnerLocal<Integer[][]>(JOBS[taskNum],DEFAULT_NUM_LOCAL_NODES), log);
         else
-        	clientMandelbrot = new ClientMandelbrot(JOBS[taskNum], new JobRunnerRemote<Integer[][]>(JOBS[taskNum],domain));
+        	clientMandelbrot = new ClientMandelbrot(job, new JobRunnerRemote<Integer[][]>(JOBS[taskNum],domain), log);
         
         clientMandelbrot.begin();
         Integer[][] result = clientMandelbrot.run();

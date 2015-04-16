@@ -2,6 +2,8 @@ package client;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,20 +22,26 @@ public class Client<T> extends JFrame
     protected T taskReturnValue;
     private long clientStartTime;
 
-	public Client( final String title, final JobRunner<T> jobRunner ) 
+    private Log log;
+    
+	public Client( final String title, final JobRunner<T> jobRunner, final Log log ) 
     {     
+		this.log = log;
         setTitle( title );
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         
         this.jobRunner = jobRunner;
     }
     
-    public void begin() { clientStartTime = System.nanoTime(); }
+    public void begin() { 
+    	log.log("Component, Time (ms)");
+    	clientStartTime = System.nanoTime(); 
+    }
     
-    public void end() 
-    { 
-        Logger.getLogger( Client.class.getCanonicalName() )
-            .log(Level.INFO, "Client time: {0} ms.", ( System.nanoTime() - clientStartTime) / 1000000 );
+    public void end()  { 
+    	log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000 );
+        log.log("");
+    	log.close();
     }
     
     public void add( final JLabel jLabel )
