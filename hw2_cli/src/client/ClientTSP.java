@@ -22,7 +22,14 @@ public class ClientTSP extends Client<List<Integer>> {
 	private static final int NUM_PIXALS = 600;
 	private static final int DEFAULT_NUM_LOCAL_NODES = 4;
 	
-	private static final JobTSP[] JOBS= 
+	
+	/** 
+	 * Hard Coded list of jobs to run
+	 *  Job 0: HW2 All 12 cities
+	 *  Job 1: HWq Only 10 Cities
+	 *  Job 2: Subset of HW2 first 11 cities
+	 */
+	public static final JobTSP[] JOBS= 
 	{
 		//Set 0: Full Set of 12 cities for HW2
 		new JobTSP(  

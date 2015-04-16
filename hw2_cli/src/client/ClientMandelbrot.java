@@ -18,7 +18,14 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 	
 	private static final int DEFAULT_NUM_LOCAL_NODES = 1;
 	
-    private static final JobMandelbrot[] JOBS = {
+	
+	/**
+	 * Set of all Mandelbrot tests this job can run
+	 * 
+	 *  Set 0: Full HW2 Set
+	 *  Set 1: HW 1 Set
+	 */
+    public static final JobMandelbrot[] JOBS = {
     	//Set 0: HW2 Full set
     	new JobMandelbrot(-0.7510975859375, 0.1315680625,  0.01611, 1024, 512),
     	

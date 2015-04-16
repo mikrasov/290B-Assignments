@@ -6,6 +6,7 @@ import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
 
+import client.ClientTSP;
 import api.Task;
 import api.Result;
 
@@ -130,5 +131,29 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	@Override
 	public String toString() {
 		return "TSP_Task["+from+" to "+to+"]";
+	}
+	
+	
+	///TESTING CODE FOR TOURS
+	
+	public static double calcLength(int endCity, int[] tour){
+		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
+		
+		double bestLength = 0;
+		int src = endCity;
+		for(int dest : tour){
+			bestLength += task.distance(src, dest);
+			src = dest;
+		}
+		
+		return bestLength;
+	}
+	
+	public static void main(String[] args) {
+		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
+		
+		System.out.println("Prof Tour: "+ calcLength(3, new int[]{ 0, 4, 8, 9, 5, 1, 2, 6, 10, 11, 7, 3 }));
+		System.out.println("Our Tour: "+ calcLength(4, new int[]{ 1, 5, 9, 0, 8, 10, 6, 2, 3, 7, 11, 4 }));
+
 	}
 }
