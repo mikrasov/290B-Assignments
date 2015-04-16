@@ -32,11 +32,60 @@
   </tr>
 </tbody></table>
 
-<h2>Traveling Salesman</h2></body></html>
-<p>
-<strong>Shortest path:</strong><br/>
+<h3>Analysis</h3>
 
-</p>
+1.Explain the differences in job execution times.<br>
+Same jvm vs. different jvm: were still starting up separate threads so the time wont be different.<p>
+Different machines - even if faster, tcp overhead still makes the time the same<p>
+No real difference between c = 1 and c = 2, perhaps with c = 4 we would see a difference<p>
+2.To improve your understanding of what is going on, what other measurements would you like to see included?<br>
+3.Enumerate what you believe to be the key points concerning thread safety.<br>
 
+<h2>Traveling Salesman</h2>
 
-</html>
+<strong>Shortest path:</strong><br>
+Tour: 1 5 9 0 8 10 6 2 3 7 11 4  Length: 1.7976931348623157E308<br>
+<p></p>
+<img src="ShortestPath.jpg">
+
+<br>
+<br>
+<table border="1" style="width:100%">
+  <tbody><tr>
+    <td><b>Scenario Type</b></td>
+    <td>c = 1: elapsed time for each task</td> 
+    <td>c = 1: elapsed time for the client's job</td>
+    <td>c = 2: elapsed time for each task</td> 
+    <td>c = 2: elapsed time for the client's job</td>
+  </tr>
+  <tr>
+    <td>Same JVM</td>
+    <td><a href="TSP_c1_same_jvm.csv">Download task times</a></td> 
+    <td> ms</td>
+    <td><a href="TSP_c2_same_jvm.csv">Download task times</a></td>
+    <td> ms</td>
+  </tr>
+  <tr>
+  	<td>Different JVMs</td>
+    <td><a href="TSP_c1_diff_jvm.csv">Download task times</a></td> 
+    <td> ms</td>
+    <td><a href="TSP_c2_diff_jvm.csv">Download task times</a></td>
+    <td> ms</td>
+  </tr>
+  <tr>
+  	<td>Different machines</td>
+  	<td><a href="TSP_c1_diff_computers.csv">Download task times</a></td>  
+    <td> ms</td>
+    <td><a href="TSP_c2_diff_computers.csv">Download task times</a></td>
+    <td> ms</td>
+  </tr>
+</tbody></table>
+
+<h3>Analysis</h3>
+
+1.Explain the differences in job execution times.<br>
+Same jvm vs. different jvm: were still starting up separate threads so the time wont be different. 
+2.To improve your understanding of what is going on, what other measurements would you like to see included?<br>
+3.Enumerate what you believe to be the key points concerning thread safety.<br>
+
+</body></html>
