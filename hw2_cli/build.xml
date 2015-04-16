@@ -63,6 +63,8 @@
   
   <target name="runComputer" description="run computer" >
     <java classpath="${build}" classname="system.ComputerImp" fork="true">
+      <arg value="${arg0}"/>
+      <arg value="${arg1}"/>
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <classpath>
         <pathelement location="dist/computer.jar"/>
