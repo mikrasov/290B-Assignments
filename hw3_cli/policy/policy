@@ -1,0 +1,4 @@
+grant 
+{ 
+  permission java.security.AllPermission; // Allow everything for now 
+};
