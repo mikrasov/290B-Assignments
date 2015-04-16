@@ -17,20 +17,16 @@ public class Client<T> extends JFrame
     /** Generated Serial ID	 */
 	private static final long serialVersionUID = 6912770951537378627L;
 
-	final protected JobRunner<T> jobRunner;
-    
     protected T taskReturnValue;
     private long clientStartTime;
 
     private Log log;
     
-	public Client( final String title, final JobRunner<T> jobRunner, final Log log ) 
+	public Client( final String title,  final Log log ) 
     {     
 		this.log = log;
         setTitle( title );
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        
-        this.jobRunner = jobRunner;
     }
     
     public void begin() { 
@@ -54,7 +50,8 @@ public class Client<T> extends JFrame
     }
   
     public T run() throws RemoteException{
-    	return jobRunner.run();
+    	//TODO: Implement
+    	return null;
     }
 	
 

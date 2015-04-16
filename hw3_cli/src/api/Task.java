@@ -1,7 +1,7 @@
 package api;
 
 import java.io.Serializable;
-import java.util.concurrent.Callable;
+import java.util.List;
 
 /**
  * Interface defining a task (which a job breaks down into)
@@ -11,9 +11,12 @@ import java.util.concurrent.Callable;
  * 
  * @param <V> the task return type.
  */
-public interface Task<V> extends Serializable, Callable<V> 
-{ 
-    @Override
-    V call();
+public interface Task<V> extends Serializable { 
+    
+	public boolean isComposer();
+	
+	public List< Task<V> > decompose();
+	
+	public V compose(List<Task <V>> tasks);
 
 }
