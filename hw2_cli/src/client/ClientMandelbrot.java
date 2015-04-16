@@ -16,7 +16,7 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 	/** Generated Serial ID	 */
 	private static final long serialVersionUID = 3652205624558233024L;
 	
-	private static final int DEFAULT_NUM_LOCAL_NODES = 1;
+	private static final int DEFAULT_NUM_LOCAL_NODES = 2;
 	
 	
 	/**
