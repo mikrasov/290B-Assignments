@@ -39,7 +39,11 @@ Same jvm vs. different jvm: were still starting up separate threads so the time 
 Different machines - even if faster, tcp overhead still makes the time the same<p>
 No real difference between c = 1 and c = 2, perhaps with c = 4 we would see a difference<p>
 2.To improve your understanding of what is going on, what other measurements would you like to see included?<br>
+One measurement that would be important to factor into our results is TCP overhead time, "How long did it take to send an actual task over the wire to a computer?".
 3.Enumerate what you believe to be the key points concerning thread safety.<br>
+talk about: <br>
+- BlockingQueue? <br>
+- Dispatcher? <br>
 
 <h2>Traveling Salesman</h2>
 
