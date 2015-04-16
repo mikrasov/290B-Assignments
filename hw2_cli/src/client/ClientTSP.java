@@ -148,9 +148,9 @@ public class ClientTSP extends Client<List<Integer>> {
         
 		ClientTSP clientTSP;
 		if(domain.equalsIgnoreCase("jvm"))
-			clientTSP = new ClientTSP(job, new JobRunnerLocal<List<Integer>>(JOBS[taskNum], DEFAULT_NUM_LOCAL_NODES), log ); 
+			clientTSP = new ClientTSP(job, new JobRunnerLocal<List<Integer>>(job, DEFAULT_NUM_LOCAL_NODES), log ); 
 		else
-			clientTSP = new ClientTSP(job, new JobRunnerRemote<List<Integer>>(JOBS[taskNum], domain), log ); 
+			clientTSP = new ClientTSP(job, new JobRunnerRemote<List<Integer>>(job, domain), log ); 
 		clientTSP.begin();
         final List<Integer> result = clientTSP.run();
         clientTSP.add(clientTSP.getLabel(result.toArray(new Integer[0])));

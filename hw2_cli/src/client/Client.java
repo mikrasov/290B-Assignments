@@ -39,7 +39,7 @@ public class Client<T> extends JFrame
     }
     
     public void end()  { 
-    	log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000 );
+    	log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
         log.log("");
     	log.close();
     }
