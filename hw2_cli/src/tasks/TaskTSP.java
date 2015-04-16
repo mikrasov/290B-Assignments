@@ -110,11 +110,11 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	}
 	
 	///TESTING CODE FOR TOURS
-	public static double calcLength(int endCity, int[] tour){
+	public static double calcLength( int[] tour){
 		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
 		
 		double length = 0;
-		int src = endCity;
+		int src = tour[tour.length-1];
 		for(int dest : tour){
 			length += task.euclideanDistance(src, dest);
 			src = dest;
@@ -126,8 +126,8 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	public static void main(String[] args) {
 		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
 		
-		System.out.println("Prof Tour: "+ calcLength(3, new int[]{ 0, 4, 8, 9, 5, 1, 2, 6, 10, 11, 7, 3 }));
-		System.out.println("Our Tour: "+ calcLength(5, new int[]{ 1, 0, 8, 10, 6, 2, 3, 7, 11, 4, 9, 5 }));
+		System.out.println("Prof Tour: "+ calcLength(new int[]{ 0, 4, 8, 9, 5, 1, 2, 6, 10, 11, 7, 3 }));
+		System.out.println("Our Tour: "+ calcLength(new int[]{ 1, 5, 9, 11, 7, 3, 0, 4, 8, 10, 6, 2 }));
 
 	}
 }
