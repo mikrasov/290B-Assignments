@@ -50,7 +50,7 @@ public class JobTSP implements Job<List<Integer>> {
 		
 		for(int to=CHUNK_SIZE; to<numTotalPermutationsSent; to+=CHUNK_SIZE){			
 			sendToSpace(space, from, to);
-			from = to;
+			from = to-1;
 		}	
 		
 		//Send remainder
