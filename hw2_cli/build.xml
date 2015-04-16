@@ -66,6 +66,7 @@
       <arg value="${arg0}"/>
       <arg value="${arg1}"/>
       <jvmarg value="-Djava.security.policy=policy/policy"/>
+      <jvmarg value="-Xmx1g"/>
       <classpath>
         <pathelement location="dist/computer.jar"/>
       </classpath>
