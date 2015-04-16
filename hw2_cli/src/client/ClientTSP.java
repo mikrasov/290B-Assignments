@@ -56,6 +56,23 @@ public class ClientTSP extends Client<List<Integer>> {
 		        { 6, 6 }
 			}
 		),
+		
+		//Set 2: Full Set of 12 cities for HW2
+				new JobTSP(  
+					new double[][]{
+						{ 1, 1 },
+				    	{ 8, 1 },
+				    	{ 8, 8 },
+				    	{ 1, 8 },
+				    	{ 2, 2 },
+				    	{ 7, 2 },
+				    	{ 7, 7 },
+				    	{ 2, 7 },
+				    	{ 3, 3 },
+				    	{ 6, 3 },
+				    	{ 6, 6 }
+					}
+				),
 	
     };
    
