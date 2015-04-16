@@ -22,7 +22,7 @@ public class Result<T> implements Serializable
      * @param taskReturnValue of partial result
      * @param taskRunTime of partial result
      */
-    public Result( T taskReturnValue, long taskRunTime )
+    public Result( final T taskReturnValue, long taskRunTime )
     {
         assert taskReturnValue != null;
         assert taskRunTime >= 0;

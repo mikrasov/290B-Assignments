@@ -23,7 +23,7 @@ public class ChunkTSP implements Serializable{
 	 * @param bestOrder of cities to visit
 	 * @param bestLength total distance of space between cities
 	 */
-	public ChunkTSP(List<Integer> bestOrder, double bestLength) {
+	public ChunkTSP(final List<Integer> bestOrder, final double bestLength) {
 		this.bestOrder = bestOrder;
 		this.bestLength = bestLength;
 	}

@@ -14,7 +14,7 @@ import api.Space;
 
 public class JobTSP implements Job<List<Integer>> {
 
-	public static final int CHUNK_SIZE = 5000000;
+	public static final int CHUNK_SIZE = 20000000;
 	public static final int TAKE_TIMER = 50;
 	
 	private final double[][] cities;
@@ -80,8 +80,10 @@ public class JobTSP implements Job<List<Integer>> {
 		
 			log.log("Task time, "+result.getTaskRunTime() / 1000000.0);
 			//If the resulting chunk is better then previous chunk use that
-			if(result.getTaskReturnValue().getBestLength() <= bestLength)
+			if(result.getTaskReturnValue().getBestLength() <= bestLength){
 				bestOrder = result.getTaskReturnValue().getBestOrder();
+				bestLength = result.getTaskReturnValue().getBestLength();
+			}
 			
 		
 			// Wait before trying to take next one
@@ -89,12 +91,12 @@ public class JobTSP implements Job<List<Integer>> {
 		}
 		
 		System.out.println("-- DONE --");
-		log.log(tourToString( bestOrder, bestLength ));
+		log.log(tourToString( bestOrder) + " Length: "+bestLength );
 		
 		return bestOrder;
 	}
 	
-    private String tourToString( List<Integer> cities, double length )
+    private String tourToString( List<Integer> cities )
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append( "Tour: " );
@@ -102,7 +104,6 @@ public class JobTSP implements Job<List<Integer>> {
         {
             stringBuilder.append( city ).append( ' ' );
         }
-        stringBuilder.append( " Length: "+length+"" );
         return stringBuilder.toString();
     }
 
