@@ -1,24 +1,43 @@
-<h1>Expiremental results</h1>
+<html><head></head><body><h1>Expiremental results</h1>
 
-<h2>Traveling Salesman</h2>
+<h2>Mandelbrot Set</h2>
+<table border="1" style="width:100%">
+  <tbody><tr>
+    <td><b>Scenario Type</b></td>
+    <td>c = 1: elapsed time for each task</td> 
+    <td>c = 1: elapsed time for the client's job</td>
+    <td>c = 2: elapsed time for each task</td> 
+    <td>c = 2: elapsed time for the client's job</td>
+  </tr>
+  <tr>
+    <td>Same JVM</td>
+    <td><a href="Mandelbrot_c1_same_jvm.csv">Download task times</a></td> 
+    <td>55700.075 ms</td>
+    <td><a href="Mandelbrot_c2_same_jvm.csv">Download task times</a></td>
+    <td></td>
+  </tr>
+  <tr>
+  	<td>Different JVMs</td>
+    <td><a href="Mandelbrot_c1_diff_jvm.csv">Download task times</a></td> 
+    <td>59942.461 ms</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+  	<td>Different machines</td>
+  	<td><a href="Mandelbrot_c1_diff_computers.csv">Download task times</a></td>  
+    <td>56104.69087 ms</td>
+    <td></td>
+    <td></td>
+  </tr>
+</tbody></table>
 
+<h2>Traveling Salesman</h2></body></html>
 <p>
 <strong>Shortest path:</strong><br/>
 Tour: 1 5 9 0 8 10 6 2 3 7 11 4  Length: 1.7976931348623157E308<br/>
 </p>
 <img src="ShortestPath.jpg">
-<code>
-...
-</code>
 
-<p>
-... Explination ...
-</p>
 
-<h2>Mandelbrot Set</h2>
-<code>
-...
-</code>
-<p>
-... Explination ...
-</p>
+</html>
