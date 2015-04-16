@@ -24,7 +24,7 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	private static final long serialVersionUID = -5028721366363840694L;
 	private final double[][] cities;
 	private final int from, to;
-	private final Double[][] distances;
+	private final double[][] distances;
 	
 	/**
 	 * Construct a new task for TSP
@@ -36,7 +36,7 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 		this.cities = cities;
 		this.from = from;
 		this.to = to;
-		distances = new Double[cities.length][cities.length];
+		distances = new double[cities.length][cities.length];
 	}
 
 	/**
@@ -66,11 +66,14 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 			//Sum Lengths
 			Integer src = null;
 			for(Integer dest: perm){
-				if(src != null) //skip first itteration
+				if(src != null) //skip first iteration
 					currentLength += distance(src,dest);
 				
 				src = dest;
 			}
+			
+			//Add length of returning to start!
+			currentLength += distance(src, perm.getValue(0));
 			
 			//if current permutation is better then what is on record
 			if(currentLength <= bestLength){
@@ -83,19 +86,6 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 		return result;
 	}
 
-
-	/**
-	 * Calculates the euclidian distance between two points
-	 * @param x1 x position of city 1
-	 * @param y1 y position of city 1
-	 * @param x2 x position of city 2
-	 * @param y2 y position of city 2
-	 * @return the euclidean distance
-	 */
-	private static double euclideanDistance(double x1, double y1, double x2, double y2){
-		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
-	}
-	
 	/**
 	 * Calculates the euclidian distance between two cities
 	 * @param city1 position array of city 1
@@ -103,7 +93,11 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	 * @return the euclidean distance
 	 */
 	private double euclideanDistance(int city1, int city2){
-		return euclideanDistance(cities[city1][0],cities[city1][1],cities[city2][0],cities[city2][1]);
+		double x1 = cities[city1][0];
+		double y1 = cities[city1][1];
+		double x2 = cities[city2][0];
+		double y2 = cities[city2][1];
+		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
 	}
 	
 	/**
@@ -115,14 +109,17 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	private double distance(int src, int dest){
 
 		//Compensate for triangular matrix
-		if(src < dest){
-			if(distances[src][dest] == null) 
+		if(src == dest){
+			return 0;
+		}
+		else if(src < dest){
+			if(distances[src][dest] == 0) 
 				distances[src][dest] = euclideanDistance(src, dest);
 			return distances[src][dest];
 			
 		}
 		else{
-			if(distances[dest][src] == null) 
+			if(distances[dest][src] == 0) 
 				distances[dest][src] = euclideanDistance(dest, src);
 			return distances[dest][src];
 		}
