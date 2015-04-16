@@ -16,7 +16,7 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 	/** Generated Serial ID	 */
 	private static final long serialVersionUID = 3652205624558233024L;
 	
-	private static final int DEFAULT_NUM_LOCAL_NODES = 4;
+	private static final int DEFAULT_NUM_LOCAL_NODES = 1;
 	
     private static final JobMandelbrot[] JOBS = {
     	//Set 0: HW2 Full set
@@ -63,7 +63,7 @@ public class ClientMandelbrot extends Client<Integer[][]> {
 
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int taskNum = (args.length > 1)? Integer.parseInt(args[1]) : 0;
-		String logName = (args.length > 2)? args[2] : "Mandlebrot";
+		String logName = (args.length > 2)? args[2] : "Mandelbrot";
 
 		
 		System.out.println("Starting Client 'Mandelbrot' on Space @ "+domain);
