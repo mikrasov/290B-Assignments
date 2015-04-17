@@ -1,7 +1,8 @@
 package system;
 
-
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -49,7 +50,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public void register(Computer computer) throws RemoteException {
 		System.out.println("Registering computer "+computer.getName());
 		availableComputers.add(computer);
-		
 	}
 
 	@Override
@@ -103,6 +103,24 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			}
 			catch (InterruptedException e2) {} 
 		}
+	}
+	
+	public static void main(String[] args) throws RemoteException {
+		// Set Security Manager 
+        System.setSecurityManager( new SecurityManager() );
+
+        // Create Registry on JVM
+        Registry registry = LocateRegistry.createRegistry( Space.PORT );
+
+        // Create Space
+        SpaceImp<Object> space = new SpaceImp<>();
+        registry.rebind( Space.SERVICE_NAME, space );
+
+        //Print Acknowledgement
+        System.out.println("Space ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
+
+        //Start space
+        space.startSpace();
 	}
 
 }
