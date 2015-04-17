@@ -4,12 +4,12 @@ import java.util.concurrent.Callable;
 
 public abstract class Closure<R> implements Callable<Result<R>>{
 	
-	protected final R[] input; 
-	protected final Closure<R> target;
-	protected final int targetPort;
+	protected transient Closure<R> target;
+	protected transient int targetPort;
 	
-	private final String name;
-	private int joinCounter;
+	protected R[] input; 
+	protected final String name;
+	protected int joinCounter;
 	
 	@SuppressWarnings("unchecked")
 	public Closure(String name, Closure<R> target, int targetPort, int numInputs){
@@ -20,8 +20,13 @@ public abstract class Closure<R> implements Callable<Result<R>>{
 		this.joinCounter = numInputs;
 	}
 	
-	public Closure(String name, int numInputs){
-		this(name,null,-1,numInputs);
+	public void setTarget(Closure<R> target, int targetPort){
+		this.target = target;
+		this.targetPort = targetPort;
+	}
+	
+	public void assignValueToTarget(Result<R> value){
+		target.setInput(targetPort, value.getValue());
 	}
 	
 	public void setInput(int num, R value){
@@ -31,10 +36,6 @@ public abstract class Closure<R> implements Callable<Result<R>>{
 	
 	public boolean isReady(){
 		return joinCounter == 0;
-	}
-	
-	public boolean isTerminal(){
-		return target == null;
 	}
  	
 	@Override

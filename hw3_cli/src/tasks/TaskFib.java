@@ -11,6 +11,11 @@ public class TaskFib extends Closure<Integer> {
 		super("Fib", target, targetPort, 1);
 		this.setInput(0, itteration);
 	}
+	
+	public TaskFib(int itteration) {
+		super("Fib INIT", null, -1, 1);
+		this.setInput(0, itteration);
+	}
 
 	@Override
 	public Result<Integer> execute() {

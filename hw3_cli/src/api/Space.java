@@ -3,16 +3,14 @@ package api;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface Space extends Remote {
+public interface Space<R> extends Remote {
 
 	public static int PORT = 8001;
     public static String SERVICE_NAME = "Space";
 
-	@SuppressWarnings("rawtypes")
-	void put ( Closure task ) throws RemoteException;
+	void assignTask ( Closure<R> task ) throws RemoteException;
 
-	@SuppressWarnings("rawtypes")
-	Result take() throws RemoteException;
+	R collectResult() throws RemoteException; 
 
     boolean hasResult() throws RemoteException;
     
