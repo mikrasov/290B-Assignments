@@ -114,6 +114,9 @@ public class PermutationEnumerator<T> implements Iterable< List<T> >
 
 			@Override
 			public List<T> next() { return nextPerm(); }
+			
+			@Override
+			public void remove(){}
 		};
 	}
 }
