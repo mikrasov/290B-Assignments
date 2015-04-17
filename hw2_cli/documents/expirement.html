@@ -1,6 +1,11 @@
 <html><head></head><body><h1>Expiremental results</h1>
 
 <h2>Mandelbrot Set</h2>
+
+<img src="Mandelbrot.png"/>
+<br>
+<br>
+
 <table border="1" style="width:100%">
   <tbody><tr>
     <td><b>Scenario Type</b></td>
@@ -32,25 +37,14 @@
   </tr>
 </tbody></table>
 
-<h3>Analysis</h3>
-
-1.Explain the differences in job execution times.<br>
-Same jvm vs. different jvm: were still starting up separate threads so the time wont be different.<p>
-Different machines - even if faster, tcp overhead still makes the time the same<p>
-No real difference between c = 1 and c = 2, perhaps with c = 4 we would see a difference<p>
-2.To improve your understanding of what is going on, what other measurements would you like to see included?<br>
-One measurement that would be important to factor into our results is TCP overhead time, "How long did it take to send an actual task over the wire to a computer?".
-3.Enumerate what you believe to be the key points concerning thread safety.<br>
-talk about: <br>
-- BlockingQueue? <br>
-- Dispatcher? <br>
-
 <h2>Traveling Salesman</h2>
 
+<img src="TSP.png"/>
+<br>
+<br>
+
 <strong>Shortest path:</strong><br>
-Tour: 1 5 9 0 8 10 6 2 3 7 11 4  Length: 1.7976931348623157E308<br>
-<p></p>
-<img src="ShortestPath.jpg">
+Tour: 7 3 2 6 10 9 5 1 0 4 8 11  Length: 31.313708498984763<br>
 
 <br>
 <br>
@@ -65,31 +59,40 @@ Tour: 1 5 9 0 8 10 6 2 3 7 11 4  Length: 1.7976931348623157E308<br>
   <tr>
     <td>Same JVM</td>
     <td><a href="TSP_c1_same_jvm.csv">Download task times</a></td> 
-    <td> ms</td>
+    <td>78381.953 ms</td>
     <td><a href="TSP_c2_same_jvm.csv">Download task times</a></td>
-    <td> ms</td>
+    <td>54560.788 ms</td>
   </tr>
   <tr>
   	<td>Different JVMs</td>
     <td><a href="TSP_c1_diff_jvm.csv">Download task times</a></td> 
-    <td> ms</td>
+    <td>81744.074 ms</td>
     <td><a href="TSP_c2_diff_jvm.csv">Download task times</a></td>
-    <td> ms</td>
+    <td>50923.743 ms</td>
   </tr>
   <tr>
   	<td>Different machines</td>
   	<td><a href="TSP_c1_diff_computers.csv">Download task times</a></td>  
-    <td> ms</td>
+    <td>84241.67744 ms</td>
     <td><a href="TSP_c2_diff_computers.csv">Download task times</a></td>
-    <td> ms</td>
+    <td>36329.57071 ms</td>
   </tr>
 </tbody></table>
 
 <h3>Analysis</h3>
 
-1.Explain the differences in job execution times.<br>
-Same jvm vs. different jvm: were still starting up separate threads so the time wont be different. 
-2.To improve your understanding of what is going on, what other measurements would you like to see included?<br>
-3.Enumerate what you believe to be the key points concerning thread safety.<br>
+<p>For the Mandelbrot Set results, we do not see much variation in the job execution times. All 6 times are around 57 seconds. Same JVM vs Different JVM's: Whenever we instruct a computer to compute a task, we create a new thread to do so. This is true whether we are on same or separate jvm's, therefore it is not surprising that the time is practically the same. When running on completely separate machines, even if the job execution is faster, TCP overhead can raise the execution time. Having 1 computer vs 2 computers did not make any difference.</p>
+
+
+<p>For the TSP results, we see a dramatic job execution time change between 1 computer and 2 computers. Just like in the Mandelbrot Set results, there is not much variation between same/diff jvm and separate computers (ignoring the number of computer instances). However after connecting a second computer instance to the space, same jvm drops 24 seconds, different jvm's drops 31 second, and separate computers drops 48 seconds. </p>
+
+
+<p>Why did one extra machine make such a big difference in the TSP experiments compared to the Mandelbrot experiments? </p>
+
+<p>We hypothesize that it is because the TSP tasks are much more computationally/memory intensive than the Mandelbrot tasks. For Mandelbrot, the tasks finish so fast that it does not make a difference whether they run locally, remotely, or on multiple machines. But for TSP, the tasks take a much more significant amount of time to complete, therefore partitioning this computationally intensive work to different machines goes a long way.</p>
+
+<p>One measure that would have been helpful to have is TCP overhead time. How long did it take for the network to send the task from the Space to the computer, and to receive the result? Another intersting measure that could have been observed is task size. Does it take longer to compute the TSP with a task size of 1 million permutations or 50 million?</p>
+
+<p>We avoided any concurrency/thread safety issues by giving each thread its own instance. Therefore threads would not have access to the same data, except for, of course the Space thread; however, because of the BlockingQueue, these issues were avoided in the Space as well.</p>
 
 </body></html>
