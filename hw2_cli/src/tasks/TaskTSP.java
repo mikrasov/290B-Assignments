@@ -2,13 +2,10 @@ package tasks;
 
 import java.util.List;
 
-import org.paukov.combinatorics.Factory;
-import org.paukov.combinatorics.Generator;
-import org.paukov.combinatorics.ICombinatoricsVector;
-
-import client.ClientTSP;
-import api.Task;
+import util.PermutationEnumerator;
 import api.Result;
+import api.Task;
+import client.ClientTSP;
 
 /**
  * Task for traveling salesman problem
@@ -23,7 +20,8 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	/** Generate Serial ID */
 	private static final long serialVersionUID = -5028721366363840694L;
 	private final double[][] cities;
-	private final int from, to;
+	private final int fixedCity;
+	private final List<Integer> subPermutation;
 	
 	/**
 	 * Construct a new task for TSP
@@ -31,10 +29,10 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	 * @param from index in permutation list
 	 * @param to index in permutation list
 	 */
-	public TaskTSP(double[][] cities, int from, int to) {
+	public TaskTSP(double[][] cities, int fixedCity, List<Integer> subPermutation) {
 		this.cities = cities;
-		this.from = from;
-		this.to = to;
+		this.fixedCity = fixedCity;
+		this.subPermutation = subPermutation;
 	}
 
 	/**
@@ -43,15 +41,12 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	@Override
 	public Result<ChunkTSP> call() {
 		long clientStartTime = System.nanoTime();
-		double[][] distances = new double[cities.length][cities.length];
-		ICombinatoricsVector<Integer> originalVector = Factory.createVector();
 		
-		//Go through each city
+		//Pre-compute distances
+		double[][] distances = new double[cities.length][cities.length];
+		
 		for(int src=0; src < cities.length; src++){
-
-			//Add each city to vector of all cities
-			originalVector.addValue(src);
-			
+	
 			//Compute distance to neighbors (that are not already computed)
 			for(int dest=src+1; dest < cities.length; dest++){
 				distances[src][dest] = euclideanDistance(src, dest);
@@ -59,16 +54,18 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 		}
 		
 		// Create the permutation generator by calling the appropriate method in the Factory class
-		Generator<Integer> generator = Factory.createPermutationGenerator(originalVector);
-	
+		PermutationEnumerator<Integer> generator = new PermutationEnumerator(subPermutation);
+		
 		double bestLength = Double.MAX_VALUE;
 		List<Integer> bestOrder = null;
-		for(ICombinatoricsVector<Integer> perm : generator.generateObjectsRange(from, to)){
+		for(List<Integer> perm : generator){
 	
 			double currentLength = 0;
 			
+			perm.add(fixedCity); //Add fixed city to end
+				
 			//Sum Lengths
-			int src = perm.getValue(perm.getSize()-1); //Add length of returning to start!
+			int src = fixedCity; //Add length of returning to start!
 			for(int dest: perm){
 				if(src < dest) //Compensate for triangular matrix
 					currentLength += distances[src][dest];
@@ -81,7 +78,7 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 			
 			//if current permutation is better then what is on record
 			if(currentLength <= bestLength){
-				bestOrder = perm.getVector();
+				bestOrder = perm;
 				bestLength = currentLength;
 			}
 		}
@@ -106,28 +103,7 @@ public class TaskTSP implements Task<Result<ChunkTSP>> {
 	
 	@Override
 	public String toString() {
-		return "TSP_Task["+from+" to "+to+"]";
+		return "TSP_Task["+fixedCity+"]";
 	}
 	
-	///TESTING CODE FOR TOURS
-	public static double calcLength( int[] tour){
-		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
-		
-		double length = 0;
-		int src = tour[tour.length-1];
-		for(int dest : tour){
-			length += task.euclideanDistance(src, dest);
-			src = dest;
-		}
-		
-		return length;
-	}
-	
-	public static void main(String[] args) {
-		TaskTSP task = new TaskTSP(ClientTSP.JOBS[0].getCities(),0,0);
-		
-		System.out.println("Prof Tour: "+ calcLength(new int[]{ 0, 4, 8, 9, 5, 1, 2, 6, 10, 11, 7, 3 }));
-		System.out.println("Our Tour: "+ calcLength(new int[]{ 1, 5, 9, 11, 7, 3, 0, 4, 8, 10, 6, 2 }));
-
-	}
 }
