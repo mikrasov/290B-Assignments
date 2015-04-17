@@ -4,9 +4,11 @@ import java.io.Serializable;
 
 /**
  * Interface for results of task execution
+ * 
  * @author Peter Cappello
  * @author Michael Nekrasov
  * @author Roman Kazarin
+ * 
  * @param <T> type of return value of corresponding Task.
  */
 public class Result<T> implements Serializable

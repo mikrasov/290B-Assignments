@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * Interface for defining a basic computer object
+ * Interface for defining a basic computer that a space can do work on
  * 
  * @author Michael Nekrasov
  * @author Roman Kazarin
@@ -13,7 +13,7 @@ import java.rmi.RemoteException;
 public interface Computer extends Remote {
 
 	/**
-	 * Ececute a task
+	 * Execute a task on this computer
 	 * @param task to execute
 	 * @return corresponding result
 	 * @throws RemoteException
@@ -21,7 +21,7 @@ public interface Computer extends Remote {
 	public <T> T execute(Task<T> task) throws RemoteException;
 	
 	/**
-	 * Name of computer
+	 * Name of this computer
 	 * @return the assigned name
 	 * @throws RemoteException
 	 */

@@ -20,7 +20,7 @@ public class ClientTSP extends Client<List<Integer>> {
 	private static final long serialVersionUID = 6128849463397846561L;
 	
 	private static final int NUM_PIXALS = 600;
-	private static final int DEFAULT_NUM_LOCAL_NODES = 4;
+	private static final int DEFAULT_NUM_LOCAL_NODES = 1;
 	
 	
 	/** 

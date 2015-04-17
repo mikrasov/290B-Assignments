@@ -11,7 +11,11 @@ import java.rmi.RemoteException;
  */
 public interface Space extends Remote 
 {
+	
+	/** Port the space runs on */
     public static int PORT = 8001;
+    
+    /** Name in RMI registry of the space */
     public static String SERVICE_NAME = "Space";
 
     /**
