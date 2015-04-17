@@ -1,52 +1,52 @@
 package api;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
 
-public class Closure<I> {
-
+public abstract class Closure<R> implements Callable<Result<R>>{
+	
+	protected final R[] input; 
+	protected final Closure<R> target;
+	protected final int targetPort;
+	
+	private final String name;
 	private int joinCounter;
-	private I[] inputs; 
-	private Task<I> task;
-	private Closure<I> target;
 	
 	@SuppressWarnings("unchecked")
-	public Closure( Task<I> task, int numImputs, Closure<I> target){
-		this.joinCounter = numImputs;
-		this.inputs = (I[]) new Object[numImputs];
-		this.task = task;
+	public Closure(String name, Closure<R> target, int targetPort, int numInputs){
+		this.name = name;
 		this.target = target;
+		this.targetPort = targetPort;
+		this.input = (R[]) new Object[numInputs];
+		this.joinCounter = numInputs;
+	}
+	
+	public Closure(String name, int numInputs){
+		this(name,null,-1,numInputs);
+	}
+	
+	public void setInput(int num, R value){
+		input[num] = value;
+		joinCounter--;
 	}
 	
 	public boolean isReady(){
 		return joinCounter == 0;
 	}
 	
-	public void setInput(int num, I input){
-		inputs[num] = input;
-		joinCounter--;
+	public boolean isTerminal(){
+		return target == null;
+	}
+ 	
+	@Override
+	public String toString() {
+		return name + "("+input.length+")";
 	}
 	
-	public Task<I> getTask(){
-		return task;
+	@Override
+	public final Result<R> call(){
+		return execute();
 	}
-	
-	
-	private I getInput(int num){
-		return inputs[num];
-	}
-	/*
-	 CLOSURE:
-	 
-	 code
-	 join counter (# inputs waiting for)
-	 input 1
-	 input 2
-	 input 3
-	 
-	 
-	 Pointer Where to send output
-	  
-	 
-	 */
+
+	protected abstract Result<R> execute();
+
 }
