@@ -26,9 +26,7 @@
   
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}">
-      <classpath>
-        <pathelement path="${lib}/combinatoricslib-2.0.jar"/>
-      </classpath>
+
     </javac>
   </target>
 
@@ -39,19 +37,13 @@
     <mkdir dir="${dist}"/>
 
     <!-- Make computer jar file -->
-    <jar jarfile="${dist}/computer.jar" basedir="${build}" includes="system/** api/**">
-       <zipgroupfileset dir="${lib}" includes="combinatoricslib-2.0.jar" />
-       <manifest>
-        <attribute name="Main-Class" value="org.paukov.combinatorics"/>
-      </manifest>
+    <jar jarfile="${dist}/computer.jar" basedir="${build}" includes="system/** api/** util/**">
+
     </jar>
     
     <!-- Make client jar file -->
-    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/**">
-       <zipgroupfileset dir="${lib}" includes="combinatoricslib-2.0.jar" />
-       <manifest>
-        <attribute name="Main-Class" value="org.paukov.combinatorics"/>
-      </manifest>
+    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/** util/**">
+
     </jar>
 
     <jar jarfile="${dist}/space.jar" basedir="${build}" includes="system/** api/**"/>
