@@ -29,11 +29,12 @@ public class TaskFib extends Closure<Integer> {
 		}
 		
 		@SuppressWarnings("unchecked")
-		Closure<Integer>[] tasks = new Closure[3];
-		tasks[0] = new TaskAdd(targetUid, targetPort);	// Adder
-		tasks[1] = new TaskFib(-1, 0, itteration-1);	// f(i-1)
-		tasks[2] = new TaskFib(-1, 1, itteration-2);	// f(i-2)
-
+		Closure<Integer>[] tasks = new Closure[]{
+			new TaskAdd(targetUid, targetPort),	// Adder
+			new TaskFib(-1, 0, itteration-1),	// f(i-1)
+			new TaskFib(-1, 1, itteration-2)	// f(i-2)
+		};
+		
 		return new ResultTasks<Integer>(tasks);
 	}
 
