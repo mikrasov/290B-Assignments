@@ -28,7 +28,7 @@ public class ResultTasks<R> implements Result<R> {
 	@Override
 	public String toString() {
 		String out = "New Tasks: \n";
-		for(Closure task: tasks)
+		for(Closure<R> task: tasks)
 			out += "| " +task+"\n";
 		
 		return out;

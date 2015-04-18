@@ -49,6 +49,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	@Override
 	public R collectResult() throws RemoteException {
+		if(!hasResult())
+			return null;
 		return solution.call().getValue();
 	}
 

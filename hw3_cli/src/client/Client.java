@@ -53,7 +53,10 @@ public class Client<R> {
     
     public void end()  { 
     	Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
-    	Log.close();
+    	
     }
 
+    public void closeLog(){
+    	Log.close();
+    }
 }

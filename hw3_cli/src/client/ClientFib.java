@@ -41,6 +41,8 @@ public class ClientFib extends Client<Integer>{
 		int result = client.run();
 		client.end();
 		
-		Log.log(client +" Result: "+result);
+		Log.log(client +", Result: "+result);
+		System.out.println(client +" = "+result);
+		client.closeLog();
 	}
 }
