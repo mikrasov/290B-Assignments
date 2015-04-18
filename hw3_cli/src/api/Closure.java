@@ -1,22 +1,25 @@
 package api;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
-public abstract class Closure<R> implements Callable<Result<R>>{
+public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
+	
+	/** Serial ID*/
+	private static final long serialVersionUID = 1894632443394847590L;
 	
 	protected transient Closure<R> target;
 	protected transient int targetPort;
 	
-	protected R[] input; 
+	protected Object[] input; 
 	protected final String name;
 	protected int joinCounter;
 	
-	@SuppressWarnings("unchecked")
 	public Closure(String name, Closure<R> target, int targetPort, int numInputs){
 		this.name = name;
 		this.target = target;
 		this.targetPort = targetPort;
-		this.input = (R[]) new Object[numInputs];
+		this.input = new Object[numInputs];
 		this.joinCounter = numInputs;
 	}
 	

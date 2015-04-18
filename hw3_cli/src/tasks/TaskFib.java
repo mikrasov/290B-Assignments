@@ -7,6 +7,9 @@ import api.Result;
 
 public class TaskFib extends Closure<Integer> {
 
+	/** Serial ID */
+	private static final long serialVersionUID = 5656498160577890305L;
+
 	public TaskFib(Closure<Integer> target, int targetPort, int itteration) {
 		super("Fib", target, targetPort, 1);
 		this.setInput(0, itteration);
@@ -19,7 +22,7 @@ public class TaskFib extends Closure<Integer> {
 
 	@Override
 	public Result<Integer> execute() {
-		int itteration = input[0];
+		int itteration = (Integer)input[0];
 		
 		if(itteration <2) { 	
 			return new ResultValue<Integer>(1); // F(0), F(1) =1

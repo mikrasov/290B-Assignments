@@ -1,58 +1,59 @@
 package client;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
+import api.Space;
+import api.Closure;
 
-public class Client<T> extends JFrame
-{
-    /** Generated Serial ID	 */
-	private static final long serialVersionUID = 6912770951537378627L;
+public class Client<R> {
 
-    protected T taskReturnValue;
+	private static final int CHECK_TIME = 100;
+	
     private long clientStartTime;
-
-    private Log log;
     
-	public Client( final String title,  final Log log ) 
-    {     
-		this.log = log;
-        setTitle( title );
-        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-    }
+    protected final String name;
+    protected Space<R> space;
+    protected Closure<R> task;
     
+	@SuppressWarnings("unchecked")
+	public Client( final String name, String domainName, Closure<R> task) throws MalformedURLException, RemoteException, NotBoundException    {     
+		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
+        this.space = (Space<R>) Naming.lookup( url );
+        this.task = task;
+        this.name = name;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
+	
+	public R run() throws RemoteException{
+		space.assignTask(task);
+		
+		while(true){
+			if(space.hasResult())
+				return space.collectResult();
+			
+				
+			try { Thread.sleep(CHECK_TIME); } 
+			catch (InterruptedException e) {}
+		}
+		
+	}
+	
+	
     public void begin() { 
-    	log.log("Component, Time (ms)");
+    	Log.log("Component, Time (ms)");
     	clientStartTime = System.nanoTime(); 
     }
     
     public void end()  { 
-    	log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
-        log.log("");
-    	log.close();
+    	Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
+    	Log.close();
     }
-    
-    public void add( final JLabel jLabel )
-    {
-        final Container container = getContentPane();
-        container.setLayout( new BorderLayout() );
-        container.add( new JScrollPane( jLabel ), BorderLayout.CENTER );
-        pack();
-        setVisible( true );
-    }
-  
-    public T run() throws RemoteException{
-    	//TODO: Implement
-    	return null;
-    }
-	
 
 }

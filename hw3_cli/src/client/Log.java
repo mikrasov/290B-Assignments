@@ -7,20 +7,18 @@ import java.util.logging.Logger;
 
 public class Log {
 
-	private FileWriter log;
+	public static final String LOG_NAME = "fib.csv";
 	
-	public Log() {}
-	
-	public Log(String logName) {
-		System.out.println("Starting log at: "+logName);
-		try {	
-			log = new FileWriter(logName+".csv");
+	private static FileWriter log;
+	static{
+		try {
+			log = new FileWriter(LOG_NAME);
 		} catch (IOException e) {
-			System.err.println("Error Writing log: "+logName);
-		}
+			System.err.println("Error starting log '"+LOG_NAME+"'");
+		}		
 	}
-
-	public void log(String line){
+	
+	public static void log(String line){
     	Logger.getLogger( Client.class.getCanonicalName() )
         .log(Level.INFO, line);
     
@@ -31,7 +29,7 @@ public class Log {
 		}
     }
 	
-	public void close(){
+	public static void close(){
 		if(log != null) try {
 			log.close();
 		} catch (IOException e) {
