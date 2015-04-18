@@ -7,7 +7,9 @@ import java.util.logging.Logger;
 
 public class Log {
 
+	public static final boolean VERBOSE_DEBUG = false;
 	public static final String LOG_NAME = "fib.csv";
+	
 	
 	private static FileWriter log;
 	static{
@@ -29,12 +31,20 @@ public class Log {
 		}
     }
 	
+	public static void debug(String str){
+		if(VERBOSE_DEBUG) System.out.println(str);
+	}
+	
+	public static void debugln(String str){
+		debug(str+"\n");
+	}
+	
 	public static void close(){
 		if(log != null) try {
 			log.close();
 		} catch (IOException e) {
 			System.err.println("Error closing log");
 		}
-		System.out.println("Ended log");
+		debugln("Ended log");
 	}
 }

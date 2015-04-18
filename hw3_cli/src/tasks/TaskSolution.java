@@ -10,7 +10,7 @@ public class TaskSolution<R> extends Closure<R> {
 	private static final long serialVersionUID = 650090682148073997L;
 
 	public TaskSolution() {
-		super("Solution", null, -1, 1);
+		super("Solution", -1, -1, 1);
 	}
 
 	@Override

@@ -29,7 +29,7 @@ public class ResultTasks<R> implements Result<R> {
 	public String toString() {
 		String out = "New Tasks: \n";
 		for(Closure task: tasks)
-			out += "| " +task.toVerboseString()+"\n";
+			out += "| " +task+"\n";
 		
 		return out;
 	}

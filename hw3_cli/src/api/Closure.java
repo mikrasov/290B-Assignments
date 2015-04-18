@@ -8,34 +8,35 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	/** Serial ID*/
 	private static final long serialVersionUID = 1894632443394847590L;
 	
-	protected Closure<R> target;
-	protected int targetPort;
+	private long uid;
 	
+	protected long targetUid;
+	protected int targetPort;
+
 	protected final Object[] input; 
 	protected final String name;
 	protected int joinCounter;
 	
-	public Closure(String name, Closure<R> target, int targetPort, int numInputs){
+	public Closure(String name, long targetUid, int targetPort, int numInputs){
 		this.name = name;
-		this.target = target;
+		this.targetUid = targetUid;
 		this.targetPort = targetPort;
 		this.input = new Object[numInputs];
 		this.joinCounter = numInputs;
 	}
 	
-	public void setTarget(Closure<R> target, int targetPort){
-		this.target = target;
+	public void setTarget(long targetUid, int targetPort){
+		this.targetUid = targetUid;
 		this.targetPort = targetPort;
-	}
-	
-	public void assignValueToTarget(Result<R> value){
-		target.setInput(targetPort, value.getValue());
-		System.out.println("Assigned: " +target);
 	}
 	
 	public void setInput(final int num, final R value){
 		input[num] = value;
 		joinCounter--;
+	}
+	
+	public void setUid(long uid){
+		this.uid = uid;
 	}
 	
 	public boolean isReady(){
@@ -48,18 +49,37 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	}
  	
 	
-	public String toVerboseString(){
-		return this+" -> "+target;
+	public long getUID(){
+		return uid;
+	}
+	
+	public long getTargetUid(){
+		return targetUid;
+	}
+	
+	public int getTargetPort(){
+		return targetPort;
 	}
 	
 	@Override
 	public String toString() {
-		String out = name +"_"+hashCode()+" (";
+		String out = name +"_"+hashCode()+"(";
 		for(Object in: input){
 			out+=in+",";
 		}
 		out = out.substring(0,out.length()-1)+")";
-		return out;
+		return out+" >["+targetUid+"]";
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean equals(Object arg0) {
+		return this.uid == ((Closure) arg0).uid;
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int) uid;
 	}
 	
 	protected abstract Result<R> execute();

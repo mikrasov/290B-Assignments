@@ -10,13 +10,13 @@ public class TaskFib extends Closure<Integer> {
 	/** Serial ID */
 	private static final long serialVersionUID = 5656498160577890305L;
 
-	public TaskFib(Closure<Integer> target, int targetPort, int itteration) {
+	public TaskFib(long target, int targetPort, int itteration) {
 		super("Fib", target, targetPort, 1);
 		this.setInput(0, itteration);
 	}
 	
 	public TaskFib(int itteration) {
-		super("Fib INIT", null, -1, 1);
+		super("Fib_INIT", -1, -1, 1);
 		this.setInput(0, itteration);
 	}
 
@@ -30,9 +30,9 @@ public class TaskFib extends Closure<Integer> {
 		
 		@SuppressWarnings("unchecked")
 		Closure<Integer>[] tasks = new Closure[3];
-		tasks[0] = new TaskAdd(target, targetPort);			// Adder
-		tasks[1] = new TaskFib(tasks[0], 0, itteration-1);	// f(i-1)
-		tasks[2] = new TaskFib(tasks[0], 1, itteration-2);	// f(i-2)
+		tasks[0] = new TaskAdd(targetUid, targetPort);	// Adder
+		tasks[1] = new TaskFib(-1, 0, itteration-1);	// f(i-1)
+		tasks[2] = new TaskFib(-1, 1, itteration-2);	// f(i-2)
 
 		return new ResultTasks<Integer>(tasks);
 	}

@@ -11,6 +11,7 @@ import api.Closure;
 import api.Computer;
 import api.Result;
 import api.Space;
+import client.Log;
 
 public class ComputerImp extends UnicastRemoteObject  implements Computer {
 
@@ -26,9 +27,9 @@ public class ComputerImp extends UnicastRemoteObject  implements Computer {
 
 	@Override
 	public <T> Result<T> execute(Closure<T> task) throws RemoteException {
-		System.out.print("--> "+task);
+		Log.debug("--> "+task);
 		Result<T> result = task.call();
-		System.out.println(" | "+result);
+		Log.debugln(" | "+result);
 		return result;
 	}
 
