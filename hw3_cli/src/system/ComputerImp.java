@@ -26,9 +26,9 @@ public class ComputerImp extends UnicastRemoteObject  implements Computer {
 
 	@Override
 	public <T> Result<T> execute(Closure<T> task) throws RemoteException {
-		System.out.println("--> Recieving Task: "+task);
+		System.out.print("--> "+task);
 		Result<T> result = task.call();
-		System.out.println("<-- Returning Result");
+		System.out.println(" | "+result);
 		return result;
 	}
 

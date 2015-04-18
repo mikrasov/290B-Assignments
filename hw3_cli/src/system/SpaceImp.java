@@ -19,7 +19,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static final long serialVersionUID = -1147376615845722661L;
 
 	public static final int RETRY_TIMEOUT = 500;
-	public static final int CYCLE_TIME = 50;
+	public static final int CYCLE_TIME = 1000;
 	
 	private boolean isRunning = false;
 	
@@ -48,7 +48,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	@Override
 	public void register(Computer computer) throws RemoteException {
-		System.out.println("Registering computer "+computer.getName());
+		System.out.println("Registering Computer: "+computer.getName());
 		availableComputers.add(computer);
 	}
 
@@ -56,17 +56,24 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public void startSpace() throws RemoteException {
 		isRunning = true;
 
-		while(isRunning) try {
-			if(!waitingTasks.isEmpty() && !availableComputers.isEmpty()){
+		while(isRunning) try {			
+			if(!availableComputers.isEmpty()){
 				Closure<R> task = waitingTasks.take();
-				new Dispatcher(task).start();
-			}
+					
+				if(task.isReady())	// Input Full
+					new Dispatcher(task).start();
 
+				else // Put back on queue
+					waitingTasks.add(task);
+			}
+			
+			System.out.println("\n* --Current State--");
+			for(Closure c: waitingTasks)
+				System.out.println("* "+c);
+			
 			Thread.sleep(CYCLE_TIME);
 		} catch (InterruptedException e) {}
-		
 	}
-	
 	
 	private class Dispatcher extends Thread{
 		
@@ -77,21 +84,27 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		}
 		
 		@Override
-		public void run() {
+		public void run() {	
+			System.out.println("--> "+task.toVerboseString());
 			while(true)	try{
 				Computer computer = availableComputers.take();
 				Result<R> result = computer.execute(task);
+				
+				System.out.println("<-- "+result);
 				
 				//If Single value pass it on to target
 				if(result.isValue())
 					task.assignValueToTarget(result);
 				
 				//Else Add newly created tasks to waitlist 
-				else for(Closure<R> task: result.getTasks() )
-					waitingTasks.add(task);
+				else for(Closure<R> t: result.getTasks() )
+					waitingTasks.add(t);
 					
 				//Release Computer
 				availableComputers.put(computer);
+				
+				//Task Executed
+				return;
 			}
 			catch(RemoteException e1){
 				System.err.println("RMI Error when dispatching task to Computer, abandoning computer and trying again");

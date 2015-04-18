@@ -25,4 +25,12 @@ public class ResultTasks<R> implements Result<R> {
 	@Override
 	public Closure<R>[] getTasks() { return tasks; }
 
+	@Override
+	public String toString() {
+		String out = "New Tasks: \n";
+		for(Closure task: tasks)
+			out += "| " +task.toVerboseString()+"\n";
+		
+		return out;
+	}
 }

@@ -8,10 +8,10 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	/** Serial ID*/
 	private static final long serialVersionUID = 1894632443394847590L;
 	
-	protected transient Closure<R> target;
-	protected transient int targetPort;
+	protected Closure<R> target;
+	protected int targetPort;
 	
-	protected Object[] input; 
+	protected final Object[] input; 
 	protected final String name;
 	protected int joinCounter;
 	
@@ -30,9 +30,10 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	
 	public void assignValueToTarget(Result<R> value){
 		target.setInput(targetPort, value.getValue());
+		System.out.println("Assigned: " +target);
 	}
 	
-	public void setInput(int num, R value){
+	public void setInput(final int num, final R value){
 		input[num] = value;
 		joinCounter--;
 	}
@@ -40,17 +41,27 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	public boolean isReady(){
 		return joinCounter == 0;
 	}
- 	
-	@Override
-	public String toString() {
-		return name + "("+input.length+")";
-	}
 	
 	@Override
 	public final Result<R> call(){
 		return execute();
 	}
-
+ 	
+	
+	public String toVerboseString(){
+		return this+" -> "+target;
+	}
+	
+	@Override
+	public String toString() {
+		String out = name +"_"+hashCode()+" (";
+		for(Object in: input){
+			out+=in+",";
+		}
+		out = out.substring(0,out.length()-1)+")";
+		return out;
+	}
+	
 	protected abstract Result<R> execute();
 
 }

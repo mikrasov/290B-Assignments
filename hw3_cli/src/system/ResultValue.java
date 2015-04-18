@@ -24,5 +24,10 @@ public class ResultValue<R> implements Result<R> {
 	public Closure<R>[] getTasks() {
 		throw new UnsupportedOperationException("This result is a single value");
 	}
+	
+	@Override
+	public String toString() {
+		return "Value: "+value.toString();
+	}
 
 }
