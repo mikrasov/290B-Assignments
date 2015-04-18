@@ -65,6 +65,22 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		availableComputers.add(computer);
 	}
 
+	private synchronized Closure<R> addTask(Closure<R> task){
+		task.setUid(UID_POOL++);
+		registeredTasks.put(task.getUID(), task);
+		waitingTasks.add(task);
+		return task;
+	}
+	
+	private void assignValueToTarget(final Closure<R> origin, final R value){
+		Closure<R> target = registeredTasks.get(origin.getTargetUid());
+		int targetPort = origin.getTargetPort();
+		target.setInput(targetPort, value);
+	}
+	
+	
+	
+	//Scheduling Method
 	@Override
 	public void startSpace() throws RemoteException {
 		isRunning = true;
@@ -80,22 +96,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					waitingTasks.add(task);
 			}
 			
-			Thread.sleep(CYCLE_TIME);
+			if(CYCLE_TIME > 0)
+				Thread.sleep(CYCLE_TIME);
 		} catch (InterruptedException e) {}
 	}
 	
-	private synchronized Closure<R> addTask(Closure<R> task){
-		task.setUid(UID_POOL++);
-		registeredTasks.put(task.getUID(), task);
-		waitingTasks.add(task);
-		return task;
-	}
-	
-	private void assignValueToTarget(final Closure<R> origin, final R value){
-		Closure<R> target = registeredTasks.get(origin.getTargetUid());
-		int targetPort = origin.getTargetPort();
-		target.setInput(targetPort, value);
-	}
 	
 	private class Dispatcher extends Thread{
 		
@@ -115,10 +120,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				Log.debugln("<-- "+result);
 				
 				//If Single value pass it on to target
-				if(result.isValue()){
+				if(result.isValue())
 					assignValueToTarget(task, result.getValue());
-					registeredTasks.remove(task.getUID()); //Release task
-				}
+					
+				
 				//Else Add newly created tasks to waitlist 
 				else{
 					
@@ -151,6 +156,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					
 				//Release Computer
 				availableComputers.put(computer);
+				
+				//Release task from UID index
+				registeredTasks.remove(task.getUID()); 
 				
 				//Task Executed
 				return;

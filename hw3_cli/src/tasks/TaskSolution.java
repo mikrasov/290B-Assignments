@@ -13,6 +13,7 @@ public class TaskSolution<R> extends Closure<R> {
 		super("Solution", -1, -1, 1);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Result<R> execute() {
 		return new ResultValue<R>( (R) input[0]);
