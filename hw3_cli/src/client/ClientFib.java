@@ -21,14 +21,10 @@ public class ClientFib extends Client<Integer>{
 
 	public static void main(String[] args) throws RemoteException{
 
-		if(args.length <1){
-			System.out.println("Usage: ClientFib <num> [space domain]");
-			System.exit(0);
-		}
-		
-		int fibItteration = Integer.parseInt(args[0]);
-		String domain = (args.length > 1)? args[1] : "localhost";
-		
+
+		String domain = (args.length > 0)? args[0] : "localhost";
+		int fibItteration = (args.length > 1)? args[1] : 16;
+				
 		ClientFib client = null;
 		try {
 			client = new ClientFib(domain, fibItteration);
