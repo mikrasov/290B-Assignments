@@ -61,7 +61,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	@Override
 	public void register(Computer computer) throws RemoteException {
-		Log.debug("Registering Computer: "+computer.getName());
+		System.out.println("Registering Computer: "+computer.getName());
 		availableComputers.add(computer);
 	}
 

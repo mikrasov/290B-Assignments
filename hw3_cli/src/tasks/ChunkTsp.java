@@ -44,4 +44,12 @@ public class ChunkTsp implements Serializable{
 		return bestLength;
 	}
 
+	@Override
+	public String toString() {
+		String out = "{ [";
+		for(Integer o: bestOrder )
+			out += o+" ";
+		out += "] = bestLength }";
+		return out;
+	}
 }

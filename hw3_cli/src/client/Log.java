@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 public class Log {
 
-	public static final boolean VERBOSE_DEBUG = false;
+	public static final boolean VERBOSE_DEBUG = true;
 	public static final String LOG_NAME = "fib.csv";
 	
 	
