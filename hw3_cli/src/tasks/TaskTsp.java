@@ -22,10 +22,10 @@ public class TaskTsp extends Closure<ChunkTsp> {
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP", target, targetPort, 1);
+		super("TSP", -1, -1, 1);
 		this.setInput(0, cities);
-		this.setInput(1, new List<Integer>());
-		List<Integer> toPermute = new List<Integer>();
+		this.setInput(1, new ArrayList<Integer>());
+		List<Integer> toPermute = new ArrayList<Integer>();
 		for(int i = 0; i < cities.length; i++){
 			toPermute.add(i);
 		}
@@ -38,9 +38,9 @@ public class TaskTsp extends Closure<ChunkTsp> {
 
 		List<Integer> fixedCities = (List<Integer>)input[1];
 		List<Integer> toPermute = (List<Integer>)input[2];
-		double[] cities = (double[])input[0];
+		double[][] cities = (double[][])input[0];
 
-		if(toPermute.length <= 10){
+		if(toPermute.size() <= 10){
 			//compute the shortest distance here
 			//Pre-compute distances
 			double[][] distances = new double[cities.length][cities.length];
