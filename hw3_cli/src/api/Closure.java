@@ -33,7 +33,7 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 		this.targetPort = targetPort;
 	}
 	
-	public void setInput(final int num, final R value){
+	public void setInput(final int num, final Object value){
 		input[num] = value;
 		joinCounter--;
 	}

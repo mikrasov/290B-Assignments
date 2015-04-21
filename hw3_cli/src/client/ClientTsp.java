@@ -1,11 +1,16 @@
 package client;
 
+import java.awt.Color;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.List;
+
+import javax.swing.ImageIcon;
 
 import tasks.TaskTsp;
 import tasks.ChunkTsp;
+
 
 public class ClientTsp extends Client<ChunkTsp>{
 

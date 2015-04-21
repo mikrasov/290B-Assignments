@@ -6,19 +6,36 @@ import java.rmi.RemoteException;
 
 import tasks.TaskFib;
 
-public class ClientFib extends Client<Integer>{
+public class ClientFib{
 
+    protected final String name = "Fibonacci";
+    private long clientStartTime;
+    
 	private final int itteration;
+	private final JobRunner<Integer> jobRunner;
+	
 	public ClientFib(String domain, int itteration) throws MalformedURLException, RemoteException, NotBoundException {
-		super("Fibonacci", domain, new TaskFib(itteration));
+		this.jobRunner = new JobRunner<Integer>(domain, new TaskFib(itteration));
 		this.itteration = itteration;
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() +"("+itteration+")";
+		return name+"("+itteration+")";
 	}
 
+	public int run() throws RemoteException { 
+		Log.log("Component, Time (ms)");
+    	clientStartTime = System.nanoTime(); 
+    	
+		int result = jobRunner.run();
+		
+		Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
+		
+		return result;
+	}
+	 
+	
 	public static void main(String[] args) throws RemoteException{
 
 
@@ -33,12 +50,10 @@ public class ClientFib extends Client<Integer>{
 			System.err.println(e);
 			System.exit(0);
 		}
-		client.begin();
 		int result = client.run();
-		client.end();
 		
 		Log.log(client +", Result: "+result);
 		System.out.println(client +" = "+result);
-		client.closeLog();
+		Log.close();
 	}
 }
