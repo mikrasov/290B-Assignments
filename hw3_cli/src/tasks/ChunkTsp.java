@@ -46,10 +46,15 @@ public class ChunkTsp implements Serializable{
 
 	@Override
 	public String toString() {
-		String out = "{ [";
-		for(Integer o: bestOrder )
-			out += o+" ";
-		out += "] = bestLength }";
-		return out;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append( "[ Tour: " );
+        for ( Integer city : bestOrder )
+            stringBuilder.append( city ).append( ' ' );
+
+        stringBuilder.append("| Length: ");
+        stringBuilder.append(bestLength);
+        stringBuilder.append("]");
+
+        return stringBuilder.toString();
 	}
 }
