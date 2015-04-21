@@ -10,7 +10,7 @@ import java.util.List;
  * @author Michael Nekrasov
  * @author Roman Kazarin
  */
-public class ChunkTSP implements Serializable{
+public class ChunkTsp implements Serializable{
 
 	/** Serial Version UID*/
 	private static final long serialVersionUID = -4883401114192734278L;
@@ -23,7 +23,7 @@ public class ChunkTSP implements Serializable{
 	 * @param bestOrder of cities to visit
 	 * @param bestLength total distance of space between cities
 	 */
-	public ChunkTSP(final List<Integer> bestOrder, final double bestLength) {
+	public ChunkTsp(final List<Integer> bestOrder, final double bestLength) {
 		this.bestOrder = bestOrder;
 		this.bestLength = bestLength;
 	}

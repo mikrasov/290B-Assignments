@@ -23,7 +23,7 @@ public class ClientFib extends Client<Integer>{
 
 
 		String domain = (args.length > 0)? args[0] : "localhost";
-		int fibItteration = (args.length > 1)? args[1] : 16;
+		int fibItteration = (args.length > 1)? Integer.parseInt(args[1]) : 16;
 				
 		ClientFib client = null;
 		try {
