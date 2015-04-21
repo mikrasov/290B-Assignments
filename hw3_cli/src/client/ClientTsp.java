@@ -1,12 +1,20 @@
 package client;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+
+
 
 import tasks.TaskTsp;
 import tasks.ChunkTsp;
@@ -14,6 +22,9 @@ import tasks.ChunkTsp;
 
 public class ClientTsp extends Client<ChunkTsp>{
 
+	protected final static String CLIENT_NAME = "TSP";
+	private static final int NUM_PIXALS = 600;
+    
 	private static final double[][] CITIES = 
     {
         { 1, 1 },
@@ -31,7 +42,7 @@ public class ClientTsp extends Client<ChunkTsp>{
     };
 
 	public ClientTsp(String domain) throws MalformedURLException, RemoteException, NotBoundException {
-		super("TSP", domain, new TaskTsp(CITIES));
+		super(CLIENT_NAME, domain, new TaskTsp(CITIES));
 	}
 
 	@Override
@@ -41,8 +52,6 @@ public class ClientTsp extends Client<ChunkTsp>{
 
 	public JLabel getLabel( final Integer[] tour )
     {
-        Logger.getLogger( ClientEuclideanTsp.class.getCanonicalName() ).log(Level.INFO, tourToString( tour ) );
-
         // display the graph graphically, as it were
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins
         double minX = CITIES[0][0], maxX = CITIES[0][0];
@@ -131,14 +140,13 @@ public class ClientTsp extends Client<ChunkTsp>{
 			System.err.println(e);
 			System.exit(0);
 		}
-		client.begin();
+
 		ChunkTsp result = client.run();
-		List<Integer> finalCities = result.getValue().getBestOrder();
+		List<Integer> finalCities = result.getBestOrder();
 		client.add( client.getLabel( finalCities.toArray( new Integer[0] ) ) );
-		client.end();
 		
 		Log.log(client +", Result: "+result);
 		System.out.println(client +" = "+result);
-		client.closeLog();
+		Log.close();
 	}
 }

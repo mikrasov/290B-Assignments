@@ -1,62 +1,50 @@
 package client;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.net.MalformedURLException;
-import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import api.Space;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+
 import api.Closure;
 
-public class Client<R> {
+public class Client<R> extends JFrame{
 
-	private static final int CHECK_TIME = 100;
-	
+	 /** Generated Serial ID	 */
+	private static final long serialVersionUID = 6912770951537378627L;
+
+	final protected JobRunner<R> jobRunner;
+    
+    protected R taskReturnValue;
     private long clientStartTime;
+
+	public Client( final String title, String domain, Closure<R> task ) throws MalformedURLException, RemoteException, NotBoundException  {     
+        setTitle( title );
+        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        
+        this.jobRunner = new JobRunner<R>(domain, task);
+    }
     
-    protected final String name;
-    protected Space<R> space;
-    protected Closure<R> task;
-    
-	@SuppressWarnings("unchecked")
-	public Client( final String name, String domainName, Closure<R> task) throws MalformedURLException, RemoteException, NotBoundException    {     
-		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
-        this.space = (Space<R>) Naming.lookup( url );
-        this.task = task;
-        this.name = name;
-	}
-	
-	@Override
-	public String toString() {
-		return name;
-	}
-	
-	public R run() throws RemoteException{
-		space.assignTask(task);
-		
-		while(true){
-			if(space.hasResult())
-				return space.collectResult();
-			
-				
-			try { Thread.sleep(CHECK_TIME); } 
-			catch (InterruptedException e) {}
-		}
-		
-	}
-	
-	
-    public void begin() { 
+    public void add( final JLabel jLabel )
+    {
+        final Container container = getContentPane();
+        container.setLayout( new BorderLayout() );
+        container.add( new JScrollPane( jLabel ), BorderLayout.CENTER );
+        pack();
+        setVisible( true );
+    }
+  
+    public R run() throws RemoteException{
     	Log.log("Component, Time (ms)");
     	clientStartTime = System.nanoTime(); 
-    }
-    
-    public void end()  { 
-    	Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
-    	
-    }
-
-    public void closeLog(){
+    	R result = jobRunner.run();
+    	Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
+    	Log.log("");
     	Log.close();
+    	return result;
     }
 }

@@ -8,7 +8,7 @@ import tasks.TaskFib;
 
 public class ClientFib{
 
-    protected final String name = "Fibonacci";
+    protected final static String CLIENT_NAME = "Fibonacci";
     private long clientStartTime;
     
 	private final int itteration;
@@ -21,7 +21,7 @@ public class ClientFib{
 
 	@Override
 	public String toString() {
-		return name+"("+itteration+")";
+		return CLIENT_NAME+"("+itteration+")";
 	}
 
 	public int run() throws RemoteException { 
