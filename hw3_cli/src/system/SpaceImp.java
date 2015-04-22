@@ -20,17 +20,15 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	/** Serial ID */
 	private static final long serialVersionUID = -1147376615845722661L;
 
-	public static final int RETRY_TIMEOUT = 500;
-	public static final int CYCLE_TIME = 50;
-	
 	private static long UID_POOL=0;
 	
 	private boolean isRunning = false;
 	
 	private HashMap<Long, Closure<R>> registeredTasks = new HashMap<Long, Closure<R>>();
 	
+	private BlockingQueue<Closure<R>> readyTasks = new LinkedBlockingQueue<Closure<R>>();
 	private BlockingQueue<Closure<R>> waitingTasks = new LinkedBlockingQueue<Closure<R>>();
-	private BlockingQueue<Computer> availableComputers = new LinkedBlockingQueue<Computer>();
+	private BlockingQueue<Dispatcher> runningComputers = new LinkedBlockingQueue<Dispatcher>();
 	
 	private Closure<R> solution = new TaskSolution<R>();
 	
@@ -43,8 +41,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	@Override
 	public void assignTask(Closure<R> task) throws RemoteException {
-		addTask(task);
-		task.setTarget( solution.getUID(), 0 );
+		addTask(task).setTarget( solution.getUID(), 0 );
 	}
 
 	@Override
@@ -63,7 +60,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	@Override
 	public void register(Computer computer) throws RemoteException {
 		System.out.println("Registering Computer: "+computer.getName());
-		availableComputers.add(computer);
+		
+		Dispatcher dispatcher = new Dispatcher(computer);
+		dispatcher.start();
+		runningComputers.add(dispatcher);
 	}
 
 	private synchronized Closure<R> addTask(Closure<R> task){
@@ -79,42 +79,36 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		target.setInput(targetPort, value);
 	}
 	
-	//Scheduling Method
-	@Override
-	public void startSpace() throws RemoteException {
-		isRunning = true;
-
-		while(isRunning) try {			
-			if(!availableComputers.isEmpty()){
-				Closure<R> task = waitingTasks.take();
-					
-				if(task.isReady())	// Input Full
-					new Dispatcher(task).start();
-
-				else // Put back on queue
-					waitingTasks.add(task);
-			}
-			
-			if(CYCLE_TIME > 0)
-				Thread.sleep(CYCLE_TIME);
-		} catch (InterruptedException e) {}
-	}
-	
-	
 	private class Dispatcher extends Thread{
 		
-		private Closure<R> task;
+		private final Computer computer;
 		
-		public Dispatcher(Closure<R> task) {
-			this.task = task;
+		public Dispatcher(Computer computer) {
+			this.computer = computer;
 		}
 		
 		@Override
 		public void run() {	
-			Log.debugln("--> "+task);
-			while(true)	try{
-				Computer computer = availableComputers.take();
-				Result<R> result = computer.execute(task);
+			
+			while(true)	{
+				Closure<R> task;
+				try {
+					task = readyTasks.take();
+				} 
+				catch (InterruptedException e) { continue; }
+				
+				Log.debugln("--> "+task);
+				
+				Result<R> result;
+				try {
+					result = computer.execute(task);
+				} catch (RemoteException e) {
+					System.err.println("Comuter "+computer+" suffered an RMI Failure, ceasing communication");
+					System.err.println(e);
+					System.err.println("Returning "+task+" to task queue");
+					waitingTasks.add(task);
+					return; //Terminates the dispatcher
+				}
 				
 				Log.debugln("<-- "+result);
 				Log.log( task +", "+result.getRunTime() );
@@ -123,7 +117,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				if(result.isValue())
 					assignValueToTarget(task, result.getValue());
 					
-				
 				//Else Add newly created tasks to waitlist 
 				else{
 					
@@ -154,26 +147,23 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				
 				Log.debugln("@ Assigned "+result);
 					
-				//Release Computer
-				availableComputers.put(computer);
-				
 				//Release task from UID index
 				registeredTasks.remove(task.getUID()); 
-				
-				//Task Executed
-				return;
 			}
-			catch(RemoteException e1){
-				System.err.println("RMI Error when dispatching task to Computer, abandoning computer and trying again");
-				System.err.println(e1);
-				try {
-					Thread.sleep(RETRY_TIMEOUT);
-				}
-				catch (InterruptedException e3) {}
-			}
-			catch (InterruptedException e2) {} 
 		}
 	}
+	
+	@Override
+	public void startSpace() throws RemoteException {
+		isRunning = true;
+		while(isRunning) for(Closure<R> task: waitingTasks){
+			if(task.isReady()){
+				readyTasks.add(task);
+				waitingTasks.remove(task);
+			}
+		}
+	}
+	
 	
 	public static void main(String[] args) throws RemoteException {
 		String logFile = (args.length > 0)? args[0] : "space.csv";
@@ -192,8 +182,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
         //Print Acknowledgement
         System.out.println("Space ready and registered as '"+Space.SERVICE_NAME+"' on port "+Space.PORT);
-
-        //Start space
+        
+        //Start Scheduler
         space.startSpace();
         
         Log.close();
