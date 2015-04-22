@@ -32,12 +32,13 @@ public class TaskTsp extends Closure<ChunkTsp> {
 		this.setInput(2, toPermute);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<ChunkTsp> execute() {
-	
+		double[][] cities = (double[][])input[0];
 		List<Integer> fixedCities = (List<Integer>)input[1];
 		List<Integer> toPermute = (List<Integer>)input[2];
-		double[][] cities = (double[][])input[0];
+		
 
 		if(toPermute.size() <= 10){
 			//compute the shortest distance here
@@ -51,7 +52,7 @@ public class TaskTsp extends Closure<ChunkTsp> {
 				}
 			}
 
-			PermutationEnumerator<Integer> generator = new PermutationEnumerator(toPermute);
+			PermutationEnumerator<Integer> generator = new PermutationEnumerator<Integer>(toPermute);
 
 			double bestLength = Double.MAX_VALUE;
 			List<Integer> bestOrder = null;
@@ -77,11 +78,9 @@ public class TaskTsp extends Closure<ChunkTsp> {
 				}
 			}
 
-		return new ResultValue<ChunkTsp>(new ChunkTsp(bestOrder, bestLength));
-
+			return new ResultValue<ChunkTsp>(new ChunkTsp(bestOrder, bestLength));
 		}
 		else {
-			@SuppressWarnings("unchecked")
 			Closure<ChunkTsp>[] tasks = new Closure[toPermute.size()+1];
 			tasks[0] = new TaskCompareTsp(targetUid, targetPort, toPermute.size());
 			for(int i = 1; i <= toPermute.size(); i++){
@@ -97,7 +96,6 @@ public class TaskTsp extends Closure<ChunkTsp> {
 			}
 
 			return new ResultTasks<ChunkTsp>(tasks);
-
 		}
 	}
 
