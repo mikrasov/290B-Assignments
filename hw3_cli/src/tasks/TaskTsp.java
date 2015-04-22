@@ -34,8 +34,7 @@ public class TaskTsp extends Closure<ChunkTsp> {
 
 	@Override
 	public Result<ChunkTsp> execute() {
-		long clientStartTime = System.nanoTime();
-
+	
 		List<Integer> fixedCities = (List<Integer>)input[1];
 		List<Integer> toPermute = (List<Integer>)input[2];
 		double[][] cities = (double[][])input[0];

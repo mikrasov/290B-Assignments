@@ -9,11 +9,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import tasks.TaskSolution;
+import util.Log;
 import api.Closure;
 import api.Computer;
 import api.Result;
 import api.Space;
-import client.Log;
 
 public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
@@ -49,6 +49,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	@Override
 	public R collectResult() throws RemoteException {
+		Log.flush();
 		if(!hasResult())
 			return null;
 		return solution.call().getValue();
@@ -77,8 +78,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		int targetPort = origin.getTargetPort();
 		target.setInput(targetPort, value);
 	}
-	
-	
 	
 	//Scheduling Method
 	@Override
@@ -118,6 +117,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				Result<R> result = computer.execute(task);
 				
 				Log.debugln("<-- "+result);
+				Log.log( task +", "+result.getRunTime() );
 				
 				//If Single value pass it on to target
 				if(result.isValue())
@@ -176,6 +176,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	}
 	
 	public static void main(String[] args) throws RemoteException {
+		String logFile = (args.length > 0)? args[0] : "space.csv";
+		Log.startLog(logFile);
+		Log.log("Task, Run Time (ms)");
+		
 		// Set Security Manager 
         System.setSecurityManager( new SecurityManager() );
 
@@ -191,6 +195,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
         //Start space
         space.startSpace();
+        
+        Log.close();
 	}
 
 }

@@ -52,7 +52,7 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	public String toString() {
 		String out = name +"_"+hashCode()+"(";
 		for(Object in: input){
-			out+=in+",";
+			out+=in+" ";
 		}
 		out = out.substring(0,out.length()-1)+")";
 		return out+" >["+targetUid+"]";
@@ -70,9 +70,9 @@ public abstract class Closure<R> implements Callable<Result<R>>, Serializable{
 	
 	@Override
 	public final Result<R> call(){
-		//TODO: start calculating computer run time 
+		long clientStartTime = System.nanoTime();
 		Result<R> result = execute();
-		//TODO: end calculating computer run time
+		result.setRunTime( (System.nanoTime() - clientStartTime) / 1000000.0 );
 		return result;
 	}
 	

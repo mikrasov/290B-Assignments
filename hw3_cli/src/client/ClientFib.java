@@ -5,6 +5,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import tasks.TaskFib;
+import util.Log;
 
 public class ClientFib{
 
@@ -26,22 +27,21 @@ public class ClientFib{
 
 	public int run() throws RemoteException { 
 		Log.log("Component, Time (ms)");
-    	clientStartTime = System.nanoTime(); 
-    	
-		int result = jobRunner.run();
 		
+    	clientStartTime = System.nanoTime(); 
+		int result = jobRunner.run();
 		Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
 		
 		return result;
 	}
 	 
-	
 	public static void main(String[] args) throws RemoteException{
-
-
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int fibItteration = (args.length > 1)? Integer.parseInt(args[1]) : 16;
-				
+		String logFile = (args.length > 2)? args[2] : CLIENT_NAME+".csv";
+		
+		Log.startLog(logFile);
+		
 		ClientFib client = null;
 		try {
 			client = new ClientFib(domain, fibItteration);

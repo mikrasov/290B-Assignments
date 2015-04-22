@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 
 import tasks.ChunkTsp;
 import tasks.TaskTsp;
-
+import util.Log;
 
 public class ClientTsp extends Client<ChunkTsp>{
 
@@ -116,8 +116,10 @@ public class ClientTsp extends Client<ChunkTsp>{
     }
 
 	public static void main(String[] args) throws RemoteException{
-		
 		String domain = (args.length > 0)? args[0] : "localhost";
+		String logFile = (args.length > 1)? args[1] : CLIENT_NAME+".csv";
+		
+		Log.startLog(logFile);
 		
 		ClientTsp client = null;
 		try {

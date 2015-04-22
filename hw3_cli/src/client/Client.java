@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
+import util.Log;
 import api.Closure;
 
 public class Client<R> extends JFrame{

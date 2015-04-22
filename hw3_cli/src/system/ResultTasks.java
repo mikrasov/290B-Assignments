@@ -8,6 +8,7 @@ public class ResultTasks<R> implements Result<R> {
 	/** Serial ID */
 	private static final long serialVersionUID = 6243904140408341588L;
 	
+	private double runTime;
 	private Closure<R>[] tasks;
 	
 	public ResultTasks(Closure<R>[] tasks) {
@@ -32,5 +33,15 @@ public class ResultTasks<R> implements Result<R> {
 			out += "| " +task+"\n";
 		
 		return out;
+	}
+	
+	@Override
+	public double getRunTime() {
+		return runTime;
+	}
+
+	@Override
+	public void setRunTime(double time) {
+		runTime = time;
 	}
 }
