@@ -7,11 +7,11 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
+import util.Log;
 import api.Closure;
 import api.Computer;
 import api.Result;
 import api.Space;
-import client.Log;
 
 public class ComputerImp extends UnicastRemoteObject  implements Computer {
 

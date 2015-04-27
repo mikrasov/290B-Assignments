@@ -2,21 +2,41 @@
 
 <h2>**To Compile:**</h2>
 <code>
-cd hw2_cli <br>
+cd hw3_cli <br>
 ant dist <br>
-</code>
-
-<h2>**To Execute Client:**</h2>
-<code>
-...
 </code>
 
 <h2>**To Execute Space:**</h2>
 <code>
-...
+ant runSpace
 </code>
 
-<h2>*To Execute Client (in seperate terminal window:)**</h2>
+<h2>*To Execute Computer (in seperate terminal window:)**</h2>
 <code>
-...
+If running space locally but in separate jvm: <br>
+ant -Darg0=localhost -Darg1={computer_id} runComputer<br><br>
+
+If running space remotely:<br>
+ant -Darg0={remote_space_host_ip_address} -Darg1={computer_id} runComputer<br><br>
+</code>
+
+<h2>**To Execute Fibonacci Client (in seperate terminal window:):**</h2>
+<code>
+If running space locally but in separate jvm: <br>
+ant -Darg0=localhost -Darg1={fibonacci_number_to_get} runFibClient<br><br>
+
+If running space remotely:<br>
+ant -Darg0={remote_space_host_ip_address} -Darg1={fibonacci_number_to_get} runFibClient <br><br>
+
+</code>
+
+
+<h2>**To Execute Traveling Salesman Client (in seperate terminal window:):**</h2>
+<code>
+If running space locally but in separate jvm: <br>
+ant -Darg0=localhost runTspClient<br><br>
+
+If running space remotely:<br>
+ant -Darg0={remote_space_host_ip_address} runTspClient<br><br>
+
 </code>

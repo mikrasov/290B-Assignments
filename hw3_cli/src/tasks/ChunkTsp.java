@@ -44,4 +44,17 @@ public class ChunkTsp implements Serializable{
 		return bestLength;
 	}
 
+	@Override
+	public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append( "[ Tour: " );
+        for ( Integer city : bestOrder )
+            stringBuilder.append( city ).append( ' ' );
+
+        stringBuilder.append("| Length: ");
+        stringBuilder.append(bestLength);
+        stringBuilder.append("]");
+
+        return stringBuilder.toString();
+	}
 }

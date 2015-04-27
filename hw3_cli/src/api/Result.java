@@ -10,4 +10,8 @@ public interface Result<R> extends Serializable {
 	
 	public Closure<R>[] getTasks();
 	
+	public double getRunTime();
+	
+	public void setRunTime(double d);
+	
 }

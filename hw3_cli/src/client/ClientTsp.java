@@ -8,20 +8,18 @@ import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-
-
-import tasks.TaskTsp;
 import tasks.ChunkTsp;
-
+import tasks.TaskTsp;
+import util.Log;
 
 public class ClientTsp extends Client<ChunkTsp>{
 
+	/** Serial ID	 */
+	private static final long serialVersionUID = 6911008092238762097L;
 	protected final static String CLIENT_NAME = "TSP";
 	private static final int NUM_PIXALS = 600;
     
@@ -116,21 +114,12 @@ public class ClientTsp extends Client<ChunkTsp>{
         final ImageIcon imageIcon = new ImageIcon( image );
         return new JLabel( imageIcon );
     }
-    
-    private String tourToString( Integer[] cities )
-    {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append( "Tour: " );
-        for ( Integer city : cities )
-        {
-            stringBuilder.append( city ).append( ' ' );
-        }
-        return stringBuilder.toString();
-    }
 
 	public static void main(String[] args) throws RemoteException{
-		
 		String domain = (args.length > 0)? args[0] : "localhost";
+		String logFile = (args.length > 1)? args[1] : CLIENT_NAME+".csv";
+		
+		Log.startLog(logFile);
 		
 		ClientTsp client = null;
 		try {
