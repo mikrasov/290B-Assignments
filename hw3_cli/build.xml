@@ -102,6 +102,9 @@
     <delete dir="${client_file_codebase}/tasks"/>
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
+    <delete file="fib.csv"/>
+    <delete file="space.csv"/>
+    <delete file="tsp.csv"/>
   </target>
   
 </project>

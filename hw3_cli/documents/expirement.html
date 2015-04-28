@@ -1,19 +1,116 @@
-<html>
-<head></head>
-<body>
+<html><head></head><body><h1>Expiremental results</h1>
 
-<h1>Expiremental results</h1>
+<h2>Traveling Salesman</h2>
+<br>
+<br>
+
+<strong>Shortest path:</strong><br>
+Tour: 7 3 2 6 10 9 5 1 0 4 8 11  Length: 31.313708498984763<br>
+
+<br>
+<br>
+<table border="1" style="width:100%">
+    <tbody><tr>
+        <td><b>Scenario Type</b></td>
+        <td>c = 1: elapsed time for each task</td>
+        <td>c = 1: elapsed time for the client's job</td>
+        <td>c = 2: elapsed time for each task</td>
+        <td>c = 2: elapsed time for the client's job</td>
+        <td>c = 3: elapsed time for each task</td>
+        <td>c = 3: elapsed time for the client's job</td>
+        <td>c = 4: elapsed time for each task</td>
+        <td>c = 4: elapsed time for the client's job</td>
+        <td>Parallel efficieny</td>
+    </tr>
+    <tr>
+        <td>Same JVM</td>
+        <td><a href="TSP_c1_same_jvm.txt">Task times</a></td>
+        <td>117509.151 ms</td>
+        <td><a href="TSP_c2_same_jvm.txt">Task times</a></td>
+        <td>57284.184 ms</td>
+        <td><a href="TSP_c3_same_jvm.txt">Task times</a></td>
+        <td>54466.777 ms</td>
+        <td><a href="TSP_c4_same_jvm.txt">Task times</a></td>
+        <td>60177.391 ms</td>
+
+    </tr>
+    <tr>
+        <td>Different JVMs</td>
+        <td><a href="TSP_c1_diff_jvm.txt">Task times</a></td>
+        <td>116442.032 ms</td>
+        <td><a href="TSP_c2_diff_jvm.txt">Task times</a></td>
+        <td>81659.232 ms</td>
+        <td><a href="TSP_c3_diff_jvm.txt">Task times</a></td>
+        <td>70706.39 ms</td>
+        <td><a href="TSP_c4_diff_jvm.txt">Task times</a></td>
+        <td>56614.767 ms</td>
+    </tr>
+    <tr>
+        <td>Different machines</td>
+        <td><a href="TSP_c1_diff_computers.csv">Download task times</a></td>
+        <td>84241.67744 ms</td>
+        <td><a href="TSP_c2_diff_computers.csv">Download task times</a></td>
+        <td>36329.57071 ms</td>
+        <td><a href="TSP_c3_diff_computers.csv">Download task times</a></td>
+        <td>84241.67744 ms</td>
+        <td><a href="TSP_c4_diff_computers.csv">Download task times</a></td>
+        <td>36329.57071 ms</td>
+    </tr>
+    </tbody></table>
 
 
-<h2>Data</h2>
+<h2> Set</h2>
+
+<img src="Fib.png"/>
+<br>
+<br>
+
+<table border="1" style="width:100%">
+    <tbody><tr>
+        <td><b>Scenario Type</b></td>
+        <td>c = 1: elapsed time for each task</td>
+        <td>c = 1: elapsed time for the client's job</td>
+        <td>c = 2: elapsed time for each task</td>
+        <td>c = 2: elapsed time for the client's job</td>
+    </tr>
+    <tr>
+        <td>Same JVM</td>
+        <td><a href="Mandelbrot_c1_same_jvm.csv">Download task times</a></td>
+        <td>55700.075 ms</td>
+        <td><a href="Mandelbrot_c2_same_jvm.csv">Download task times</a></td>
+        <td>55892.334 ms</td>
+    </tr>
+    <tr>
+        <td>Different JVMs</td>
+        <td><a href="Mandelbrot_c1_diff_jvm.csv">Download task times</a></td>
+        <td>59942.461 ms</td>
+        <td><a href="Mandelbrot_c2_diff_jvm.csv">Download task times</a></td>
+        <td>60156.534 ms</td>
+    </tr>
+    <tr>
+        <td>Different machines</td>
+        <td><a href="Mandelbrot_c1_diff_computers.csv">Download task times</a></td>
+        <td>56104.69087 ms</td>
+        <td><a href="Mandelbrot_c2_diff_computers.csv">Download task times</a></td>
+        <td>55370.74316 ms</td>
+    </tr>
+    </tbody></table>
 
 
-<h2>Analysis</h2>
+<h3>Analysis</h3>
 
-<h3>What do you see as the advantages/disadvantages of your task scheduler?</h3>
-<p></p>
-<h3>How might you change the infrastructure to improve your parallel efficiency?</h3>
-<h3>What issues are involved in generalizing your infrastructure to a network of Spaces?</h3>
+<p>For the Mandelbrot Set results, we do not see much variation in the job execution times. All 6 times are around 57 seconds. Same JVM vs Different JVM's: Whenever we instruct a computer to compute a task, we create a new thread to do so. This is true whether we are on same or separate jvm's, therefore it is not surprising that the time is practically the same. When running on completely separate machines, even if the job execution is faster, TCP overhead can raise the execution time. Having 1 computer vs 2 computers did not make any difference.</p>
 
-</body>
-</html>
+
+<p>For the TSP results, we see a dramatic job execution time change between 1 computer and 2 computers. Just like in the Mandelbrot Set results, there is not much variation between same/diff jvm and separate computers (ignoring the number of computer instances). However after connecting a second computer instance to the space, same jvm drops 24 seconds, different jvm's drops 31 second, and separate computers drops 48 seconds. </p>
+
+
+<p>Why did one extra machine make such a big difference in the TSP experiments compared to the Mandelbrot experiments? </p>
+
+<p>We hypothesize that it is because the TSP tasks are much more computationally/memory intensive than the Mandelbrot tasks. For Mandelbrot, the tasks finish so fast that it does not make a difference whether they run locally, remotely, or on multiple machines. But for TSP, the tasks take a much more significant amount of time to complete, therefore partitioning this computationally intensive work to different machines goes a long way.</p>
+
+<p>One measure that would have been helpful to have is TCP overhead time. How long did it take for the network to send the task from the Space to the computer, and to receive the result? Another intersting measure that could have been observed is task size. Does it take longer to compute the TSP with a task size of 1 million permutations or 50 million?</p>
+
+<p>We avoided any concurrency/thread safety issues by giving each thread its own instance. Therefore threads would not have access to the same data, except for, of course the Space thread; however, because of the BlockingQueue, these issues were avoided in the Space as well.</p>
+
+</body></html>

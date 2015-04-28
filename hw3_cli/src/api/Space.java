@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 public interface Space<R> extends Remote {
 
-	public static int PORT = 8001;
+	public static int PORT = 9001;
     public static String SERVICE_NAME = "Space";
 
     /**
