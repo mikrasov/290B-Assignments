@@ -14,10 +14,18 @@ public class ClientFib{
     
 	private final int itteration;
 	private final JobRunner<Integer> jobRunner;
+    private Log log;
 	
-	public ClientFib(String domain, int itteration) throws MalformedURLException, RemoteException, NotBoundException {
-		this.jobRunner = new JobRunner<Integer>(domain, new TaskFib(itteration));
+	public ClientFib(String domain, int itteration, int numComputers, Log log) throws MalformedURLException, RemoteException, NotBoundException {
+		if(domain.equalsIgnoreCase("jvm")){
+            this.jobRunner = new JobRunnerLocal<Integer>(new TaskFib(itteration), numComputers, log);
+        }
+        else {
+            this.jobRunner = new JobRunnerRemote<Integer>(domain, new TaskFib(itteration));
+        }
+
 		this.itteration = itteration;
+        this.log = log;
 	}
 
 	@Override
@@ -26,34 +34,42 @@ public class ClientFib{
 	}
 
 	public int run() throws RemoteException { 
-		Log.log("Component, Time (ms)");
+		log.log("Component, Time (ms)");
 		
     	clientStartTime = System.nanoTime(); 
 		int result = jobRunner.run();
-		Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
+		log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
 		
 		return result;
 	}
 	 
 	public static void main(String[] args) throws RemoteException{
 		String domain = (args.length > 0)? args[0] : "localhost";
-		int fibItteration = (args.length > 1)? Integer.parseInt(args[1]) : 16;
-		String logFile = (args.length > 2)? args[2] : CLIENT_NAME+".csv";
-		
-		Log.startLog(logFile);
-		
+        int numComputers = (args.length > 1)? Integer.parseInt(args[1]) : 1;
+		int fibItteration = (args.length > 2)? Integer.parseInt(args[2]) : 16;
+
+        Log log = new Log("fib");
+
 		ClientFib client = null;
 		try {
-			client = new ClientFib(domain, fibItteration);
-		} catch (MalformedURLException | RemoteException | NotBoundException e) {
+			client = new ClientFib(domain, fibItteration, numComputers, log);
+		} catch (MalformedURLException e)  {
 			System.err.println("No Space found at '"+domain+"'");
 			System.err.println(e);
 			System.exit(0);
-		}
+		} catch (RemoteException e) {
+            System.err.println("No Space found at '"+domain+"'");
+            System.err.println(e);
+            System.exit(0);
+        } catch (NotBoundException e){
+            System.err.println("No Space found at '"+domain+"'");
+            System.err.println(e);
+            System.exit(0);
+        }
 		int result = client.run();
 		
-		Log.log(client +", Result: "+result);
+		log.log(client +", Result: "+result);
 		System.out.println(client +" = "+result);
-		Log.close();
+		log.close();
 	}
 }

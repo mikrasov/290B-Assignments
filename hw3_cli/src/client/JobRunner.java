@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 import api.Closure;
 import api.Space;
 
-public class JobRunner<R> {
+public abstract class JobRunner<R> {
 
 private static final int CHECK_TIME = 100;
 	
@@ -16,24 +16,21 @@ private static final int CHECK_TIME = 100;
     protected Closure<R> task;
     
 	@SuppressWarnings("unchecked")
-	public JobRunner( String domainName, Closure<R> task) throws MalformedURLException, RemoteException, NotBoundException    {     
-		String url = "rmi://" + domainName + ":" + Space.PORT + "/" + Space.SERVICE_NAME;
-        this.space = (Space<R>) Naming.lookup( url );
+	public JobRunner(Closure<R> task) throws MalformedURLException, RemoteException, NotBoundException    {
         this.task = task;
 	}
 
-	public R run() throws RemoteException{
-		space.assignTask(task);
-		
-		while(true){
-			if(space.hasResult())
-				return space.collectResult();
-			
-				
-			try { Thread.sleep(CHECK_TIME); } 
-			catch (InterruptedException e) {}
-		}
-		
-	}
+    public R run() throws RemoteException {
+        space.assignTask(task);
 
+        while(true){
+            if(space.hasResult())
+                return space.collectResult();
+
+
+            try { Thread.sleep(CHECK_TIME); }
+            catch (InterruptedException e) {}
+        }
+
+    }
 }

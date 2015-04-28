@@ -22,7 +22,7 @@ public class TaskTsp extends Closure<ChunkTsp> {
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP", -1, -1, 1);
+		super("TSP", -1, -1, 3);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();
@@ -60,7 +60,7 @@ public class TaskTsp extends Closure<ChunkTsp> {
 				double currentLength = 0;
 				perm.addAll(fixedCities);
 
-				int src = fixedCities.get(0);
+				int src = fixedCities.get(fixedCities.size()-1);
 				for(int dest: perm){
 					if(src < dest) //Compensate for triangular matrix
 						currentLength += distances[src][dest];

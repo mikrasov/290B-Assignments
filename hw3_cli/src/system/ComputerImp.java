@@ -20,7 +20,7 @@ public class ComputerImp extends UnicastRemoteObject  implements Computer {
 
 	private final String name;
 	
-	protected ComputerImp(String name) throws RemoteException {
+	public ComputerImp(String name) throws RemoteException {
 		super();
 		this.name = name;
 	}
@@ -52,9 +52,15 @@ public class ComputerImp extends UnicastRemoteObject  implements Computer {
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
 			Computer computer = new ComputerImp(name);
 			space.register(computer);
-		} catch (MalformedURLException | RemoteException | NotBoundException e) {
-			System.err.println("No Space found at "+url);
-			System.err.println(e);
-		}		
+		} catch (MalformedURLException e)  {
+            System.err.println("No Space found at "+url);
+            System.err.println(e);
+        } catch (RemoteException e) {
+            System.err.println("No Space found at "+url);
+            System.err.println(e);
+        } catch (NotBoundException e){
+            System.err.println("No Space found at "+url);
+            System.err.println(e);
+        }
 	}
 }

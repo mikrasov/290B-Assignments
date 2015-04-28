@@ -22,12 +22,19 @@ public class Client<R> extends JFrame{
     
     protected R taskReturnValue;
     private long clientStartTime;
+    private Log log;
 
-	public Client( final String title, String domain, Closure<R> task ) throws MalformedURLException, RemoteException, NotBoundException  {     
+	public Client( final String title, String domain, Closure<R> task, int numComputers, Log log ) throws MalformedURLException, RemoteException, NotBoundException  {
         setTitle( title );
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        
-        this.jobRunner = new JobRunner<R>(domain, task);
+        this.log = log;
+
+        if(domain.equalsIgnoreCase("jvm")){
+            this.jobRunner = new JobRunnerLocal<R>(task, numComputers, log);
+        } else {
+            this.jobRunner = new JobRunnerRemote<R>(domain, task);
+
+        }
     }
     
     public void add( final JLabel jLabel )
@@ -40,12 +47,12 @@ public class Client<R> extends JFrame{
     }
   
     public R run() throws RemoteException{
-    	Log.log("Component, Time (ms)");
+    	log.log("Component, Time (ms)");
     	clientStartTime = System.nanoTime(); 
     	R result = jobRunner.run();
-    	Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
-    	Log.log("");
-    	Log.close();
+    	log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
+    	log.log("");
+    	log.close();
     	return result;
     }
 }

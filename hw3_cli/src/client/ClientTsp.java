@@ -39,8 +39,8 @@ public class ClientTsp extends Client<ChunkTsp>{
         { 3, 6 }
     };
 
-	public ClientTsp(String domain) throws MalformedURLException, RemoteException, NotBoundException {
-		super(CLIENT_NAME, domain, new TaskTsp(CITIES));
+	public ClientTsp(String domain, int numComputers, Log log) throws MalformedURLException, RemoteException, NotBoundException {
+		super(CLIENT_NAME, domain, new TaskTsp(CITIES), numComputers, log);
 	}
 
 	@Override
@@ -117,25 +117,33 @@ public class ClientTsp extends Client<ChunkTsp>{
 
 	public static void main(String[] args) throws RemoteException{
 		String domain = (args.length > 0)? args[0] : "localhost";
-		String logFile = (args.length > 1)? args[1] : CLIENT_NAME+".csv";
-		
-		Log.startLog(logFile);
+		int numComputers = (args.length > 1)? Integer.parseInt(args[1]) : 1;
+
+		Log log = new Log("tsp");
 		
 		ClientTsp client = null;
 		try {
-			client = new ClientTsp(domain);
-		} catch (MalformedURLException | RemoteException | NotBoundException e) {
-			System.err.println("No Space found at '"+domain+"'");
-			System.err.println(e);
-			System.exit(0);
-		}
+			client = new ClientTsp(domain, numComputers, log);
+		} catch (MalformedURLException e)  {
+            System.err.println("No Space found at '"+domain+"'");
+            System.err.println(e);
+            System.exit(0);
+        } catch (RemoteException e) {
+            System.err.println("No Space found at '"+domain+"'");
+            System.err.println(e);
+            System.exit(0);
+        } catch (NotBoundException e){
+            System.err.println("No Space found at '"+domain+"'");
+            System.err.println(e);
+            System.exit(0);
+        }
 
 		ChunkTsp result = client.run();
 		List<Integer> finalCities = result.getBestOrder();
 		client.add( client.getLabel( finalCities.toArray( new Integer[0] ) ) );
 		
-		Log.log(client +", Result: "+result);
+		log.log(client +", Result: "+result);
 		System.out.println(client +" = "+result);
-		Log.close();
+		log.close();
 	}
 }

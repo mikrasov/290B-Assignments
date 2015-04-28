@@ -12,8 +12,17 @@ public class Log {
 	public static final boolean VERBOSE_DEBUG = true;
 	
 	private static FileWriter log;
+
+    public Log(String logName) {
+        System.out.println("Starting log at: "+logName);
+        try {
+            log = new FileWriter(logName+".csv");
+        } catch (IOException e) {
+            System.err.println("Error Writing log: "+logName);
+        }
+    }
 	
-	public static void startLog(String filename){
+	public void startLog(String filename){
 		try {
 			log = new FileWriter(filename);
 		} catch (IOException e) {
@@ -21,7 +30,7 @@ public class Log {
 		}
 	}
 	
-	public static void log(String line){
+	public void log(String line){
     	Logger.getLogger( Client.class.getCanonicalName() )
         .log(Level.INFO, line);
     
@@ -40,7 +49,7 @@ public class Log {
 		debug(str+"\n");
 	}
 	
-	public static void close(){
+	public void close(){
 		if(log != null) try {
 			log.close();
 		} catch (IOException e) {

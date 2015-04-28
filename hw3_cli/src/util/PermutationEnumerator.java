@@ -54,14 +54,14 @@ public class PermutationEnumerator<T> implements Iterable< List<T> >
         {
             throw new IllegalArgumentException();
         }
-        permutation = new ArrayList<>( objectList );
+        permutation = new ArrayList<T>( objectList );
         if ( permutation.isEmpty() )
         { 
             return; 
         }
-        subpermutation = new ArrayList<>( permutation );
+        subpermutation = new ArrayList<T>( permutation );
         interleaveObject = subpermutation.remove( 0 );
-        subPermutationEnumerator = new PermutationEnumerator<>( subpermutation );
+        subPermutationEnumerator = new PermutationEnumerator<T>( subpermutation );
         subpermutation = subPermutationEnumerator.nextPerm();
     }
     
@@ -77,7 +77,7 @@ public class PermutationEnumerator<T> implements Iterable< List<T> >
         {
             return null;
         }
-        List<T> returnValue = new ArrayList<>( permutation );
+        List<T> returnValue = new ArrayList<T>( permutation );
         if ( permutation.isEmpty() )
         {
             permutation = null;
@@ -97,7 +97,7 @@ public class PermutationEnumerator<T> implements Iterable< List<T> >
             }
             else
             {
-                permutation = new ArrayList<>( subpermutation );
+                permutation = new ArrayList<T>( subpermutation );
                 permutation.add( 0, interleaveObject );                
                 nextIndex = 0;
             }

@@ -23,6 +23,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static long UID_POOL=0;
 	
 	private boolean isRunning = false;
+    private Log log;
 	
 	private HashMap<Long, Closure<R>> registeredTasks = new HashMap<Long, Closure<R>>();
 	
@@ -32,8 +33,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	private Closure<R> solution = new TaskSolution<R>();
 	
-	protected SpaceImp() throws RemoteException { 
-		super(); 
+	public SpaceImp(Log log) throws RemoteException {
+		super();
+        this.log = log;
 		
 		solution.setUid(UID_POOL++);
 		registeredTasks.put(solution.getUID(), solution);
@@ -97,7 +99,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				} 
 				catch (InterruptedException e) { continue; }
 				
-				Log.debugln("--> "+task);
+				log.debugln("--> "+task);
 				
 				Result<R> result;
 				try {
@@ -110,8 +112,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					return; //Terminates the dispatcher
 				}
 				
-				Log.debugln("<-- "+result);
-				Log.log( task +", "+result.getRunTime() );
+				log.debugln("<-- "+result);
+				log.log( task +", "+result.getRunTime() );
 				
 				//If Single value pass it on to target
 				if(result.isValue())
@@ -145,7 +147,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					}
 				}
 				
-				Log.debugln("@ Assigned "+result);
+				log.debugln("@ Assigned "+result);
 					
 				//Release task from UID index
 				registeredTasks.remove(task.getUID()); 
@@ -166,9 +168,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	
 	public static void main(String[] args) throws RemoteException {
-		String logFile = (args.length > 0)? args[0] : "space.csv";
-		Log.startLog(logFile);
-		Log.log("Task, Run Time (ms)");
+		String logFile = (args.length > 0)? args[0] : "space";
+		Log log = new Log(logFile);
+		log.log("Task, Run Time (ms)");
 		
 		// Set Security Manager 
         System.setSecurityManager( new SecurityManager() );
@@ -177,7 +179,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
         Registry registry = LocateRegistry.createRegistry( Space.PORT );
 
         // Create Space
-        SpaceImp<Object> space = new SpaceImp<>();
+        SpaceImp<Object> space = new SpaceImp<Object>(log);
         registry.rebind( Space.SERVICE_NAME, space );
 
         //Print Acknowledgement
@@ -186,7 +188,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
         //Start Scheduler
         space.startSpace();
         
-        Log.close();
+        log.close();
 	}
 
 }
