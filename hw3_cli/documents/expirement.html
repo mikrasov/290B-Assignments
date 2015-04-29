@@ -120,6 +120,32 @@ Fibonacci(16) = 1597
 
 
 <h3>Analysis</h3>
-
-
+<h4>What do you see as the advantages/disadvantages of your task scheduler?</h4>
+<p>
+The main advantage of our task scheduler is that it is simple and it works. It goes through and in
+order looks through the tasks that were waiting inputs, and if they are ready to execute, it executes them.
+This aproach works because the size of the tasks are pretty evenly divided, and the execution environments are
+typically similar in nature, so computers finish at roughly the same time
+</p>
+<p>A better version of the scheduler would acount for discrepency in task size and processing ability of computers
+and make sure that computers were always busy (through strategies like work stealing that we discussed in class). 
+Our scheduler also does not prioritized joining tasks over forking tasks, so the number of tasks currently on the queue
+can baloon out (espicially for Fibbinachi). </p>
+<h4>How might you change the infrastructure to improve your parallel efficiency?</h4>
+<p>
+Currently the computers recieve only one task at a time. This causes the computers to wait for the slower network
+traffic between each task. Prefetching tasks while a computer is running can reduce this network delay. This is
+what we will do in HW4. For Fibbinachi there is a lot of ruddundant work as lower Fibbinachi numbers are calculated
+over and over again. Having a cache (perhaps at multiple levels) of results based on a series of inputs would
+drastically reduce the number of task executions needed for problems like Fibbinachi. TSP would would not benifit
+from this change.
+</p>
+<h4>What issues are involved in generalizing your infrastructure to a network of Spaces?</h4>
+<p>It would be easy enough to scale our implementation to a network of spaces. Each space would implement
+computer methods. Each space would then be able to do computation itself and/or delegate computation to
+other spaces/computers.</p>
+<p> The main change that will be needed is to move the space from single task produces a single result to being
+able to proccess multiple perallel tasks. The sace would also need to do computation itself (currently it delegates all 
+tasks out to computers). If it was a terminal node in the network it would want to do soley computation but if it was an 
+internal node in the network it would need to strike a balance between computation and delegation.</p>
 </body></html>
