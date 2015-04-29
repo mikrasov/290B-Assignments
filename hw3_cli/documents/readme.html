@@ -23,12 +23,12 @@
 <h2>**To Execute Client (in seperate terminal window. Note: -Darg2 is only used for the Fib Client):**</h2>
 <code>
     If running all three components on the same jvm: <br>
-    ant -Darg0=jvm -Darg1={num_computers} -Darg2=16 runTspClient (or runFibClient) <br><br>
+    ant -Darg0=jvm -Darg1={num_computers} -Darg2=16 runFibClient (or runTspClient) <br><br>
 
     If running space locally but in separate jvm: <br>
-    ant -Darg0=localhost -Darg1=-1 -Darg2=16 runTspClient (or runFibClient)<br><br>
+    ant -Darg0=localhost -Darg1=-1 -Darg2=16 runFibClient (or runTspClient)<br><br>
 
     If running space remotely:<br>
-    ant -Darg0={remote_space_host_ip_address} -Darg1=-1 -Darg2=16 runTspClient (or runFibClient) <br><br>
+    ant -Darg0={remote_space_host_ip_address} -Darg1=-1 -Darg2=16 runFibClient (or runTspClient) <br><br>
 
 </code>
