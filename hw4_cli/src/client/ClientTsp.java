@@ -17,11 +17,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import api.Space;
-import api.Task;
 import tasks.ChunkTsp;
 import tasks.TaskTsp;
 import util.Log;
+import api.Space;
 
 public class ClientTsp extends JFrame{
 
@@ -47,6 +46,7 @@ public class ClientTsp extends JFrame{
 	
 	protected Space<ChunkTsp> space;
 
+	@SuppressWarnings("unchecked")
 	public ClientTsp(String domain) throws MalformedURLException, RemoteException, NotBoundException {
 		setTitle( "TSP" );
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );

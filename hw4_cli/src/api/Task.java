@@ -20,5 +20,8 @@ public interface Task<R> extends Callable<Result<R>>, Serializable {
 	int getTargetPort();
 
 	Result<R> call();
-
+	
+	boolean isCachable();
+	
+	boolean isShortRunning();
 }

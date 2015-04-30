@@ -7,16 +7,18 @@ import api.Task;
 
 public class TaskFib extends TaskClosure<Integer> {
 
-	/** Serial ID */
-	private static final long serialVersionUID = 5656498160577890305L;
+	private static final long serialVersionUID = 696763855946823023L;
 
+	public static final boolean CACHABLE = true;
+	public static final boolean SHORT_RUNNING = true;
+	
 	public TaskFib(long target, int targetPort, int itteration) {
-		super("Fib", 1, target, targetPort);
+		super("Fib", 1, CACHABLE, SHORT_RUNNING, target, targetPort);
 		this.setInput(0, itteration);
 	}
 	
 	public TaskFib(int itteration) {
-		super("Fib_INIT", 1);
+		super("Fib_INIT", 1, CACHABLE, SHORT_RUNNING);
 		this.setInput(0, itteration);
 	}
 

@@ -15,8 +15,8 @@ public class ClientFib{
     
 	private Space<Integer> space;
 	
+	@SuppressWarnings("unchecked")
 	public ClientFib(String domain) throws MalformedURLException, RemoteException, NotBoundException {
-		
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
 		space = (Space<Integer>) Naming.lookup(url);  
 	}

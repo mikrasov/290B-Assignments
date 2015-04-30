@@ -6,11 +6,13 @@ import tasks.ChunkTsp;
 
 public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 
-	/** Serial ID  */
-	private static final long serialVersionUID = -401564542335493204L;
-
+	private static final long serialVersionUID = -2157191669367268779L;
+	
+	public static final boolean CACHABLE = false;
+	public static final boolean SHORT_RUNNING = true;
+	
 	public TaskCompareTsp(long target, int targetPort, int num_inputs) {
-		super("Compare TSP", num_inputs, target, targetPort);
+		super("Compare TSP", num_inputs, CACHABLE, SHORT_RUNNING, target, targetPort);
 	}
 
 	@Override

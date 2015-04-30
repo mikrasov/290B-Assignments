@@ -11,18 +11,20 @@ import api.Task;
 
 public class TaskTsp extends TaskClosure<ChunkTsp> {
 
-	/** Serial ID */
-	private static final long serialVersionUID = 5656498160577890305L;
-
+	private static final long serialVersionUID = -2567928535294012341L;
+	
+	public static final boolean CACHABLE = false;
+	public static final boolean SHORT_RUNNING = false;
+	
 	public TaskTsp(long target, int targetPort, List<Integer> fixedCities, List<Integer> toPermute, double[][] cities) {
-		super("TSP", 3, target, targetPort);
+		super("TSP", 3, CACHABLE, SHORT_RUNNING, target, targetPort);
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
 		this.setInput(2, toPermute);
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP-INIT", 3);
+		super("TSP-INIT", 3, CACHABLE, SHORT_RUNNING);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();
