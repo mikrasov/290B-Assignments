@@ -37,7 +37,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode(1, numLocalThreads));
+			register( new ComputeNode<R>(1, numLocalThreads), true);
 	}
 	
 	@Override
@@ -52,7 +52,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public int register(Computer<R> computer) throws RemoteException {
-		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer);
+		return register(computer, false);
+	}
+	
+	public int register(Computer<R> computer, boolean isLocal) throws RemoteException {
+		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer, isLocal);
 		System.out.println("Registered "+proxy);
 		
 		return proxy.id;
@@ -116,6 +120,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		final Computer<R> computer;
 		final int id;
 		final int numThreads;
+		final boolean isLocal;
 		final Collector collector;
 		final Dispatcher dispatcher;
 		
@@ -123,9 +128,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 		boolean isRunning = false;
 		
-		Proxy(int id, Computer<R> computer) throws RemoteException{
+		Proxy(int id, Computer<R> computer, boolean isLocal) throws RemoteException{
 			this.id = id;
 			this.computer = computer;
+			this.isLocal = isLocal;
 			this.numThreads = computer.getNumThreads();
 			this.collector = new Collector();
 			this.dispatcher = new Dispatcher();
@@ -153,7 +159,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 		@Override
 		public String toString() {
-			return "Computer ("+numThreads+"): "+id;
+			return (isLocal?"Local":"Remote")+" Computer - "+numThreads+" threads as ID: '"+id+"'";
 		}
 		
 		class Dispatcher extends Thread {
@@ -165,15 +171,15 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				while(isRunning) try {
 					Task<R> task = waitingTasks.take();
 					
-					if(task.isReady()) {
+					if(!task.isReady() || (isLocal && !task.isShortRunning()) ) {
+						//Throw it back
+						waitingTasks.put(task);
+					}
+					else {
 						//Enqueue
 						inProgressTasks.put(task.getUID(), task);
 						computer.addTask(task);
 						Log.debug("--> "+task);
-					}
-					else {
-						//Throw it back
-						waitingTasks.put(task);
 					}
 				} 
 				catch (InterruptedException e)	{} 
@@ -203,6 +209,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	/* ------------ Main Method ------------ */
 	public static void main(String[] args) throws RemoteException {
 		String logFile = (args.length > 0)? args[0] : "space";
+		int numLocalThreads = (args.length > 1)? Integer.parseInt(args[1]) : 0;
 
 		Log.startLog(logFile);
 		
@@ -212,13 +219,14 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
         // Create Registry on JVM
         Registry registry = LocateRegistry.createRegistry( Space.DEFAULT_PORT );
 
+        //Print Acknowledgement
+        System.out.println("Starting Space as '"+Space.DEFAULT_NAME+"' on port "+Space.DEFAULT_PORT);
+        
         // Create Space
-        SpaceImp<Object> space = new SpaceImp<Object>();
+        SpaceImp<Object> space = new SpaceImp<Object>(numLocalThreads);
         registry.rebind( Space.DEFAULT_NAME, space );
 
-        //Print Acknowledgement
-        System.out.println("Space ready and registered as '"+Space.DEFAULT_NAME+"' on port "+Space.DEFAULT_PORT);
-        
+
         //Log.close();
 	}
 }
