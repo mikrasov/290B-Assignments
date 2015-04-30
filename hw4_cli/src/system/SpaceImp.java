@@ -1,7 +1,5 @@
 package system;
 
-import Closure;
-
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -28,11 +26,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static long SOLUTION_UID = 0;
 	private long UID_POOL = SOLUTION_UID+1;
 	
-	private BlockingQueue<Result<R>> result = new SynchronousQueue<Result<R>>();
+	private BlockingQueue<R> solution = new SynchronousQueue<R>();
 	
-	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
+	private Map<Long, Task<R>> waitingTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private BlockingQueue<Task<R>> readyTasks = new LinkedBlockingQueue<Task<R>>();
-	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
 	
 	private BlockingQueue<Proxy> proxies = new LinkedBlockingQueue<Proxy>();
 	
@@ -40,12 +37,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		super();
 	}
 	
-	@Override
 	public void start()  {
-		while(true) for(Task<R> task: waitingTasks){
+		while(true) for(Task<R> task: waitingTasks.values()){
 			if(task.isReady()){
 				readyTasks.add(task);
-				waitingTasks.remove(task);
+				waitingTasks.remove(task.getUID());
 			}
 		}
 	}
@@ -57,32 +53,36 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	@Override
 	public R getSolution() throws RemoteException, InterruptedException {
-		return result.take().getValue();
+		return solution.take();
 	}
 	
 	@Override
 	public void register(Computer<R> computer) throws RemoteException {
-		System.out.println("Registering Computer: "+computer.getComputerName());
-		
+		System.out.println("Registering Computer: "+computer.getName());
+		Proxy proxy = new Proxy(computer);
+		proxy.startProxy();
+		proxies.add( proxy );
 	}
 	
 	/* ------------ Private methods ------------ */
 	private synchronized Task<R> addTask(Task<R> task){
 		task.setUid(UID_POOL++);
-		registeredTasks.put(task.getUID(), task);
-		waitingTasks.add(task);
+		waitingTasks.put(task.getUID(), task);
 		return task;
 	}
 	
 	private void proccessResult(Result<R> result){
 		
-		Task<R> origin = registeredTasks.get(result.associatedTaskUid());
-		
 		//If Single value pass it on to target
 		if(result.isValue()){
-			Task<R> target = registeredTasks.get(origin.getTargetPort());
-			target.setInput(origin.getTargetPort(), result.getValue());
 			
+			if(result.getTargetId() == SOLUTION_UID){
+				solution.add(result.getValue());
+			}
+			else {
+				Task<R> target = waitingTasks.get(result.getTargetId());
+				target.setInput(result.getTargetPort(), result.getValue());
+			}
 		}
 	
 		//Else Add newly created tasks to waitlist 
@@ -149,7 +149,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			public void run() {
 				while(isRunning) try {
 					Result<R> result = computer.collectResult();
-					Log.debugln("<-- "+result);
+					Log.debug("<-- "+result);
 					proccessResult(result);
 				}
 				catch (InterruptedException e)	{} 
@@ -163,11 +163,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				while(isRunning) try {
 					Task<R> task = readyTasks.take();
 					
-					//Release task from UID index
-					registeredTasks.remove(task.getUID()); 
-					
 					computer.addTask(task);
-					Log.debugln("--> "+task);
+					Log.debug("--> "+task);
 				} 
 				catch (InterruptedException e)	{} 
 				catch (RemoteException e)		{stopProxy();}
@@ -180,7 +177,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		String logFile = (args.length > 0)? args[0] : "space";
 
 		Log.startLog(logFile);
-		Log.log("Task, Run Time (ms)");
 		
 		// Set Security Manager 
         System.setSecurityManager( new SecurityManager() );

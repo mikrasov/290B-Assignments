@@ -14,5 +14,4 @@ public interface Space<R> extends Remote {
     
 	void register( Computer<R> computer ) throws RemoteException;
 
-	void start();
 }

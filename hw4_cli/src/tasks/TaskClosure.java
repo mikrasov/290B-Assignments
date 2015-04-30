@@ -21,9 +21,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected int targetPort;
 		
 	public TaskClosure(String name, int numInputs){
-		this.name = name;
-		this.input = new Object[numInputs];
-		this.joinCounter = numInputs;
+		this(name, numInputs, -1,-1);
 	}
 	
 	public TaskClosure(String name, int numInputs, long targetUid, int targetPort){

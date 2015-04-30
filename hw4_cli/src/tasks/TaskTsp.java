@@ -22,7 +22,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP", -1, -1, 3);
+		super("TSP-INIT", 3);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();

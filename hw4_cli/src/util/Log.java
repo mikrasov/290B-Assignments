@@ -23,16 +23,12 @@ public class Log {
     	if(log != null) try {
 			log.write(line+"\n");
 		} catch (IOException e) {
-			System.err.println("Error Writing to log");
+			System.out.println("Error Writing to log");
 		}
     }
 	
 	public static void debug(String str){
-		if(VERBOSE_DEBUG) System.out.println(str);
-	}
-	
-	public static void debugln(String str){
-		debug(str+"\n");
+		if(VERBOSE_DEBUG) System.err.println(" "+str);
 	}
 	
 	public static void close(){
@@ -41,7 +37,7 @@ public class Log {
 		} catch (IOException e) {
 			System.err.println("Error closing log");
 		}
-		debugln("Ended log");
+		debug("Ended log");
 	}
 	
 	public static void flush(){

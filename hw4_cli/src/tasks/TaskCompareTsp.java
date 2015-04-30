@@ -24,7 +24,6 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 				bestChunk = currChunk;
 			}
 		}
-		
 		return new ResultValue<ChunkTsp>(this, bestChunk );
 	}
 

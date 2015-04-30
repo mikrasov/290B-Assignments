@@ -47,12 +47,12 @@ public class ResultValue<R> implements Result<R> {
 	}
 
 	@Override
-	public long targetId() {
+	public long getTargetId() {
 		return targetUid;
 	}
 
 	@Override
-	public int targetPort() {
+	public int getTargetPort() {
 		return targetPort;
 	}
 

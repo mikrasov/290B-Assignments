@@ -14,8 +14,8 @@ public interface Result<R> extends Serializable {
 	
 	void setRunTime(double d);
 	
-	long targetId();
+	long getTargetId();
 	
-	int targetPort();
+	int getTargetPort();
 	
 }

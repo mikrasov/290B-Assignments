@@ -24,9 +24,9 @@ public class ResultTasks<R> implements Result<R> {
 
 	@Override
 	public String toString() {
-		String out = "New Tasks: \n";
+		String out = "New Tasks:";
 		for(Task<R> task: tasks)
-			out += "| " +task+"\n";
+			out += "| " +task+" ";
 		
 		return out;
 	}
@@ -42,12 +42,12 @@ public class ResultTasks<R> implements Result<R> {
 	}
 
 	@Override
-	public long targetId() {
+	public long getTargetId() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
 	}
 
 	@Override
-	public int targetPort() {
+	public int getTargetPort() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
 	}
 

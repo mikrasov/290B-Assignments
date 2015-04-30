@@ -9,8 +9,6 @@ public interface Computer<R> extends Remote {
 	
 	Result<R> collectResult() throws RemoteException, InterruptedException;
 	
-	String getComputerName() throws RemoteException;
+	String getName() throws RemoteException;
 	
-	void start();
-    
 }

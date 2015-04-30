@@ -16,7 +16,7 @@ public class TaskFib extends TaskClosure<Integer> {
 	}
 	
 	public TaskFib(int itteration) {
-		super("Fib_INIT", -1, -1, 1);
+		super("Fib_INIT", 1);
 		this.setInput(0, itteration);
 	}
 

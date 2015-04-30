@@ -5,10 +5,9 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import api.Space;
-import tasks.ChunkTsp;
 import tasks.TaskFib;
 import util.Log;
+import api.Space;
 
 public class ClientFib{
 
@@ -26,11 +25,12 @@ public class ClientFib{
 		space.setTask( new TaskFib(itteration) );
 		return space.getSolution();
 	}
-	 
+	
 	public static void main(String[] args) throws RemoteException, InterruptedException{
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int fibItteration = (args.length > 1)? Integer.parseInt(args[1]) : 16;
 
+		final String CLIENT_NAME = "Client - Fib("+fibItteration+")"; 
 		ClientFib client = null;
 		try {
 			client = new ClientFib(domain);
@@ -39,15 +39,16 @@ public class ClientFib{
 			System.err.println(e);
 			System.exit(0);
 		} 
+
+		System.out.println("Starting "+CLIENT_NAME+" @ "+domain);
 		
-		Log.log("Component, Time (ms)");
     	long clientStartTime = System.nanoTime(); 
     	
 		int result = client.runTask(fibItteration);
-		Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 +"\n");
+		Log.log( CLIENT_NAME+" Time, "+( System.nanoTime() - clientStartTime) / 1000000.0 );
 		
-		Log.log(client +", Result: "+result);
-		System.out.println(client +" = "+result);
+		Log.log(CLIENT_NAME +", Result: "+result);
+		System.out.println(CLIENT_NAME +" = "+result);
 		Log.close();
 	}
 }
