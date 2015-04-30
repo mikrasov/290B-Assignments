@@ -11,16 +11,12 @@ public class ResultTasks<R> implements Result<R> {
 	private double runTime;
 	private Task<R>[] tasks;
 	
+	private final long creatorId;
 	
-	public ResultTasks(Task<R>[] tasks) {
+	public ResultTasks(Task<R> creator, Task<R>[] tasks) {
 		this.tasks = tasks;
+		this.creatorId = creator.getUID();
 	}
-
-	@Override
-	public boolean isValue() {	return false; }
-
-	@Override
-	public Task<R>[] getTasks() { return tasks; }
 
 	@Override
 	public String toString() {
@@ -32,14 +28,19 @@ public class ResultTasks<R> implements Result<R> {
 	}
 	
 	@Override
-	public double getRunTime() {
-		return runTime;
-	}
+	public double getRunTime()		{ return runTime; }
 
 	@Override
-	public void setRunTime(double time) {
-		runTime = time;
-	}
+	public void setRunTime(double time) { runTime = time; }
+	
+	@Override
+	public boolean isValue()		{ return false; }
+
+	@Override
+	public Task<R>[] getTasks()		{ return tasks; }
+
+	@Override
+	public long getTaskCreatorId()	{ return creatorId; }
 
 	@Override
 	public long getTargetId() {

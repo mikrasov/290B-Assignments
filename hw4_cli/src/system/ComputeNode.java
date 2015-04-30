@@ -7,7 +7,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -19,30 +18,39 @@ import api.Task;
 
 public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
-	private static final int DEFAULT_BUFFER_SIZE = 4;
-	private static final int DEFAULT_NUM_THREADS = 4;
-	private final String name;
-	private BlockingQueue<Task<R>> tasks;
-	private BlockingQueue<Result<R>> results;
+	private static final long serialVersionUID = -4962774042291137071L;
+
+	private static final int BUFFER_DEFAULT_SIZE = 10;
+	private static final int BUFFER_NO_PREFETCH = 1;
+	private static final int SINGLE_PROCESSOR = 1;
 	
-	private List<ComputeThread> threads;
+	private transient BlockingQueue<Task<R>> tasks;
+	private transient BlockingQueue<Result<R>> results;
+	private transient List<ComputeThread> threads;
 	
-	public ComputeNode(String name, int sizePrefetchBuffer, int numThreads) throws RemoteException {
+	private int id;
+	
+	public ComputeNode() throws RemoteException {
+		this(true, true);
+	}
+	
+	public ComputeNode(boolean enableAmerlioration, boolean multiThread) throws RemoteException {
+		this(enableAmerlioration?BUFFER_DEFAULT_SIZE:BUFFER_NO_PREFETCH, 
+			 multiThread?Runtime.getRuntime().availableProcessors():SINGLE_PROCESSOR);
+	}
+	
+	public ComputeNode(int prefetchBufferSize, int numThreads) throws RemoteException {
 		super();
-		this.name = name;
-		tasks = new LinkedBlockingQueue<Task<R>>(sizePrefetchBuffer);
 		results = new LinkedBlockingQueue<Result<R>>();
 		threads = new LinkedList<ComputeThread>();
+		
+		tasks = new LinkedBlockingQueue<Task<R>>(prefetchBufferSize);
 		
 		for(int i=0; i<numThreads; i++){
 			ComputeThread thread = new ComputeThread(i);
 			threads.add(thread);
 			thread.start();
 		}
-	}
-
-	public ComputeNode(String name) throws RemoteException {
-		this(name, DEFAULT_BUFFER_SIZE, DEFAULT_NUM_THREADS);
 	}
 	
 	@Override
@@ -59,9 +67,14 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	}
 	
 	@Override
-	public String getName() throws RemoteException {
-		return name;
+	public void setId(int id) throws RemoteException	{
+		this.id = id; 
+		System.out.println("Computer Registered as:\t"+id);
 	}
+
+	@Override
+	public int getNumThreads() throws RemoteException { return threads.size(); }
+	
 	
 	private class ComputeThread extends Thread {
 		
@@ -83,23 +96,30 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
-		
 		String domain = (args.length > 0)? args[0]: "localhost";
-		String name = (args.length > 1)? args[1]: "C"+(new Random()).nextInt(Integer.MAX_VALUE);
+		boolean enableAmerlioration = (args.length > 1)? Boolean.parseBoolean(args[1]): true;
+		boolean multiThread = (args.length > 2)? Boolean.parseBoolean(args[2]): true;
 		
-		System.out.println("Starting "+name+" on Space @ "+domain);
-				
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
         
 		try {
-			@SuppressWarnings("unchecked")
+			System.out.println("Starting Computer on Space @ "+domain);
+
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
-			Computer computer = new ComputeNode(name);
+			Computer computer = new ComputeNode(enableAmerlioration,multiThread);
 			space.register(computer);
+			System.out.println("Number Threads:\t\t"+computer.getNumThreads());
+			System.out.println("Amerlioration Enabled:\t"+enableAmerlioration);
+			
+			
+			
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
             System.err.println("Error Connecting to space at "+url);
             System.err.println(e);
         } 
 	}
+
+
+
 
 }

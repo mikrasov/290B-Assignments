@@ -38,7 +38,7 @@ public class TaskFib extends TaskClosure<Integer> {
 			new TaskFib(-1, 1, itteration-2)	// f(i-2)
 		};
 		
-		return new ResultTasks<Integer>(tasks);
+		return new ResultTasks<Integer>(this, tasks);
 	}
 
 }

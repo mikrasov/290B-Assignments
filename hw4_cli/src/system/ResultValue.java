@@ -10,22 +10,18 @@ public class ResultValue<R> implements Result<R> {
 
 	private double runTime;
 	private final R value;
-	
+
+	private final long creatorId;
 	private final long targetUid;
 	private final int targetPort;
 	
-	public ResultValue(Task<R> origin, R value){
+	public ResultValue(Task<R> creator, R value){
 		this.value = value;
-		this.targetUid = origin.getTargetUid();
-		this.targetPort = origin.getTargetPort();
+		this.creatorId = creator.getUID();
+		this.targetUid = creator.getTargetUid();
+		this.targetPort = creator.getTargetPort();
 	}
 	
-	@Override
-	public boolean isValue() { return true; }
-
-	@Override
-	public R getValue() { return value; }
-
 	@Override
 	public Task<R>[] getTasks() {
 		throw new UnsupportedOperationException("This result is a single value");
@@ -37,23 +33,24 @@ public class ResultValue<R> implements Result<R> {
 	}
 
 	@Override
-	public double getRunTime() {
-		return runTime;
-	}
+	public void setRunTime(double time) {runTime = time;}
+	
+	@Override
+	public boolean isValue() 		{ return true; }
 
 	@Override
-	public void setRunTime(double time) {
-		runTime = time;
-	}
+	public R getValue() 			{ return value; }
+	
+	@Override
+	public double getRunTime() 		{ return runTime;}
+
+	@Override	
+	public long getTargetId()		{ return targetUid; }
 
 	@Override
-	public long getTargetId() {
-		return targetUid;
-	}
+	public int getTargetPort()		{ return targetPort; }
 
 	@Override
-	public int getTargetPort() {
-		return targetPort;
-	}
+	public long getTaskCreatorId()	{ return creatorId; }
 
 }

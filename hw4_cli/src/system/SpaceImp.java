@@ -4,11 +4,11 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
@@ -25,13 +25,14 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	private static long SOLUTION_UID = 0;
 	private long UID_POOL = SOLUTION_UID+1;
+	private int COMPUTER_ID_POOL = 0;
 	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
 	
 	private Map<Long, Task<R>> waitingTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private BlockingQueue<Task<R>> readyTasks = new LinkedBlockingQueue<Task<R>>();
 	
-	private BlockingQueue<Proxy> proxies = new LinkedBlockingQueue<Proxy>();
+	private Map<Integer, Proxy> proxies = new ConcurrentHashMap<Integer, Proxy>();
 	
 	public SpaceImp() throws RemoteException {
 		super();
@@ -58,10 +59,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public void register(Computer<R> computer) throws RemoteException {
-		System.out.println("Registering Computer: "+computer.getName());
-		Proxy proxy = new Proxy(computer);
-		proxy.startProxy();
-		proxies.add( proxy );
+		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer);
+		System.out.println("Registered "+proxy);
 	}
 	
 	/* ------------ Private methods ------------ */
@@ -118,56 +117,81 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private class Proxy {
 
 		final Computer<R> computer;
+		final int id;
+		final int numThreads;
 		final Collector collector;
 		final Dispatcher dispatcher;
 		
-		final List<Task<R>> assignedTasks = new LinkedList<Task<R>>(); 
+		Map<Long, Task<R>> inProgressTasks = new ConcurrentHashMap<Long, Task<R>>();
 		
 		boolean isRunning = false;
 		
-		Proxy(Computer<R> computer){
+		Proxy(int id, Computer<R> computer) throws RemoteException{
+			this.id = id;
 			this.computer = computer;
+			this.numThreads = computer.getNumThreads();
 			this.collector = new Collector();
 			this.dispatcher = new Dispatcher();
-		}
-		
-		void startProxy(){
+			
+			computer.setId(id);
+			proxies.put(id, this );
+			
 			isRunning = true;
 			collector.start();
 			dispatcher.start();
 		}
 		
-		void stopProxy(){
+		
+		void stopProxyWithError(){
+			System.out.println("Error accessing "+toString());
+
 			isRunning = false;
+			proxies.remove(id);
+			while(!dispatcher.isStopped && !collector.isStopped) try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {}
 			
-			for(Task<R> task : assignedTasks)
+			for(Task<R> task : inProgressTasks.values())
 				readyTasks.add(task);
 		}
 		
-		class Collector extends Thread {
-			@Override
-			public void run() {
-				while(isRunning) try {
-					Result<R> result = computer.collectResult();
-					Log.debug("<-- "+result);
-					proccessResult(result);
-				}
-				catch (InterruptedException e)	{} 
-				catch (RemoteException e)		{stopProxy();}
-			}
+		@Override
+		public String toString() {
+			return "Computer ("+numThreads+"): "+id;
 		}
 		
 		class Dispatcher extends Thread {
+			boolean isStopped = true;
+			
 			@Override
 			public void run() {	
+				isStopped = false;
 				while(isRunning) try {
 					Task<R> task = readyTasks.take();
-					
+					inProgressTasks.put(task.getUID(), task);
 					computer.addTask(task);
 					Log.debug("--> "+task);
 				} 
 				catch (InterruptedException e)	{} 
-				catch (RemoteException e)		{stopProxy();}
+				catch (RemoteException e)		{stopProxyWithError();}
+				isStopped = true;
+			}
+		}
+		
+		class Collector extends Thread {
+			boolean isStopped = true;
+			@Override
+			public void run() {
+				isStopped = false;
+				while(isRunning) try {
+					Result<R> result = computer.collectResult();
+					inProgressTasks.remove(result.getTaskCreatorId());
+					Log.debug("<-- "+result);
+					proccessResult(result);
+				}
+				catch (InterruptedException e)	{} 
+				catch (RemoteException e)		{stopProxyWithError();}
+				isStopped = true;
 			}
 		}
 	}

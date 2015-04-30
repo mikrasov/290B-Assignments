@@ -95,7 +95,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, new_toPermute, cities);
 			}
 
-			return new ResultTasks<ChunkTsp>(tasks);
+			return new ResultTasks<ChunkTsp>(this, tasks);
 		}
 	}
 
