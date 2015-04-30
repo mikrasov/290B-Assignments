@@ -28,8 +28,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	private transient BlockingQueue<Result<R>> results;
 	private transient List<ComputeThread> threads;
 	
-	private int id;
-	
 	public ComputeNode() throws RemoteException {
 		this(true, true);
 	}
@@ -64,12 +62,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		Result<R> result = results.take();
 		Log.debug("<-- "+result);
 		return result;
-	}
-	
-	@Override
-	public void setId(int id) throws RemoteException	{
-		this.id = id; 
-		System.out.println("Computer Registered as:\t"+id);
 	}
 
 	@Override
@@ -107,14 +99,14 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
 			Computer computer = new ComputeNode(enableAmerlioration,multiThread);
-			space.register(computer);
+			int id = space.register(computer);
+			System.out.println("Computer Registered as:\t"+id);
 			System.out.println("Number Threads:\t\t"+computer.getNumThreads());
 			System.out.println("Amerlioration Enabled:\t"+enableAmerlioration);
 			
 			
-			
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
-            System.err.println("Error Connecting to space at "+url);
+            System.err.println("Error Connecting to Space at "+url);
             System.err.println(e);
         } 
 	}

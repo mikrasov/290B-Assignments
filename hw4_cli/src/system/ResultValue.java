@@ -12,14 +12,10 @@ public class ResultValue<R> implements Result<R> {
 	private final R value;
 
 	private final long creatorId;
-	private final long targetUid;
-	private final int targetPort;
 	
 	public ResultValue(Task<R> creator, R value){
 		this.value = value;
 		this.creatorId = creator.getUID();
-		this.targetUid = creator.getTargetUid();
-		this.targetPort = creator.getTargetPort();
 	}
 	
 	@Override
@@ -43,12 +39,6 @@ public class ResultValue<R> implements Result<R> {
 	
 	@Override
 	public double getRunTime() 		{ return runTime;}
-
-	@Override	
-	public long getTargetId()		{ return targetUid; }
-
-	@Override
-	public int getTargetPort()		{ return targetPort; }
 
 	@Override
 	public long getTaskCreatorId()	{ return creatorId; }

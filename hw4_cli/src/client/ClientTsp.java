@@ -145,7 +145,7 @@ public class ClientTsp extends JFrame{
 		try {
 			client = new ClientTsp(domain);
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
-            System.err.println("No Space found at '"+domain+"'");
+            System.err.println("Error Connecting to Space at '"+domain+"'");
             System.err.println(e);
             System.exit(0);
         } 

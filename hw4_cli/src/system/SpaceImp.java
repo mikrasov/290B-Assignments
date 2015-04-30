@@ -22,29 +22,24 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static final long serialVersionUID = -1147376615845722661L;
 
 	private static long SOLUTION_UID = 0;
-	private long UID_POOL = SOLUTION_UID+1;
-	private int COMPUTER_ID_POOL = 0;
+	private static long UID_POOL = SOLUTION_UID+1;	
+	private static int COMPUTER_ID_POOL = 0;
 	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
-	
-	private Map<Long, Task<R>> waitingTasks = new ConcurrentHashMap<Long, Task<R>>();
-	private BlockingQueue<Task<R>> readyTasks = new LinkedBlockingQueue<Task<R>>();
-	
+	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
+	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private Map<Integer, Proxy> proxies = new ConcurrentHashMap<Integer, Proxy>();
 	
 	public SpaceImp() throws RemoteException {
-		super();
+		this(0);
 	}
 	
-	public void start()  {
-		while(true) for(Task<R> task: waitingTasks.values()){
-			if(task.isReady()){
-				readyTasks.add(task);
-				waitingTasks.remove(task.getUID());
-			}
-		}
+	public SpaceImp(int numLocalThreads) throws RemoteException {
+		super();
+		if(numLocalThreads > 0)
+			register( new ComputeNode(1, numLocalThreads));
 	}
-
+	
 	@Override
 	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
 		addTask(task).setTarget(SOLUTION_UID, 0);
@@ -56,29 +51,33 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	}
 	
 	@Override
-	public void register(Computer<R> computer) throws RemoteException {
+	public int register(Computer<R> computer) throws RemoteException {
 		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer);
 		System.out.println("Registered "+proxy);
+		
+		return proxy.id;
 	}
 	
 	/* ------------ Private methods ------------ */
 	private synchronized Task<R> addTask(Task<R> task){
 		task.setUid(UID_POOL++);
-		waitingTasks.put(task.getUID(), task);
+		registeredTasks.put(task.getUID(), task);
+		waitingTasks.add(task);
 		return task;
 	}
 	
 	private void proccessResult(Result<R> result){
 		
+		Task<R> origin = registeredTasks.remove(result.getTaskCreatorId());
 		//If Single value pass it on to target
 		if(result.isValue()){
 			
-			if(result.getTargetId() == SOLUTION_UID){
+			if(origin.getTargetUid() == SOLUTION_UID){
 				solution.add(result.getValue());
 			}
 			else {
-				Task<R> target = waitingTasks.get(result.getTargetId());
-				target.setInput(result.getTargetPort(), result.getValue());
+				Task<R> target = registeredTasks.get(origin.getTargetUid());
+				target.setInput(origin.getTargetPort(), result.getValue());
 			}
 		}
 	
@@ -131,7 +130,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			this.collector = new Collector();
 			this.dispatcher = new Dispatcher();
 			
-			computer.setId(id);
 			proxies.put(id, this );
 			
 			isRunning = true;
@@ -150,7 +148,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			} catch (InterruptedException e) {}
 			
 			for(Task<R> task : inProgressTasks.values())
-				readyTasks.add(task);
+				waitingTasks.add(task);
 		}
 		
 		@Override
@@ -165,10 +163,18 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			public void run() {	
 				isStopped = false;
 				while(isRunning) try {
-					Task<R> task = readyTasks.take();
-					inProgressTasks.put(task.getUID(), task);
-					computer.addTask(task);
-					Log.debug("--> "+task);
+					Task<R> task = waitingTasks.take();
+					
+					if(task.isReady()) {
+						//Enqueue
+						inProgressTasks.put(task.getUID(), task);
+						computer.addTask(task);
+						Log.debug("--> "+task);
+					}
+					else {
+						//Throw it back
+						waitingTasks.put(task);
+					}
 				} 
 				catch (InterruptedException e)	{} 
 				catch (RemoteException e)		{stopProxyWithError();}
@@ -213,9 +219,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
         //Print Acknowledgement
         System.out.println("Space ready and registered as '"+Space.DEFAULT_NAME+"' on port "+Space.DEFAULT_PORT);
         
-        //Start Scheduler
-        space.start();
-        
-        Log.close();
+        //Log.close();
 	}
 }

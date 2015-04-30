@@ -35,7 +35,7 @@ public class ClientFib{
 		try {
 			client = new ClientFib(domain);
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
-			System.err.println("No Space found at '"+domain+"'");
+			System.err.println("Error Connecting to Space at '"+domain+"'");
 			System.err.println(e);
 			System.exit(0);
 		} 

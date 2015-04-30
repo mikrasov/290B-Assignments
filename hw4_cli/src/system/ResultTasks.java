@@ -43,16 +43,6 @@ public class ResultTasks<R> implements Result<R> {
 	public long getTaskCreatorId()	{ return creatorId; }
 
 	@Override
-	public long getTargetId() {
-		throw new UnsupportedOperationException("This result is a list of tasks");
-	}
-
-	@Override
-	public int getTargetPort() {
-		throw new UnsupportedOperationException("This result is a list of tasks");
-	}
-
-	@Override
 	public R getValue() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
 	}

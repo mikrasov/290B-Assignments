@@ -16,8 +16,4 @@ public interface Result<R> extends Serializable {
 	
 	long getTaskCreatorId();
 	
-	long getTargetId();
-	
-	int getTargetPort();
-	
 }

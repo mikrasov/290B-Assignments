@@ -9,8 +9,6 @@ public interface Computer<R> extends Remote {
 	
 	Result<R> collectResult() throws RemoteException, InterruptedException;
 	
-	void setId(int id) throws RemoteException;
-	
 	int getNumThreads() throws RemoteException;
 	
 }
