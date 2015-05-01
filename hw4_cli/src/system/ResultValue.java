@@ -18,6 +18,10 @@ public class ResultValue<R> implements Result<R> {
 		this.creatorId = creatorId;
 	}
 	
+	public ResultValue(ResultValue<R> toCopy, long newTargetId){
+		this(toCopy.creatorId, toCopy.value);
+	}
+	
 	@Override
 	public Task<R>[] getTasks() {
 		throw new UnsupportedOperationException("This result is a single value");
@@ -42,10 +46,5 @@ public class ResultValue<R> implements Result<R> {
 
 	@Override
 	public long getTaskCreatorId()	{ return creatorId; }
-
-	@Override
-	public Result<R> copy(long originId) {
-		return new ResultValue<R>(originId, value);
-	}
 
 }

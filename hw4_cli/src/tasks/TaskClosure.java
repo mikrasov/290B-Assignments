@@ -75,7 +75,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 	
 	@Override
 	public String toString() {
-		String out = name +"_"+hashCode()+"(";
+		String out = name +"_"+uid+"(";
 		for(Object in: input){
 			out+=in+" ";
 		}

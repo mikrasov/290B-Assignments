@@ -37,7 +37,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(1, numLocalThreads, false), true);
+			register( new ComputeNode<R>(1, numLocalThreads, true), true);
 	}
 	
 	@Override
@@ -178,7 +178,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 						//Enqueue
 						inProgressTasks.put(task.getUID(), task);
 						computer.addTask(task);
-						Log.debug("--> "+task);
+						if(!isLocal) Log.debug("-"+id+"-> "+task);
 					}
 				} 
 				catch (InterruptedException e)	{} 
@@ -195,7 +195,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				while(isRunning) try {
 					Result<R> result = computer.collectResult();
 					inProgressTasks.remove(result.getTaskCreatorId());
-					Log.debug("<-- "+result);
+					if(!isLocal) Log.debug("<-"+id+"- "+result);
 					proccessResult(result);
 				}
 				catch (InterruptedException e)	{} 

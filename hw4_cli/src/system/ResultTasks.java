@@ -46,10 +46,4 @@ public class ResultTasks<R> implements Result<R> {
 	public R getValue() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
 	}
-
-	@Override
-	public Result<R> copy(long originId) {
-		return new ResultTasks<R>(originId, tasks);
-
-	}
 }

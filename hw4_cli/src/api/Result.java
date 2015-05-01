@@ -15,6 +15,4 @@ public interface Result<R> extends Serializable {
 	void setRunTime(double d);
 	
 	long getTaskCreatorId();
-	
-	Result<R> copy(long originId);
 }
