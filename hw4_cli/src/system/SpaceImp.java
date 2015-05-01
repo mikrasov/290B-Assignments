@@ -70,9 +70,13 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		return task;
 	}
 	
-	private void proccessResult(Result<R> result){
+	private synchronized void proccessResult(Result<R> result){
+
 		Task<R> origin = registeredTasks.remove(result.getTaskCreatorId());
 		//If Single value pass it on to target
+		
+		System.err.println("R: "+result+" cID"+result.getTaskCreatorId()+" Origin: "+origin);
+		
 		if(result.isValue()){
 			
 			if(origin.getTargetUid() == SOLUTION_UID){
@@ -207,8 +211,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	/* ------------ Main Method ------------ */
 	public static void main(String[] args) throws RemoteException {
-		String logFile = (args.length > 0)? args[0] : "space";
-		int numLocalThreads = (args.length > 1)? Integer.parseInt(args[1]) : 0;
+		int numLocalThreads = (args.length > 0)? Integer.parseInt(args[0]) : 0;
+		String logFile = (args.length > 1)? args[1] : "space";
 
 		Log.startLog(logFile);
 		

@@ -49,7 +49,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		threads = new LinkedList<ComputeThread>();
 		tasks = new LinkedBlockingQueue<Task<R>>(prefetchBufferSize);
 		
-		this.cacheEnabled = false && cacheEnabled;
+		this.cacheEnabled = cacheEnabled;
 		
 		for(int i=0; i<numThreads; i++){
 			ComputeThread thread = new ComputeThread(i);

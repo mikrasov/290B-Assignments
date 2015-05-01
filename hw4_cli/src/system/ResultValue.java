@@ -18,8 +18,8 @@ public class ResultValue<R> implements Result<R> {
 		this.creatorId = creatorId;
 	}
 	
-	public ResultValue(ResultValue<R> toCopy, long newTargetId){
-		this(toCopy.creatorId, toCopy.value);
+	public ResultValue(ResultValue<R> toCopy, long newOriginID){
+		this(newOriginID, toCopy.value);
 	}
 	
 	@Override
