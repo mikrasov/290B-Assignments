@@ -16,7 +16,7 @@ public class TaskAdd extends TaskClosure<Integer>{
 
 	@Override
 	public Result<Integer> execute() {
-		return new ResultValue<Integer>(this, (Integer)input[0] + (Integer)input[1] );
+		return new ResultValue<Integer>(getUID(), (Integer)input[0] + (Integer)input[1] );
 	}
 
 }

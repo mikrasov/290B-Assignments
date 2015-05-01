@@ -13,9 +13,9 @@ public class ResultValue<R> implements Result<R> {
 
 	private final long creatorId;
 	
-	public ResultValue(Task<R> creator, R value){
+	public ResultValue(long creatorId, R value){
 		this.value = value;
-		this.creatorId = creator.getUID();
+		this.creatorId = creatorId;
 	}
 	
 	@Override
@@ -42,5 +42,10 @@ public class ResultValue<R> implements Result<R> {
 
 	@Override
 	public long getTaskCreatorId()	{ return creatorId; }
+
+	@Override
+	public Result<R> copy(long originId) {
+		return new ResultValue<R>(originId, value);
+	}
 
 }

@@ -13,9 +13,9 @@ public class ResultTasks<R> implements Result<R> {
 	
 	private final long creatorId;
 	
-	public ResultTasks(Task<R> creator, Task<R>[] tasks) {
+	public ResultTasks(long creatorId, Task<R>[] tasks) {
 		this.tasks = tasks;
-		this.creatorId = creator.getUID();
+		this.creatorId = creatorId;
 	}
 
 	@Override
@@ -45,5 +45,11 @@ public class ResultTasks<R> implements Result<R> {
 	@Override
 	public R getValue() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
+	}
+
+	@Override
+	public Result<R> copy(long originId) {
+		return new ResultTasks<R>(originId, tasks);
+
 	}
 }

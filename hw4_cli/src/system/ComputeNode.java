@@ -8,6 +8,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import util.Log;
@@ -28,21 +29,27 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	private transient BlockingQueue<Result<R>> results;
 	private transient List<ComputeThread> threads;
 	
+	private transient final boolean cacheEnabled;
+	private transient ConcurrentHashMap<Task<R>, Result<R>> cache = new ConcurrentHashMap<Task<R>, Result<R>>();
+	
 	public ComputeNode() throws RemoteException {
-		this(true, true);
+		this(true, true, true);
 	}
 	
-	public ComputeNode(boolean enableAmerlioration, boolean multiThread) throws RemoteException {
+	public ComputeNode(boolean enableAmerlioration, boolean multiThread, boolean cacheEnabled) throws RemoteException {
 		this(enableAmerlioration?BUFFER_DEFAULT_SIZE:BUFFER_NO_PREFETCH, 
-			 multiThread?Runtime.getRuntime().availableProcessors():SINGLE_PROCESSOR);
+			 multiThread?Runtime.getRuntime().availableProcessors():SINGLE_PROCESSOR,
+			 cacheEnabled
+			 );
 	}
 	
-	public ComputeNode(int prefetchBufferSize, int numThreads) throws RemoteException {
+	public ComputeNode(int prefetchBufferSize, int numThreads, boolean cacheEnabled) throws RemoteException {
 		super();
 		results = new LinkedBlockingQueue<Result<R>>();
 		threads = new LinkedList<ComputeThread>();
-		
 		tasks = new LinkedBlockingQueue<Task<R>>(prefetchBufferSize);
+		
+		this.cacheEnabled = cacheEnabled;
 		
 		for(int i=0; i<numThreads; i++){
 			ComputeThread thread = new ComputeThread(i);
@@ -54,7 +61,9 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	@Override
 	public void addTask(Task<R> task) throws RemoteException, InterruptedException {
 		Log.debug("--> "+task);
-		tasks.put(task);
+		
+		if(!fetchFromCache(task)) //Add task only if not in cache
+			tasks.put(task);
 	}
 
 	@Override
@@ -62,6 +71,16 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		Result<R> result = results.take();
 		Log.debug("<-- "+result);
 		return result;
+	}
+	
+	private boolean fetchFromCache(Task<R> task) throws InterruptedException{
+		if(cacheEnabled && cache.containsKey(task)){
+			Result<R> cachedResult = cache.get(task).copy(task.getUID());
+			Log.debug("-#- "+task+" = "+cachedResult);
+			results.put(cachedResult);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -81,6 +100,10 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 				Task<R> task = tasks.take();			
 				Result<R> result = task.call();
 				Log.debug("-"+id+"- "+task+" = "+result);
+				
+				if(cacheEnabled && task.isCachable()) 
+					cache.put(task, result);
+				
 				results.put(result);
 			}catch(InterruptedException e){	}
 		}
@@ -91,6 +114,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		String domain = (args.length > 0)? args[0]: "localhost";
 		boolean enableAmerlioration = (args.length > 1)? Boolean.parseBoolean(args[1]): true;
 		boolean multiThread = (args.length > 2)? Boolean.parseBoolean(args[2]): true;
+		boolean enableCaching = (args.length > 3)? Boolean.parseBoolean(args[3]): true;
 		
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
         
@@ -98,20 +122,17 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			System.out.println("Starting Computer on Space @ "+domain);
 
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
-			Computer computer = new ComputeNode(enableAmerlioration,multiThread);
+			Computer computer = new ComputeNode(enableAmerlioration,multiThread,enableCaching);
 			int id = space.register(computer);
 			System.out.println("Computer Registered as:\t"+id);
 			System.out.println("Number Threads:\t\t"+computer.getNumThreads());
 			System.out.println("Amerlioration Enabled:\t"+enableAmerlioration);
-			
+			System.out.println("Caching Enabled:\t"+enableCaching);
 			
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
             System.err.println("Error Connecting to Space at "+url);
             System.err.println(e);
         } 
 	}
-
-
-
-
+	
 }

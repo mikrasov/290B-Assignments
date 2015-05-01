@@ -37,7 +37,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(1, numLocalThreads), true);
+			register( new ComputeNode<R>(1, numLocalThreads, false), true);
 	}
 	
 	@Override
@@ -71,7 +71,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	}
 	
 	private void proccessResult(Result<R> result){
-		
 		Task<R> origin = registeredTasks.remove(result.getTaskCreatorId());
 		//If Single value pass it on to target
 		if(result.isValue()){

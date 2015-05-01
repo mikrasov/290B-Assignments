@@ -80,7 +80,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				}
 			}
 
-			return new ResultValue<ChunkTsp>(this, new ChunkTsp(bestOrder, bestLength));
+			return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(bestOrder, bestLength));
 		}
 		else {
 			Task<ChunkTsp>[] tasks = new Task[toPermute.size()+1];
@@ -97,7 +97,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, new_toPermute, cities);
 			}
 
-			return new ResultTasks<ChunkTsp>(this, tasks);
+			return new ResultTasks<ChunkTsp>(getUID(), tasks);
 		}
 	}
 
