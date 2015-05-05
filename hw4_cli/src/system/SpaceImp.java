@@ -145,17 +145,18 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		}
 		
 		
-		void stopProxyWithError(){
-			System.out.println("Error accessing "+toString());
-
+		synchronized void stopProxyWithError(){
+			if(!isRunning) return;
+			
 			isRunning = false;
+			System.out.println("Error accessing "+toString());
 			proxies.remove(id);
-			while(!dispatcher.isStopped && !collector.isStopped) try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {}
+
+			System.out.println("Requeing "+inProgressTasks.size()+ " tasks");
 			
 			for(Task<R> task : inProgressTasks.values())
 				waitingTasks.add(task);
+			
 		}
 		
 		@Override
@@ -164,8 +165,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		}
 		
 		class Dispatcher extends Thread {
-			boolean isStopped = true;
-						
 			void enqueue(Task<R> task) throws RemoteException, InterruptedException{
 				inProgressTasks.put(task.getUID(), task);
 				computer.addTask(task);
@@ -174,7 +173,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			
 			@Override
 			public void run() {	
-				isStopped = false;
 				while(isRunning) try {
 					Task<R> task = waitingTasks.take();
 					
@@ -193,8 +191,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					waitingTasks.put(task);		
 				} 
 				catch (InterruptedException e)	{} 
-				catch (RemoteException e)		{stopProxyWithError();}
-				isStopped = true;
+				catch (RemoteException e)		{stopProxyWithError(); return;}
 			}
 		}
 		
@@ -210,8 +207,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					proccessResult(result);
 				}
 				catch (InterruptedException e)	{} 
-				catch (RemoteException e)		{stopProxyWithError();}
-				isStopped = true;
+				catch (RemoteException e)		{stopProxyWithError(); return;}
 			}
 		}
 	}
