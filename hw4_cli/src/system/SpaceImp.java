@@ -72,7 +72,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	private synchronized void proccessResult(Result<R> result){
 
-		Task<R> origin = registeredTasks.remove(result.getTaskCreatorId());
+		Task<R> origin = registeredTasks.get(result.getTaskCreatorId()); //registeredTasks.remove(result.getTaskCreatorId());
 		
 		//If Single value pass it on to target	
 		if(result.isValue()){
@@ -82,7 +82,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			}
 			else {
 				Task<R> target = registeredTasks.get(origin.getTargetUid());
-				System.err.println(target);
 				target.setInput(origin.getTargetPort(), result.getValue());
 			}
 		}

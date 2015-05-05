@@ -151,6 +151,8 @@ public class ClientTsp extends JFrame{
         } 
 
 		Log.startLog("tsp-client.csv");
+		System.out.println("Starting Client Targeting Space @ "+domain);
+		System.out.println("Number of Cities:\t"+CITIES.length);
 		Log.log("Component, Time (ms)");
     
 		long clientStartTime = System.nanoTime(); 
@@ -159,8 +161,7 @@ public class ClientTsp extends JFrame{
 		List<Integer> finalCities = result.getBestOrder();
 		client.add( client.getLabel( finalCities.toArray( new Integer[0] ) ) );
 		
-		Log.log(client +", Result: "+result);
-		System.out.println(client +" = "+result);
+		Log.log("TSP, Result: "+result);
 		Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
 		Log.close();
 	}
