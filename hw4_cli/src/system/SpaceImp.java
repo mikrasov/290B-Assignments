@@ -73,10 +73,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private synchronized void proccessResult(Result<R> result){
 
 		Task<R> origin = registeredTasks.remove(result.getTaskCreatorId());
-		//If Single value pass it on to target
 		
-		System.err.println("R: "+result+" cID"+result.getTaskCreatorId()+" Origin: "+origin);
-		
+		//If Single value pass it on to target	
 		if(result.isValue()){
 			
 			if(origin.getTargetUid() == SOLUTION_UID){
@@ -84,6 +82,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			}
 			else {
 				Task<R> target = registeredTasks.get(origin.getTargetUid());
+				System.err.println(target);
 				target.setInput(origin.getTargetPort(), result.getValue());
 			}
 		}
@@ -167,6 +166,12 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 		class Dispatcher extends Thread {
 			boolean isStopped = true;
+						
+			void enqueue(Task<R> task) throws RemoteException, InterruptedException{
+				inProgressTasks.put(task.getUID(), task);
+				computer.addTask(task);
+				if(!isLocal) Log.debug("-"+id+"-> "+task);
+			}
 			
 			@Override
 			public void run() {	
@@ -174,16 +179,19 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				while(isRunning) try {
 					Task<R> task = waitingTasks.take();
 					
-					if(!task.isReady() || (isLocal && !task.isShortRunning()) ) {
-						//Throw it back
-						waitingTasks.put(task);
+					if(task.isReady()) { 
+						if(!isLocal){	//Remote Computer
+							enqueue(task);
+							continue;
+						}
+						else if(task.isShortRunning() || proxies.size() == 1){ //Local but task is short or no others
+							enqueue(task);
+							continue;
+						}
 					}
-					else {
-						//Enqueue
-						inProgressTasks.put(task.getUID(), task);
-						computer.addTask(task);
-						if(!isLocal) Log.debug("-"+id+"-> "+task);
-					}
+					
+					//Throw back: don't schedule
+					waitingTasks.put(task);		
 				} 
 				catch (InterruptedException e)	{} 
 				catch (RemoteException e)		{stopProxyWithError();}
@@ -228,7 +236,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
         // Create Space
         SpaceImp<Object> space = new SpaceImp<Object>(numLocalThreads);
         registry.rebind( Space.DEFAULT_NAME, space );
-
 
         //Log.close();
 	}
