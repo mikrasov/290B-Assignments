@@ -84,6 +84,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			else {
 				Task<R> target = registeredTasks.get(origin.getTargetUid());
 				target.setInput(origin.getTargetPort(), result.getValue());
+				Log.debug("Assign "+result+ " to "+target+" @"+origin.getTargetPort());
 			}
 		}
 	
@@ -110,7 +111,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				if(targetUid <0){
 					Task<R> realTarget = tasksToAdd[ Math.abs((int)targetUid)-1];
 					t.setTarget(realTarget.getUID(), t.getTargetPort());
-					
+					Log.debug("Registering task "+t);
 				}
 			}
 		}
