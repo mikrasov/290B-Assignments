@@ -45,6 +45,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
 		task.setUid(UID_POOL++);
 		task.setTarget(SOLUTION_UID, 0);
+		
 		registeredTasks.put(task.getUID(), task);
 		waitingTasks.add(task);
 	}

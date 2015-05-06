@@ -12,4 +12,8 @@ public interface Computer<R> extends Remote {
 	int getNumThreads() throws RemoteException;
 
 	void updateState(SharedState state, boolean force) throws RemoteException;
+	
+	int getID() throws RemoteException;
+	
+	boolean isRunningOnSpace() throws RemoteException;
 }

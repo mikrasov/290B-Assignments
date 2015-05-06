@@ -1,13 +1,12 @@
 package tsp;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-import util.Log;
-import util.PermutationEnumerator;
 import system.ResultTasks;
 import system.ResultValue;
 import system.TaskClosure;
+import util.PermutationEnumerator;
 import api.Result;
 import api.SharedState;
 import api.Task;
@@ -19,7 +18,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	
 	public static final boolean CACHABLE = false;
 	public static final boolean SHORT_RUNNING = false;
-	public static final int BASIC_TSP_PROBLEM_SIZE = 10;
+	public static final int BASIC_TSP_PROBLEM_SIZE = 9;
 	
 	private StateTsp currentState;
 	
@@ -47,7 +46,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		boolean shortut = currentState != null && currentState.isBetterThan(bestPartialLength);
 		
 		if(shortut)
-			Log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Can Shortcut execution");
+			System.err.println("Can Shortcut execution "+currentState+" BT "+bestPartialLength);
 		
 		return shortut;
 	}
@@ -108,7 +107,6 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 					callback.updateState(new StateTsp(bestLength) );
 				}
 			}
-
 			return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(bestOrder, bestLength));
 		}
 		else {

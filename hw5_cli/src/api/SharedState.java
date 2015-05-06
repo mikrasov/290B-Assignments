@@ -2,7 +2,7 @@ package api;
 
 import java.io.Serializable;
 
-public interface SharedState extends Comparable<SharedState>, Serializable {
+public interface SharedState extends Serializable {
 
 	// Matches the comparable method that
 	// Has a compare to method that accepts null
