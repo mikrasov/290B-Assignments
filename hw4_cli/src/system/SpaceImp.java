@@ -24,6 +24,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static long SOLUTION_UID = 0;
 	private static long UID_POOL = SOLUTION_UID+1;	
 	private static int COMPUTER_ID_POOL = 0;
+	private static boolean SPACE_CACHING = false;
 	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
 	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
@@ -37,7 +38,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(1, numLocalThreads, true), true);
+			register( new ComputeNode<R>(1, numLocalThreads, SPACE_CACHING), true);
 	}
 	
 	@Override
