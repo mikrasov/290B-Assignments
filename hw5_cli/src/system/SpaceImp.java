@@ -40,11 +40,16 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(1, numLocalThreads, true), true);
+			register( new ComputeNode<R>(this, 1, numLocalThreads, true), true);
 	}
 	
 	@Override
 	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
+		state = task.getInitialState();
+		for(Proxy p: proxies.values()){
+			p.reset();
+			p.updateState(state);
+		}
 		addTask(task).setTarget(SOLUTION_UID, 0);
 	}
 
@@ -58,8 +63,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		return register(computer, false);
 	}
 	
-	public int register(Computer<R> computer, boolean isLocal) throws RemoteException {
+	private int register(Computer<R> computer, boolean isLocal) throws RemoteException {
 		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer, isLocal);
+		computer.updateState(state);
 		System.out.println("Registered "+proxy);
 		
 		return proxy.id;
@@ -68,6 +74,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	@Override
 	public void updateState(SharedState updatedState) throws RemoteException {
 		if(updatedState.isBetterThan(state)){
+			Log.debug("--> New State : "+updatedState);
 			this.state = updatedState;
 			for(Proxy p: proxies.values())
 				p.updateState(updatedState);
@@ -177,6 +184,14 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				computer.updateState(updatedState);
 			} catch (RemoteException e) {
 				System.err.println("Undable to send state "+updatedState+" to "+toString());
+			}
+		}
+		
+		void reset() {
+			try {
+				computer.reset();
+			} catch (RemoteException e) {
+				System.err.println("Unable to Reset Computer");
 			}
 		}
 		

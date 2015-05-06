@@ -18,15 +18,18 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	public static final boolean CACHABLE = false;
 	public static final boolean SHORT_RUNNING = false;
 	
-	public TaskTsp(long target, int targetPort, List<Integer> fixedCities, List<Integer> toPermute, double[][] cities) {
-		super("TSP", 3, CACHABLE, SHORT_RUNNING, target, targetPort);
+	private StateTsp currentState;
+	
+	public TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
+		super("TSP", 4, CACHABLE, SHORT_RUNNING, target, targetPort);
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
 		this.setInput(2, toPermute);
+		this.setInput(3, fixedCitiesLength);
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP-INIT", 3, CACHABLE, SHORT_RUNNING);
+		super("TSP-INIT", 4, CACHABLE, SHORT_RUNNING);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();
@@ -34,16 +37,28 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 			toPermute.add(i);
 		}
 		this.setInput(2, toPermute);
+		this.setInput(3, 0.0);
 	}
 
+	private boolean shouldTerminateExecution(double bestPartialLength){
+		return currentState != null && currentState.isBetterThan(bestPartialLength);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Result<ChunkTsp> execute(SharedState currentState) {
+	public Result<ChunkTsp> execute(SharedState initialState) {
 		double[][] cities = (double[][])input[0];
 		List<Integer> fixedCities = (List<Integer>)input[1];
 		List<Integer> toPermute = (List<Integer>)input[2];
+		double fixedCitiesLength = (Double)input[3];
 		
-
+		currentState = (StateTsp)initialState;
+		
+		ResultValue<ChunkTsp> TERMINATION_VALUE = new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(fixedCities, Double.MAX_VALUE));
+		
+		//Shortcut Computation
+		if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
+		
 		if(toPermute.size() <= 10){
 			//compute the shortest distance here
 			//Pre-compute distances
@@ -73,8 +88,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 						currentLength += distances[dest][src];
 				
 					src = dest;
+					
+					//Shortcut Computation
+					if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
 				}
-			
+				
 				//if current permutation is better then what is on record
 				if(currentLength <= bestLength){
 					bestOrder = perm;
@@ -82,7 +100,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				}
 			}
 
-			return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(bestOrder, bestLength));
+			return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(bestOrder, bestLength), new StateTsp(bestLength));
 		}
 		else {
 			Task<ChunkTsp>[] tasks = new Task[toPermute.size()+1];
@@ -92,17 +110,42 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				List<Integer> new_fixedCities = copyList(fixedCities);
 				//clone the toPermute list
 				List<Integer> new_toPermute = copyList(toPermute);
+				
+				Integer newCityToAdd = new_toPermute.get(i-1);
+				
+				double newfixedCitiesLength = fixedCitiesLength;
+				if(fixedCities.size() > 0){
+					newfixedCitiesLength -= euclideanDistance(fixedCities.get(0),fixedCities.get(fixedCities.size()-1),cities); //Remove start-end distance
+					newfixedCitiesLength += euclideanDistance(fixedCities.size()-1,newCityToAdd,cities);						//Add end to element distance
+					newfixedCitiesLength += euclideanDistance(newCityToAdd,fixedCities.get(0), cities);							//Add start to element distance
+				}
+				
 				//add a new city to the fixed cities
-				new_fixedCities.add(new_toPermute.get(i-1));
+				new_fixedCities.add(newCityToAdd);
+				
 				//now delete that city from the new toPermute list
 				new_toPermute.remove(i-1);
-				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, new_toPermute, cities);
+				
+				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, newfixedCitiesLength, new_toPermute, cities);
+				
+				//Shortcut Computation
+				if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
 			}
 
 			return new ResultTasks<ChunkTsp>(getUID(), tasks);
 		}
 	}
+	
+	@Override
+	public void updateState(SharedState updatedState) {
+		this.currentState = (StateTsp)updatedState;
+	}
 
+	@Override
+	public SharedState getInitialState() {
+		return new StateTsp();
+	}
+	
 	private double euclideanDistance(int city1, int city2, double[][] cities){
 		double x1 = cities[city1][0];
 		double y1 = cities[city1][1];
@@ -119,10 +162,6 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		return newList;
 	}
 
-	@Override
-	public void updateState(SharedState updatedState) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 }

@@ -1,7 +1,5 @@
 package system;
 
-import java.rmi.RemoteException;
-
 import api.Result;
 import api.SharedState;
 import api.Task;
@@ -57,6 +55,6 @@ public class ResultValue<R> implements Result<R> {
 	public long getTaskCreatorId()	{ return creatorId; }
 
 	@Override
-	public SharedState resultingState() throws RemoteException { return resultingState;}
+	public SharedState resultingState() { return resultingState;}
 
 }

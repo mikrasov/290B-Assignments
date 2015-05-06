@@ -4,7 +4,6 @@ import system.ResultValue;
 import system.TaskClosure;
 import api.Result;
 import api.SharedState;
-import tsp.ChunkTsp;
 
 public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 
@@ -19,7 +18,6 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 
 	@Override
 	public Result<ChunkTsp> execute(SharedState currentState) {
-
 		//find the shortest path and return that list of cities
 		ChunkTsp bestChunk = (ChunkTsp) input[0];
 		for(int i = 1; i < input.length; i++) {
@@ -28,13 +26,17 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 				bestChunk = currChunk;
 			}
 		}
-		return new ResultValue<ChunkTsp>(getUID(), bestChunk );
+		return new ResultValue<ChunkTsp>(getUID(), bestChunk, new StateTsp(bestChunk.getBestLength()));
 	}
 
 	@Override
 	public void updateState(SharedState updatedState) {
-		// TODO Auto-generated method stub
-		
+		// don't care about state update for comparing
+	}
+
+	@Override
+	public SharedState getInitialState() {
+		throw new UnsupportedOperationException("Should not initialize with comparator");
 	}
 
 }

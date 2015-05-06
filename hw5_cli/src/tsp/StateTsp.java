@@ -2,18 +2,19 @@ package tsp;
 
 import api.SharedState;
 
-public class StateTSP implements SharedState{
+public class StateTsp implements SharedState{
 
 	private static final long serialVersionUID = 8361224589256034886L;
 
-	private final int bestLength;
+	private final double bestLength;
 	
-	public StateTSP(int bestLength) {
-		this.bestLength = bestLength;
+	
+	public StateTsp() {
+		this(Double.MAX_VALUE);
 	}
 	
-	public StateTSP() {
-		this(Integer.MAX_VALUE);
+	public StateTsp(double bestLength) {
+		this.bestLength = bestLength;
 	}
 
 	// a negative integer		as this object is worse than the specified object.
@@ -24,12 +25,17 @@ public class StateTSP implements SharedState{
 		if(other == null)
 			return -1;
 		else
-			return ((StateTSP)other).bestLength - bestLength;
+			return (int) (((StateTsp)other).bestLength - bestLength);
 	}
 
 	@Override
 	public boolean isBetterThan(SharedState other) {
-		return compareTo(other) > 1;
+		return compareTo(other) > 0;
 	}
-
+	
+	
+	public boolean isBetterThan(double other) {
+		return other - bestLength > 0;
+	}
+	
 }

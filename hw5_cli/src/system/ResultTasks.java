@@ -1,7 +1,5 @@
 package system;
 
-import java.rmi.RemoteException;
-
 import api.Result;
 import api.SharedState;
 import api.Task;
@@ -51,7 +49,5 @@ public class ResultTasks<R> implements Result<R> {
 	}
 
 	@Override
-	public SharedState resultingState() throws RemoteException {
-		return null;
-	}
+	public SharedState resultingState() { return null; }
 }

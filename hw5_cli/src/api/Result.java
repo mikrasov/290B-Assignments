@@ -1,7 +1,6 @@
 package api;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 
 public interface Result<R> extends Serializable {
 	
@@ -17,5 +16,5 @@ public interface Result<R> extends Serializable {
 	
 	long getTaskCreatorId();
 	
-	SharedState resultingState() throws RemoteException;
+	SharedState resultingState();
 }

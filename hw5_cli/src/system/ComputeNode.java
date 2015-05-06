@@ -29,16 +29,18 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	private transient List<ComputeThread> threads;
 	
 	private transient final boolean cacheEnabled;
-	private transient ConcurrentHashMap<Task<R>, ResultValue<R>> cache = new ConcurrentHashMap<Task<R>, ResultValue<R>>();
+	private transient ConcurrentHashMap<Task<R>, ResultValue<R>> cache;
 	
+	private transient Space<R> space;
 	private transient SharedState state;
 	
-	public ComputeNode() throws RemoteException {
-		this(-1, -1, false);
+	public ComputeNode(Space<R> space) throws RemoteException {
+		this(space, -1, -1, false);
 	}
 	
-	public ComputeNode(int desiredPrefetchBufferSize, int desiredNumThreads, boolean cacheEnabled) throws RemoteException {
+	public ComputeNode(Space<R> space, int desiredPrefetchBufferSize, int desiredNumThreads, boolean cacheEnabled) throws RemoteException {
 		super();
+		this.space = space;
 		int prefetchBufferSize = desiredPrefetchBufferSize>0?desiredPrefetchBufferSize:BUFFER_DEFAULT_SIZE;
 		int numThreads = desiredNumThreads>0?desiredNumThreads:Runtime.getRuntime().availableProcessors();
 
@@ -46,6 +48,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		results = new LinkedBlockingQueue<Result<R>>();
 		threads = new LinkedList<ComputeThread>();
 		tasks = new LinkedBlockingQueue<Task<R>>(prefetchBufferSize);
+		cache = new ConcurrentHashMap<Task<R>, ResultValue<R>>();
 		
 		for(int i=0; i<numThreads; i++){
 			ComputeThread thread = new ComputeThread(i);
@@ -53,6 +56,15 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			thread.start();
 		}
 	}
+
+	@Override
+	public void reset() throws RemoteException {
+		cache = new ConcurrentHashMap<Task<R>, ResultValue<R>>();
+		state = null;
+	}
+	
+	@Override
+	public int getNumThreads() throws RemoteException { return threads.size(); }
 	
 	@Override
 	public void addTask(Task<R> task) throws RemoteException, InterruptedException {
@@ -69,6 +81,29 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		return result;
 	}
 	
+	@Override
+	public void updateState(SharedState updatedState) throws RemoteException {
+		Log.debug("--> New State from server: "+updatedState);
+		if(updatedState ==null || updatedState.isBetterThan(state))
+			this.state = updatedState;
+	}
+	
+	private void updateState(Result<R> result) {
+		SharedState resultingState = result.resultingState();
+		if(resultingState == null)
+			return;
+		
+		if(resultingState.isBetterThan(state)){
+			state = resultingState;
+			try {
+				Log.debug("<-- New State from server: "+resultingState);
+				space.updateState(state);
+			} catch (RemoteException e) {
+				System.err.println("Error sending new state to server");
+			}
+		}
+	}
+	
 	private boolean fetchFromCache(Task<R> task) throws InterruptedException{
 		if(cacheEnabled && cache.containsKey(task)){
 			Result<R> cachedResult = new ResultValue<R>(cache.get(task),task.getUID());
@@ -79,10 +114,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		}
 		return false;
 	}
-
-	@Override
-	public int getNumThreads() throws RemoteException { return threads.size(); }
-	
 	
 	private class ComputeThread extends Thread {
 		
@@ -98,6 +129,8 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 				Result<R> result = task.call(state);
 				Log.debug("-"+id+"- "+task+" = "+result);
 				
+				updateState(result);
+					
 				if(cacheEnabled && task.isCachable() && result.isValue()) {
 					cache.put(task, (ResultValue<R>)result);
 					Log.debug("Caching "+task);
@@ -121,7 +154,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			System.out.println("Starting Computer on Space @ "+domain);
 
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
-			Computer computer = new ComputeNode(desiredPrefetchBufferSize,desiredNumThreads,enableCaching);
+			Computer computer = new ComputeNode(space, desiredPrefetchBufferSize,desiredNumThreads,enableCaching);
 			int id = space.register(computer);
 			System.out.println("Computer Registered as:\t"+id);
 			System.out.println("Number Threads:\t\t"+computer.getNumThreads());
@@ -139,10 +172,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
         } 
 	}
 
-	@Override
-	public void updateState(SharedState updatedState) throws RemoteException {
-		if(updatedState.isBetterThan(state))
-			this.state = updatedState;
-	}
 	
+
 }
