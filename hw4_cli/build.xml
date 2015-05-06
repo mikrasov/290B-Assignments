@@ -54,9 +54,11 @@
   </target>
   
   <target name="runComputer" description="run computer" >
-    <java classpath="${build}" classname="system.ComputerImp" fork="true">
-      <arg value="${arg0}"/>
-      <arg value="${arg1}"/>
+    <java classpath="${build}" classname="system.ComputeNode" fork="true">
+      <arg value="${arg0}"/><!-- domain -->
+      <arg value="${arg1}"/><!-- pre-fetch size -->
+      <arg value="${arg2}"/><!-- num threads -->
+      <arg value="${arg3}"/><!-- enable caching? -->
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <jvmarg value="-Xmx1g"/>
       <classpath>
@@ -67,6 +69,7 @@
   
   <target name="runSpace" description="run space" >
     <java classpath="${build}" classname="system.SpaceImp" fork="true">
+      <arg value="${arg0}"/><!-- num local threads -->
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <classpath>
         <pathelement location="dist/space.jar"/>
@@ -76,8 +79,7 @@
 
   <target name="runTspClient" description="run tsp client" >
     <java classpath="${build}" classname="client.ClientTsp" fork="true">
-      <arg value="${arg0}"/>
-      <arg value="${arg1}"/>
+      <arg value="${arg0}"/><!-- domain -->
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <classpath>
         <pathelement location="dist/client.jar"/>
@@ -87,9 +89,8 @@
 
   <target name="runFibClient" description="run fib client" >
     <java classpath="${build}" classname="client.ClientFib" fork="true">
-      <arg value="${arg0}"/>
-      <arg value="${arg1}"/>
-      <arg value="${arg2}"/>
+      <arg value="${arg0}"/><!-- domain -->
+      <arg value="${arg1}"/><!--fib itteration -->
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <classpath>
         <pathelement location="dist/client.jar"/>
