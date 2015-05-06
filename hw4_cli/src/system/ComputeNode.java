@@ -62,7 +62,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	@Override
 	public Result<R> collectResult() throws RemoteException, InterruptedException {
 		Result<R> result = results.take();
-		Log.debug("<-- "+result);
+		Log.debug("<-- "+result+" | Tasks:"+tasks.size()+"  Results:"+results.size());
 		return result;
 	}
 	
@@ -93,7 +93,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			while(true) try {
 				Task<R> task = tasks.take();			
 				Result<R> result = task.call();
-				Log.debug("-"+id+"- "+task+" = "+result);
+				Log.debug("-"+id+"- "+task+" = "+result+" | Tasks:"+tasks.size()+"  Results:"+results.size());
 				
 				if(cacheEnabled && task.isCachable() && result.isValue()) {
 					cache.put(task, (ResultValue<R>)result);
