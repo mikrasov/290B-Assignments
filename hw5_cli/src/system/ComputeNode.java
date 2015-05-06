@@ -17,6 +17,7 @@ import api.Result;
 import api.SharedState;
 import api.Space;
 import api.Task;
+import api.UpdateStateCallback;
 
 public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
@@ -56,12 +57,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			thread.start();
 		}
 	}
-
-	@Override
-	public void reset() throws RemoteException {
-		cache = new ConcurrentHashMap<Task<R>, ResultValue<R>>();
-		state = null;
-	}
 	
 	@Override
 	public int getNumThreads() throws RemoteException { return threads.size(); }
@@ -82,21 +77,17 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	}
 	
 	@Override
-	public void updateState(SharedState updatedState) throws RemoteException {
-		Log.debug("--> New State from server: "+updatedState);
-		if(updatedState ==null || updatedState.isBetterThan(state))
+	public void updateState(SharedState updatedState, boolean force) throws RemoteException {
+		Log.debug("--> "+updatedState+(force?" FORCED":""+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":"Local Better")));
+		if( force || (updatedState !=null && updatedState.isBetterThan(state)))
 			this.state = updatedState;
 	}
 	
-	private void updateState(Result<R> result) {
-		SharedState resultingState = result.resultingState();
-		if(resultingState == null)
-			return;
-		
-		if(resultingState.isBetterThan(state)){
-			state = resultingState;
+	private void updateStateLocally(SharedState updatedState) {
+		if(updatedState != null && updatedState.isBetterThan(state)){
+			state = updatedState;
 			try {
-				Log.debug("<-- New State from server: "+resultingState);
+				Log.debug("<-- "+updatedState);
 				space.updateState(state);
 			} catch (RemoteException e) {
 				System.err.println("Error sending new state to server");
@@ -126,10 +117,16 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		public void run() {
 			while(true) try {
 				Task<R> task = tasks.take();			
-				Result<R> result = task.call(state);
+				Result<R> result = task.call(state, new UpdateStateCallback() {
+					
+					@Override
+					public void updateState(SharedState state){
+						updateStateLocally(state);
+					}
+				});
+				
 				Log.debug("-"+id+"- "+task+" = "+result);
 				
-				updateState(result);
 					
 				if(cacheEnabled && task.isCachable() && result.isValue()) {
 					cache.put(task, (ResultValue<R>)result);

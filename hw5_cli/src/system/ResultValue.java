@@ -1,7 +1,6 @@
 package system;
 
 import api.Result;
-import api.SharedState;
 import api.Task;
 
 public class ResultValue<R> implements Result<R> {
@@ -11,18 +10,12 @@ public class ResultValue<R> implements Result<R> {
 
 	private double runTime;
 	private final R value;
-	private SharedState resultingState;
 
 	private final long creatorId;
 	
-	public ResultValue(long creatorId, R value, SharedState resultingState){
+	public ResultValue(long creatorId, R value){
 		this.value = value;
 		this.creatorId = creatorId;
-		this.resultingState = resultingState;
-	}
-	
-	public ResultValue(long creatorId, R value){
-		this(creatorId,value,null);
 	}
 	
 	public ResultValue(ResultValue<R> toCopy, long newOriginID){
@@ -53,8 +46,5 @@ public class ResultValue<R> implements Result<R> {
 
 	@Override
 	public long getTaskCreatorId()	{ return creatorId; }
-
-	@Override
-	public SharedState resultingState() { return resultingState;}
 
 }

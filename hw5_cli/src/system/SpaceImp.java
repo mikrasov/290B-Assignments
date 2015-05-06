@@ -26,6 +26,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static long UID_POOL = SOLUTION_UID+1;	
 	private static int COMPUTER_ID_POOL = 0;
 	
+	private static boolean FORCE_STATE = true;
+	private static boolean SUGGEST_STATE = false;
+	private static boolean SPACE_CACHING = false;
+	private static int SPACE_NO_BUFFER = 1;
+	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
 	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
@@ -40,15 +45,14 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(this, 1, numLocalThreads, true), true);
+			register( new ComputeNode<R>(this, SPACE_NO_BUFFER, numLocalThreads, SPACE_CACHING), true);
 	}
 	
 	@Override
 	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
 		state = task.getInitialState();
 		for(Proxy p: proxies.values()){
-			p.reset();
-			p.updateState(state);
+			p.updateState(state, FORCE_STATE);
 		}
 		addTask(task).setTarget(SOLUTION_UID, 0);
 	}
@@ -65,7 +69,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	private int register(Computer<R> computer, boolean isLocal) throws RemoteException {
 		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer, isLocal);
-		computer.updateState(state);
+		computer.updateState(state, true);
 		System.out.println("Registered "+proxy);
 		
 		return proxy.id;
@@ -73,11 +77,12 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public void updateState(SharedState updatedState) throws RemoteException {
-		if(updatedState.isBetterThan(state)){
-			Log.debug("--> New State : "+updatedState);
+		Log.debug("<== "+updatedState+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":"Local Better") );
+		if(updatedState != null && updatedState.isBetterThan(state)){
+			
 			this.state = updatedState;
 			for(Proxy p: proxies.values())
-				p.updateState(updatedState);
+				p.updateState(updatedState,SUGGEST_STATE);
 		}
 		
 	}
@@ -179,19 +184,12 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			
 		}
 		
-		void updateState(SharedState updatedState) {
+		void updateState(SharedState updatedState, boolean force) {
 			try {
-				computer.updateState(updatedState);
+				computer.updateState(updatedState, force);
+				if(!isLocal) Log.debug("==> "+updatedState+(force?" FORCED":""));
 			} catch (RemoteException e) {
 				System.err.println("Undable to send state "+updatedState+" to "+toString());
-			}
-		}
-		
-		void reset() {
-			try {
-				computer.reset();
-			} catch (RemoteException e) {
-				System.err.println("Unable to Reset Computer");
 			}
 		}
 		
@@ -237,7 +235,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				while(isRunning) try {
 					Result<R> result = computer.collectResult();
 					inProgressTasks.remove(result.getTaskCreatorId());
-					if(!isLocal) Log.debug("<-"+id+"- "+result);
+					if(!isLocal) Log.debug("<== "+id+"- "+result);
 					proccessResult(result);
 				}
 				catch (InterruptedException e)	{} 

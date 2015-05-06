@@ -1,7 +1,6 @@
 package system;
 
 import api.Result;
-import api.SharedState;
 import api.Task;
 
 public class ResultTasks<R> implements Result<R> {
@@ -47,7 +46,4 @@ public class ResultTasks<R> implements Result<R> {
 	public R getValue() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
 	}
-
-	@Override
-	public SharedState resultingState() { return null; }
 }

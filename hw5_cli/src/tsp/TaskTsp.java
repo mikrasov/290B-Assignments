@@ -3,6 +3,7 @@ package tsp;
 import java.util.List;
 import java.util.ArrayList;
 
+import util.Log;
 import util.PermutationEnumerator;
 import system.ResultTasks;
 import system.ResultValue;
@@ -10,6 +11,7 @@ import system.TaskClosure;
 import api.Result;
 import api.SharedState;
 import api.Task;
+import api.UpdateStateCallback;
 
 public class TaskTsp extends TaskClosure<ChunkTsp> {
 
@@ -17,6 +19,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	
 	public static final boolean CACHABLE = false;
 	public static final boolean SHORT_RUNNING = false;
+	public static final int BASIC_TSP_PROBLEM_SIZE = 10;
 	
 	private StateTsp currentState;
 	
@@ -41,12 +44,17 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	}
 
 	private boolean shouldTerminateExecution(double bestPartialLength){
-		return currentState != null && currentState.isBetterThan(bestPartialLength);
+		boolean shortut = currentState != null && currentState.isBetterThan(bestPartialLength);
+		
+		if(shortut)
+			Log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Can Shortcut execution");
+		
+		return shortut;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Result<ChunkTsp> execute(SharedState initialState) {
+	public Result<ChunkTsp> execute(SharedState initialState, UpdateStateCallback callback) {
 		double[][] cities = (double[][])input[0];
 		List<Integer> fixedCities = (List<Integer>)input[1];
 		List<Integer> toPermute = (List<Integer>)input[2];
@@ -59,7 +67,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		//Shortcut Computation
 		if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
 		
-		if(toPermute.size() <= 10){
+		if(toPermute.size() <= BASIC_TSP_PROBLEM_SIZE){
 			//compute the shortest distance here
 			//Pre-compute distances
 			double[][] distances = new double[cities.length][cities.length];
@@ -88,19 +96,20 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 						currentLength += distances[dest][src];
 				
 					src = dest;
-					
-					//Shortcut Computation
-					if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
 				}
+				
+				//Shortcut Computation
+				if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
 				
 				//if current permutation is better then what is on record
 				if(currentLength <= bestLength){
 					bestOrder = perm;
 					bestLength = currentLength;
+					callback.updateState(new StateTsp(bestLength) );
 				}
 			}
 
-			return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(bestOrder, bestLength), new StateTsp(bestLength));
+			return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(bestOrder, bestLength));
 		}
 		else {
 			Task<ChunkTsp>[] tasks = new Task[toPermute.size()+1];

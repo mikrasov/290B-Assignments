@@ -38,4 +38,9 @@ public class StateTsp implements SharedState{
 		return other - bestLength > 0;
 	}
 	
+	@Override
+	public String toString() {
+		return "State: ["+bestLength+"]";
+	}
+	
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import api.Result;
 import api.SharedState;
 import api.Task;
+import api.UpdateStateCallback;
 
 public abstract class TaskClosure<R> implements Task<R>{
 	
@@ -112,9 +113,9 @@ public abstract class TaskClosure<R> implements Task<R>{
 	}
 	
 	@Override
-	public Result<R> call(SharedState currentState){
+	public Result<R> call(SharedState currentState, UpdateStateCallback callback){
 		long clientStartTime = System.nanoTime();
-		Result<R> result = execute(currentState);
+		Result<R> result = execute(currentState, callback);
 		result.setRunTime( (System.nanoTime() - clientStartTime) / 1000000.0 );
 		return result;
 	}
@@ -128,7 +129,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 	 * 
 	 * @return ResultTasks OR ResultValue
 	 */
-	protected abstract Result<R> execute(SharedState currentState);
+	protected abstract Result<R> execute(SharedState currentState, UpdateStateCallback callback);
 
 
 }
