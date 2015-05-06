@@ -28,8 +28,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	private static boolean FORCE_STATE = true;
 	private static boolean SUGGEST_STATE = false;
-	private static boolean SPACE_CACHING = false;
-	private static int SPACE_NO_BUFFER = 1;
 	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
 	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
@@ -45,7 +43,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(this, SPACE_NO_BUFFER, numLocalThreads, SPACE_CACHING), true);
+			new ComputeNode<R>(this, numLocalThreads);
 	}
 	
 	@Override
@@ -54,7 +52,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		for(Proxy p: proxies.values()){
 			p.updateState(state, FORCE_STATE);
 		}
-		addTask(task).setTarget(SOLUTION_UID, 0);
+		task.setUid(UID_POOL++);
+		task.setTarget(SOLUTION_UID, 0);
+		registeredTasks.put(task.getUID(), task);
+		waitingTasks.add(task);
 	}
 
 	@Override
@@ -64,37 +65,27 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public int register(Computer<R> computer) throws RemoteException {
-		return register(computer, false);
-	}
-	
-	private int register(Computer<R> computer, boolean isLocal) throws RemoteException {
-		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer, isLocal);
-		computer.updateState(state, true);
+		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer);
 		System.out.println("Registered "+proxy);
-		
+		proxy.updateState(state, true);
 		return proxy.id;
 	}
 	
 	@Override
-	public void updateState(SharedState updatedState) throws RemoteException {
-		Log.debug("<== "+updatedState+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":"Local Better") );
+	public void updateState(int originatorID, SharedState updatedState) throws RemoteException {
+		Log.debug("<== "+updatedState+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":" Local Better") );
 		if(updatedState != null && updatedState.isBetterThan(state)){
 			
 			this.state = updatedState;
-			for(Proxy p: proxies.values())
-				p.updateState(updatedState,SUGGEST_STATE);
+			for(Proxy p: proxies.values()){
+				if(p.id != originatorID)
+					p.updateState(updatedState,SUGGEST_STATE);
+			}
 		}
 		
 	}
 	
 	/* ------------ Private methods ------------ */
-	private synchronized Task<R> addTask(Task<R> task){
-		task.setUid(UID_POOL++);
-		registeredTasks.put(task.getUID(), task);
-		waitingTasks.add(task);
-		return task;
-	}
-	
 	private synchronized void proccessResult(Result<R> result){
 
 		Task<R> origin = registeredTasks.get(result.getTaskCreatorId()); //registeredTasks.remove(result.getTaskCreatorId());
@@ -118,7 +109,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			
 			//First add all new tasks and generate UIDs for them
 			for(Task<R> t: tasksToAdd){
-				addTask(t);
+				t.setUid(UID_POOL++);
 			}
 			
 			/*
@@ -134,8 +125,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				if(targetUid <0){
 					Task<R> realTarget = tasksToAdd[ Math.abs((int)targetUid)-1];
 					t.setTarget(realTarget.getUID(), t.getTargetPort());
-					
 				}
+				registeredTasks.put(t.getUID(), t);
+				waitingTasks.add(t);
 			}
 		}
 	}
@@ -154,10 +146,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 		boolean isRunning = false;
 		
-		Proxy(int id, Computer<R> computer, boolean isLocal) throws RemoteException{
+		Proxy(int id, Computer<R> computer) throws RemoteException{
 			this.id = id;
 			this.computer = computer;
-			this.isLocal = isLocal;
+			this.isLocal = computer.isRunningOnSpace();
 			this.numThreads = computer.getNumThreads();
 			this.collector = new Collector();
 			this.dispatcher = new Dispatcher();
@@ -168,7 +160,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			collector.start();
 			dispatcher.start();
 		}
-		
 		
 		synchronized void stopProxyWithError(){
 			if(!isRunning) return;
@@ -181,7 +172,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			
 			for(Task<R> task : inProgressTasks.values())
 				waitingTasks.add(task);
-			
 		}
 		
 		void updateState(SharedState updatedState, boolean force) {

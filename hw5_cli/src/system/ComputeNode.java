@@ -25,6 +25,8 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
 	private static final int BUFFER_DEFAULT_SIZE = 2;
 	
+	private final int id;
+	private final boolean runningOnSpace;
 	private transient BlockingQueue<Task<R>> tasks;
 	private transient BlockingQueue<Result<R>> results;
 	private transient List<ComputeThread> threads;
@@ -35,13 +37,23 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	private transient Space<R> space;
 	private transient SharedState state;
 	
+	//package constructor
+	ComputeNode(Space<R> space, int desiredNumThreads) throws RemoteException{
+		this(space, 1, desiredNumThreads, false, true);
+	}
+	
 	public ComputeNode(Space<R> space) throws RemoteException {
 		this(space, -1, -1, false);
 	}
 	
 	public ComputeNode(Space<R> space, int desiredPrefetchBufferSize, int desiredNumThreads, boolean cacheEnabled) throws RemoteException {
+		this(space, desiredPrefetchBufferSize, desiredNumThreads, cacheEnabled, false);
+	}
+	
+	private ComputeNode(Space<R> space, int desiredPrefetchBufferSize, int desiredNumThreads, boolean cacheEnabled, boolean runningOnSpace) throws RemoteException {
 		super();
 		this.space = space;
+		this.runningOnSpace = runningOnSpace;
 		int prefetchBufferSize = desiredPrefetchBufferSize>0?desiredPrefetchBufferSize:BUFFER_DEFAULT_SIZE;
 		int numThreads = desiredNumThreads>0?desiredNumThreads:Runtime.getRuntime().availableProcessors();
 
@@ -56,6 +68,8 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			threads.add(thread);
 			thread.start();
 		}
+		
+		id = space.register(this);
 	}
 	
 	@Override
@@ -78,7 +92,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	
 	@Override
 	public void updateState(SharedState updatedState, boolean force) throws RemoteException {
-		Log.debug("--> "+updatedState+(force?" FORCED":""+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":"Local Better")));
+		Log.debug("--> "+(updatedState==null?"State NULL":updatedState)+(force?" FORCED":""+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":" Local Better")));
 		if( force || (updatedState !=null && updatedState.isBetterThan(state)))
 			this.state = updatedState;
 	}
@@ -88,7 +102,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			state = updatedState;
 			try {
 				Log.debug("<-- "+updatedState);
-				space.updateState(state);
+				space.updateState(id, state);
 			} catch (RemoteException e) {
 				System.err.println("Error sending new state to server");
 			}
@@ -120,8 +134,8 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 				Result<R> result = task.call(state, new UpdateStateCallback() {
 					
 					@Override
-					public void updateState(SharedState state){
-						updateStateLocally(state);
+					public void updateState(SharedState resultingState){
+						updateStateLocally(resultingState);
 					}
 				});
 				
@@ -138,6 +152,12 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		}
 	}
 	
+	@Override
+	public int getID() throws RemoteException { return id;}
+	
+	@Override
+	public boolean isRunningOnSpace() throws RemoteException { return runningOnSpace; }
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
 		String domain = (args.length > 0)? args[0]: "localhost";
@@ -152,8 +172,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
 			Computer computer = new ComputeNode(space, desiredPrefetchBufferSize,desiredNumThreads,enableCaching);
-			int id = space.register(computer);
-			System.out.println("Computer Registered as:\t"+id);
+			System.out.println("Computer Registered as:\t"+computer.getID());
 			System.out.println("Number Threads:\t\t"+computer.getNumThreads());
 			
 			if(desiredPrefetchBufferSize>1)

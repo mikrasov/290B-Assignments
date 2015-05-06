@@ -14,5 +14,5 @@ public interface Space<R> extends Remote {
     
 	int register( Computer<R> computer ) throws RemoteException;
 
-	void updateState(SharedState state) throws RemoteException;
+	void updateState(int originatorID, SharedState state) throws RemoteException;
 }
