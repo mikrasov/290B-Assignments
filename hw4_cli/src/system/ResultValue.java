@@ -29,7 +29,7 @@ public class ResultValue<R> implements Result<R> {
 	
 	@Override
 	public String toString() {
-		return "Value: "+value.toString();
+		return "Value: "+value.toString()+" {"+creatorId+"}";
 	}
 
 	@Override

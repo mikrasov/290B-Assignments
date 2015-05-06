@@ -169,7 +169,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			void enqueue(Task<R> task) throws RemoteException, InterruptedException{
 				inProgressTasks.put(task.getUID(), task);
 				computer.addTask(task);
-				if(!isLocal) Log.debug("="+id+"=> "+task+" | "+waitingTasks.size());
+				if(!isLocal) Log.debug("="+id+"=> "+task+" | Waiting Tasks:"+waitingTasks.size());
 			}
 			
 			@Override
@@ -189,7 +189,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					}
 					
 					//Throw back: don't schedule
-					waitingTasks.put(task);		
+					waitingTasks.add(task);		
 				} 
 				catch (InterruptedException e)	{} 
 				catch (RemoteException e)		{stopProxyWithError(); return;}
@@ -197,10 +197,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		}
 		
 		class Collector extends Thread {
-			boolean isStopped = true;
 			@Override
 			public void run() {
-				isStopped = false;
 				while(isRunning) try {
 					Result<R> result = computer.collectResult();
 					inProgressTasks.remove(result.getTaskCreatorId());
