@@ -43,7 +43,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
-		addTask(task).setTarget(SOLUTION_UID, 0);
+		task.setUid(UID_POOL++);
+		task.setTarget(SOLUTION_UID, 0);
+		registeredTasks.put(task.getUID(), task);
+		waitingTasks.add(task);
 	}
 
 	@Override
@@ -63,13 +66,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		return proxy.id;
 	}
 	
-	/* ------------ Private methods ------------ */
-	private synchronized Task<R> addTask(Task<R> task){
-		task.setUid(UID_POOL++);
-		registeredTasks.put(task.getUID(), task);
-		waitingTasks.add(task);
-		return task;
-	}
+
 	
 	private synchronized void proccessResult(Result<R> result){
 
@@ -93,9 +90,10 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			
 			Task<R>[] tasksToAdd = result.getTasks();
 			
+			
 			//First add all new tasks and generate UIDs for them
 			for(Task<R> t: tasksToAdd){
-				addTask(t);
+				t.setUid(UID_POOL++);
 			}
 			
 			/*
@@ -113,7 +111,12 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					t.setTarget(realTarget.getUID(), t.getTargetPort());
 					Log.debug("Registering task "+t);
 				}
+				
+				registeredTasks.put(t.getUID(), t);
+				waitingTasks.add(t);
 			}
+			
+			
 		}
 	}
 	
