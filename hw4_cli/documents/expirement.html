@@ -39,5 +39,20 @@
         <td></td>
     </tr>
     </tbody></table>
+    
+    <h2>Future Infrastructure Improvements<h2>
+    <h3>Caching at Decomposition Level<h3>
+    <p>Currently we have basic caching implemented for tasks, but the caching only currently works after decomposition. For example for Fib(2), while the values of Fib(1)=1, Fib(0)=0 and Add(1,0)=1 are cached when Fib(2) is encountered again it would still do the decomposition.
+        Ideally in the future we would keep track of the origin node of a decomposition and be able to cache the resulting value after the subgraph merges again. This would allow us to radically cut the execution of problems like Fib that benifit from caching.</p>
+        
+        <h3>Smarter Scheduling</h3>
+        <p>Currently we schedule tasks as Computer become available. At a given time a task is scheduled on at most one machine, and is rescheduled only in the event of failure. This works alright if task sizes are realitivley even and computers are of roughly equal power. However in the real world this is unlikley to be the case.
+            In the event that a computer is slow it could hog a task, while other faster omputers are available and idle. This is exaserbated with our implementation of prefetching as a Computer can have multiple assigned tasks while other computers are idle. In the future we could implement task stealing so that if a computer is idle or about to become so it can get tasks from overloaded computers. We can also dispatch multiple copies of tasks (at the end of execution) to minimize execution tail bottleneck. Overall smarter prioritization of execution order might be prudent, as we could in the future prioritize on decomposition tasks over composition at the start of computation to maximize the effet of parallism.</p>
+            
+        <h3>Shared State</h3>
+        <p>Another optimization is sharing state variables between computers. We will do this for HW5. For types of computations that search over a problem space it might be benificial to keep a shared state of best answer found so far. For ecample in TSP the best length encountered could allow other computers to shorcut searches where partial results already exceed this bound.</p>
+        
+        <h3>Network of Spaces</h3>
+        <p>Lastly, while we currently differentiate between spaces and computers, in the future we could treat spaces as forms of computers that form a network of spaces. At each level spaces can delegate some of the work to connected spaces while doing a portion of the computation themselves. While this aproach is not likley to help with latencey, it would make the system more scalable.</p>
 </body>
 </html>
