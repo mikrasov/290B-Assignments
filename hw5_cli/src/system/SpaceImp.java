@@ -31,12 +31,16 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static final boolean FORCE_STATE = true;
 	private static final boolean SUGGEST_STATE = false;
 	
+	private Scheduler scheduler = new Scheduler();
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
-	private BlockingQueue<Task<R>> waitingTasks = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
+	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
+	private BlockingQueue<Task<R>> readyTasks = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
+	
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private Map<Integer, Proxy> proxies = new ConcurrentHashMap<Integer, Proxy>();
 	
 	private SharedState state;
+	
 	
 	public SpaceImp() throws RemoteException {
 		this(0);
@@ -44,6 +48,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
+		
+		scheduler.start();
+		
 		if(numLocalThreads > 0)
 			new Proxy(this, numLocalThreads);
 		
@@ -206,21 +213,19 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			@Override
 			public void run() {	
 				while(isRunning) try {
-					Task<R> task = waitingTasks.take();
+					Task<R> task = readyTasks.take();
 					
-					if(task.isReady()) { 
-						if(!isLocal){	//Remote Computer
-							enqueue(task);
-							continue;
-						}
-						else if(task.isShortRunning() || proxies.size() == 1){ //Local but task is short or no others
-							enqueue(task);
-							continue;
-						}
+					if(!isLocal){	//Remote Computer
+						enqueue(task);
+						continue;
+					}
+					else if(task.isShortRunning() || proxies.size() == 1){ //Local but task is short or no others
+						enqueue(task);
+						continue;
 					}
 					
 					//Throw back: don't schedule
-					waitingTasks.put(task);		
+					readyTasks.put(task);		
 				} 
 				catch (InterruptedException e)	{} 
 				catch (RemoteException e)		{stopProxyWithError(); return;}
@@ -239,6 +244,21 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				catch (InterruptedException e)	{} 
 				catch (RemoteException e)		{stopProxyWithError(); return;}
 			}
+		}
+	}
+	
+	private class Scheduler extends Thread{
+		
+		@Override
+		public void run() {
+			while(true) try {
+				Task<R> task = waitingTasks.take();
+				if(task.isReady())
+					readyTasks.add(task);
+				else
+					waitingTasks.add(task);
+				
+			}catch(InterruptedException e){}
 		}
 	}
 
