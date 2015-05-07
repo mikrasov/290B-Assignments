@@ -8,7 +8,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import util.Log;
@@ -30,9 +29,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	private transient BlockingQueue<Result<R>> results;
 	private transient List<ComputeThread> threads;
 	
-	private transient final boolean cacheEnabled;
-	private transient ConcurrentHashMap<Task<R>, ResultValue<R>> cache;
-	
 	private transient Space<R> space;
 	private transient SharedState state;
 	
@@ -45,11 +41,9 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		int prefetchBufferSize = desiredPrefetchBufferSize>0?desiredPrefetchBufferSize:BUFFER_DEFAULT_SIZE;
 		int numThreads = desiredNumThreads>0?desiredNumThreads:Runtime.getRuntime().availableProcessors();
 
-		this.cacheEnabled = cacheEnabled;
 		results = new LinkedBlockingQueue<Result<R>>();
 		threads = new LinkedList<ComputeThread>();
 		tasks = new LinkedBlockingQueue<Task<R>>(prefetchBufferSize);
-		cache = new ConcurrentHashMap<Task<R>, ResultValue<R>>();
 		
 		for(int i=0; i<numThreads; i++){
 			ComputeThread thread = new ComputeThread(i);
@@ -65,8 +59,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	public void addTask(Task<R> task) throws RemoteException, InterruptedException {
 		Log.debug("--> "+task);
 		
-		if(!fetchFromCache(task)) //Add task only if not in cache
-			tasks.put(task);
+		tasks.put(task);
 	}
 
 	@Override
@@ -105,16 +98,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		}
 	}
 	
-	private boolean fetchFromCache(Task<R> task) throws InterruptedException{
-		if(cacheEnabled && cache.containsKey(task)){
-			Result<R> cachedResult = new ResultValue<R>(cache.get(task),task.getUID());
-			Log.debug("Retrieving "+cachedResult);
-			Log.debug("-#- "+task+" = "+cachedResult);
-			results.put(cachedResult);
-			return true;
-		}
-		return false;
-	}
 	
 	private class ComputeThread extends Thread {
 		
@@ -136,12 +119,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 				});
 				
 				Log.debug("-"+id+"- "+task+" = "+result);
-				
-					
-				if(cacheEnabled && task.isCachable() && result.isValue()) {
-					cache.put(task, (ResultValue<R>)result);
-					Log.debug("Caching "+task);
-				}
 				
 				results.put(result);
 			}catch(InterruptedException e){	}
