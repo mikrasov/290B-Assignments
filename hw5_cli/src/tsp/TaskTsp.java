@@ -104,6 +104,8 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				if(currentLength <= bestLength){
 					bestOrder = perm;
 					bestLength = currentLength;
+					
+					//Found a new candidate for better length
 					callback.updateState(new StateTsp(bestLength) );
 				}
 			}

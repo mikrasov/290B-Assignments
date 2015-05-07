@@ -26,7 +26,7 @@ public class ClientTsp extends JFrame{
 	private static final long serialVersionUID = 6911008092238762097L;
 	private static final int NUM_PIXALS = 600;
     
-	private static final double[][] CITIES = 
+	private static final double[][] CITIES_12 = 
     {
         { 1, 1 },
         { 8, 1 },
@@ -42,23 +42,47 @@ public class ClientTsp extends JFrame{
         { 3, 6 }
     };
 	
+	private static final double[][] CITIES_16 = 
+	{
+		{ 1, 1 },
+		{ 8, 1 },
+		{ 8, 8 },
+		{ 1, 8 },
+		{ 2, 2 },
+		{ 7, 2 },
+		{ 7, 7 },
+		{ 2, 7 },
+		{ 3, 3 },
+		{ 6, 3 },
+		{ 6, 6 },
+		{ 3, 6 },
+		{ 4, 4 },
+		{ 5, 4 },
+		{ 5, 5 },
+		{ 4, 5 }
+	};
+	
+	
+	
 	protected Space<ChunkTsp> space;
-
+	protected double[][] cities;
+	
 	@SuppressWarnings("unchecked")
-	public ClientTsp(String domain) throws MalformedURLException, RemoteException, NotBoundException {
+	public ClientTsp(String domain, double[][] cities) throws MalformedURLException, RemoteException, NotBoundException {
 		setTitle( "TSP" );
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
 		space = (Space<ChunkTsp>) Naming.lookup(url);  
+		this.cities = cities;
 	}
 
 	public JLabel getLabel( final Integer[] tour )
     {
         // display the graph graphically, as it were
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins
-        double minX = CITIES[0][0], maxX = CITIES[0][0];
-        double minY = CITIES[0][1], maxY = CITIES[0][1];
-        for ( double[] cities : CITIES ) 
+        double minX = cities[0][0], maxX = cities[0][0];
+        double minY = cities[0][1], maxY = cities[0][1];
+        for ( double[] cities : cities ) 
         {
             if ( cities[0] < minX ) 
                 minX = cities[0];
@@ -72,11 +96,11 @@ public class ClientTsp extends JFrame{
 
         // scale points to fit in unit square
         final double side = Math.max( maxX - minX, maxY - minY );
-        double[][] scaledCities = new double[CITIES.length][2];
-        for ( int i = 0; i < CITIES.length; i++ )
+        double[][] scaledCities = new double[cities.length][2];
+        for ( int i = 0; i < cities.length; i++ )
         {
-            scaledCities[i][0] = ( CITIES[i][0] - minX ) / side;
-            scaledCities[i][1] = ( CITIES[i][1] - minY ) / side;
+            scaledCities[i][0] = ( cities[i][0] - minX ) / side;
+            scaledCities[i][1] = ( cities[i][1] - minY ) / side;
         }
 
         final Image image = new BufferedImage( NUM_PIXALS, NUM_PIXALS, BufferedImage.TYPE_INT_ARGB );
@@ -90,7 +114,7 @@ public class ClientTsp extends JFrame{
         int city1 = tour[0], city2;
         x1 = margin + (int) ( scaledCities[city1][0]*field );
         y1 = margin + (int) ( scaledCities[city1][1]*field );
-        for ( int i = 1; i < CITIES.length; i++ )
+        for ( int i = 1; i < cities.length; i++ )
         {
             city2 = tour[i];
             x2 = margin + (int) ( scaledCities[city2][0]*field );
@@ -107,7 +131,7 @@ public class ClientTsp extends JFrame{
         // draw vertices
         final int VERTEX_DIAMETER = 6;
         graphics.setColor( Color.RED );
-        for ( int i = 0; i < CITIES.length; i++ )
+        for ( int i = 0; i < cities.length; i++ )
         {
             int x = margin + (int) ( scaledCities[i][0]*field );
             int y = margin + (int) ( scaledCities[i][1]*field );
@@ -129,19 +153,20 @@ public class ClientTsp extends JFrame{
         setVisible( true );
     }
     
+    public int numCities() { return cities.length; }
     
-    public ChunkTsp runTask(double[][] cities) throws RemoteException, InterruptedException{
-    	
+    public ChunkTsp runTask() throws RemoteException, InterruptedException{
     	space.setTask( new TaskTsp(cities));
         return space.getSolution();
     }
 
 	public static void main(String[] args) throws RemoteException, InterruptedException{
 		String domain = (args.length > 0)? args[0] : "localhost";
-
+		int numCities = (args.length > 1)? Integer.parseInt(args[1]) : CITIES_16.length;
+		
 		ClientTsp client = null;
 		try {
-			client = new ClientTsp(domain);
+			client = new ClientTsp(domain, (numCities == 12? CITIES_12 : CITIES_16) );
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
             System.err.println("Error Connecting to Space at '"+domain+"'");
             System.err.println(e);
@@ -150,11 +175,11 @@ public class ClientTsp extends JFrame{
 
 		Log.startLog("tsp-client.csv");
 		System.out.println("Starting Client Targeting Space @ "+domain);
-		System.out.println("Number of Cities:\t"+CITIES.length);
+		System.out.println("Number of Cities:\t"+client.numCities());
 		Log.log("Component, Time (ms)");
     
 		long clientStartTime = System.nanoTime(); 
-		ChunkTsp result = client.runTask(CITIES);
+		ChunkTsp result = client.runTask();
          
 		List<Integer> finalCities = result.getBestOrder();
 		client.add( client.getLabel( finalCities.toArray( new Integer[0] ) ) );

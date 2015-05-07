@@ -26,12 +26,13 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static long SOLUTION_UID = 0;
 	private static long UID_POOL = SOLUTION_UID+1;	
 	private static int COMPUTER_ID_POOL = 0;
-	
-	private static boolean FORCE_STATE = true;
-	private static boolean SUGGEST_STATE = false;
+
+	private static final int INITIAL_CAPACITY = 100;
+	private static final boolean FORCE_STATE = true;
+	private static final boolean SUGGEST_STATE = false;
 	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
-	private BlockingQueue<Task<R>> waitingTasks = new PriorityBlockingQueue<Task<R>>();
+	private BlockingQueue<Task<R>> waitingTasks = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private Map<Integer, Proxy> proxies = new ConcurrentHashMap<Integer, Proxy>();
 	

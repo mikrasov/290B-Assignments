@@ -151,8 +151,8 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
 		String domain = (args.length > 0)? args[0]: "localhost";
-		int desiredPrefetchBufferSize = (args.length > 1)? Integer.parseInt(args[1]): 1;
-		int desiredNumThreads = (args.length > 2)? Integer.parseInt(args[2]): 1;
+		int desiredPrefetchBufferSize = (args.length > 1)? Integer.parseInt(args[1]): -1;
+		int desiredNumThreads = (args.length > 2)? Integer.parseInt(args[2]): -1;
 		boolean enableCaching = (args.length > 3)? Boolean.parseBoolean(args[3]): false;
 		
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
