@@ -77,9 +77,23 @@
         <td><a href="tsp_on_mult.png">View Plot</a></td>
     </tr>
     </tbody></table>
+
+<h2>Experiment Discussion</h2>
+
+For every experiment but one, the client's execution time was significantly smaller for 8 computers compared to 1 computer.
+For Fibonacci, it did not matter how many threads a computer was running; a time reduction was instead seen when amelioration
+was turned on. It makes sense that we see amelioration pay off, as the Space/Client no longer have to wait for each other to send
+tasks/results. However, for TSP, it was the complete opposite: amelioration did not shave off time, however multiple worker threads did.
+A possible explanation is that computing a TSP task requires much more computational power than a FIB task, therefore having many threads
+helped out.
+
+The Parallel Efficiency graphs for FIB show that the efficiency drops when using 8 computers. A possible explanation is that while we do have
+much more computational power at our disposal with 8 computers, if one computer is a little slower, the rest of the computers/space are now waiting for it.
+The Efficiency for TSP (C=8) was better than for FIB, sometimes differing only by %2 from C=1.
+
     
-    <h2>Future Infrastructure Improvements<h2>
-    <h3>Caching at Decomposition Level<h3>
+    <h2>Future Infrastructure Improvements</h2>
+    <h3>Caching at Decomposition Level</h3>
     <p>Currently we have basic caching implemented for tasks, but the caching only currently works after decomposition. For example for Fib(2), while the values of Fib(1)=1, Fib(0)=0 and Add(1,0)=1 are cached when Fib(2) is encountered again it would still do the decomposition.
         Ideally in the future we would keep track of the origin node of a decomposition and be able to cache the resulting value after the subgraph merges again. This would allow us to radically cut the execution of problems like Fib that benifit from caching.</p>
         
