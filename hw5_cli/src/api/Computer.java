@@ -15,5 +15,5 @@ public interface Computer<R> extends Remote {
 	
 	int getID() throws RemoteException;
 	
-	boolean isRunningOnSpace() throws RemoteException;
+	void assignSpace(Space<R> space, int spaceId) throws RemoteException;
 }

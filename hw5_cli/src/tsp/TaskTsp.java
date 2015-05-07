@@ -23,7 +23,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	private StateTsp currentState;
 	
 	public TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
-		super("TSP", 4, CACHABLE, SHORT_RUNNING, target, targetPort);
+		super("TSP", fixedCities.size(), 4, CACHABLE, SHORT_RUNNING, target, targetPort);
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
 		this.setInput(2, toPermute);
@@ -31,7 +31,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP-INIT", 4, CACHABLE, SHORT_RUNNING);
+		super("TSP-INIT", 0, 4, CACHABLE, SHORT_RUNNING);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();

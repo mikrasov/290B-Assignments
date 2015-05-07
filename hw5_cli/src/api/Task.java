@@ -26,5 +26,7 @@ public interface Task<R> extends Serializable {
 	
 	boolean isCachable();
 	
+	int getPriority();
+	
 	boolean isShortRunning();
 }

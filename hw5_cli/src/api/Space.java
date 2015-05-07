@@ -12,7 +12,7 @@ public interface Space<R> extends Remote {
 	
 	R getSolution() throws RemoteException, InterruptedException;
     
-	int register( Computer<R> computer ) throws RemoteException;
+	void register( Computer<R> computer ) throws RemoteException;
 
 	void updateState(int originatorID, SharedState state) throws RemoteException;
 }

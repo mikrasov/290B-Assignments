@@ -23,15 +23,16 @@ public abstract class TaskClosure<R> implements Task<R>{
 	// ID of closure to send result to and input port on that closure
 	protected long targetUid;
 	protected int targetPort;
+	protected int priority;
 	
 	boolean isCachable = true;
 	boolean isShorRunning = true;
 		
-	public TaskClosure(String name, int numInputs, boolean isCachable, boolean isShorRunning){
-		this(name, numInputs, isCachable, isShorRunning, -1,-1);
+	public TaskClosure(String name, int priority, int numInputs, boolean isCachable, boolean isShorRunning){
+		this(name, priority, numInputs, isCachable, isShorRunning, -1,-1);
 	}
 	
-	public TaskClosure(String name, int numInputs, boolean isCachable, boolean isShorRunning, long targetUid, int targetPort){
+	public TaskClosure(String name, int priority, int numInputs, boolean isCachable, boolean isShorRunning, long targetUid, int targetPort){
 		this.name = name;
 		this.input = new Object[numInputs];
 		this.joinCounter = numInputs;
@@ -40,6 +41,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 		
 		this.isCachable = isCachable;
 		this.isShorRunning = isShorRunning;
+		this.priority = priority;
 	}
 	
 	@Override
@@ -74,6 +76,9 @@ public abstract class TaskClosure<R> implements Task<R>{
 
 	@Override
 	public boolean isShortRunning() { return isShorRunning; }
+	
+	@Override
+	public int getPriority()		{return priority;}
 	
 	@Override
 	public String toString() {

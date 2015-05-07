@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import util.Log;
@@ -30,7 +31,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static boolean SUGGEST_STATE = false;
 	
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
-	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
+	private BlockingQueue<Task<R>> waitingTasks = new PriorityBlockingQueue<Task<R>>();
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private Map<Integer, Proxy> proxies = new ConcurrentHashMap<Integer, Proxy>();
 	
@@ -43,7 +44,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();
 		if(numLocalThreads > 0)
-			new ComputeNode<R>(this, numLocalThreads);
+			new Proxy(this, numLocalThreads);
+		
 	}
 	
 	@Override
@@ -64,11 +66,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	}
 	
 	@Override
-	public int register(Computer<R> computer) throws RemoteException {
-		Proxy proxy = new Proxy(COMPUTER_ID_POOL++, computer);
-		System.out.println("Registered "+proxy);
-		proxy.updateState(state, true);
-		return proxy.id;
+	public void register(Computer<R> computer) throws RemoteException {
+		new Proxy(this, computer, false);
 	}
 	
 	@Override
@@ -146,13 +145,21 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 		boolean isRunning = false;
 		
-		Proxy(int id, Computer<R> computer) throws RemoteException{
-			this.id = id;
+		Proxy(Space<R> space, int numLocalThreads) throws RemoteException{
+			this(space, new ComputeNode<R>(1, numLocalThreads, false),true);
+		}
+		
+		Proxy(Space<R> space, Computer<R> computer, boolean isLocal) throws RemoteException{
+			this.id = COMPUTER_ID_POOL++;
 			this.computer = computer;
-			this.isLocal = computer.isRunningOnSpace();
+			this.isLocal = isLocal;
 			this.numThreads = computer.getNumThreads();
 			this.collector = new Collector();
 			this.dispatcher = new Dispatcher();
+			
+			System.out.println("Registered "+this);
+			computer.assignSpace(space, this.id);
+			updateState(state, true);
 			
 			proxies.put(id, this );
 			

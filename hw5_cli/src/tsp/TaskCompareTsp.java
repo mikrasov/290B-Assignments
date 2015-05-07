@@ -14,7 +14,7 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 	public static final boolean SHORT_RUNNING = true;
 	
 	public TaskCompareTsp(long target, int targetPort, int num_inputs) {
-		super("Compare TSP", num_inputs, CACHABLE, SHORT_RUNNING, target, targetPort);
+		super("Compare TSP", 0, num_inputs, CACHABLE, SHORT_RUNNING, target, targetPort);
 	}
 
 	@Override
