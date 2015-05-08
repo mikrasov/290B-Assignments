@@ -19,7 +19,7 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 		//find the shortest path and return that list of cities
 		ChunkTsp bestChunk = (ChunkTsp) input[0];
 		for(int i = 1; i < input.length; i++) {
-			ChunkTsp currChunk = (ChunkTsp) input[1];
+			ChunkTsp currChunk = (ChunkTsp) input[i];
 			if(currChunk.getBestLength() < bestChunk.getBestLength()){
 				bestChunk = currChunk;
 			}

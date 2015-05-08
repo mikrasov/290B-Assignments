@@ -17,7 +17,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	private static final long serialVersionUID = -2567928535294012341L;
 	
-	private static final int BASIC_TSP_PROBLEM_SIZE = 11;
+	private static final int BASIC_TSP_PROBLEM_SIZE = 8;
 	private static final int NUMBER_OF_INPUTS = 4;
 	private static final boolean ENABLE_BOUNDING = true;
 	
@@ -26,7 +26,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	private StateTsp currentState;
 	
 	private TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
-		super("TSP", fixedCities.size(), NUMBER_OF_INPUTS, LONG_RUNNING, target, targetPort);
+		super("TSP", fixedCities.size(), NUMBER_OF_INPUTS, toPermute.size()>BASIC_TSP_PROBLEM_SIZE, target, targetPort);
 		initialState = null;
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
@@ -84,7 +84,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				double currentLength = 0;
 				perm.addAll(fixedCities);
 
-				int src = fixedCities.get(fixedCities.size()-1);
+				int src = perm.get(perm.size()-1);
 				for(int dest: perm){
 					if(src < dest) //Compensate for triangular matrix
 						currentLength += distances[src][dest];
@@ -168,6 +168,5 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		String out = name +"_"+this.getUID()+"("+input[1]+" "+input[3]+" "+input[2]+")";
 		return out+" >["+targetUid+"]";
 	}
-
 
 }
