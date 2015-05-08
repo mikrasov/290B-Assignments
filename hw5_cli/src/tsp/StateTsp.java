@@ -1,6 +1,7 @@
 package tsp;
 
 import api.SharedState;
+import util.Distance;
 
 public class StateTsp implements SharedState{
 
@@ -8,8 +9,8 @@ public class StateTsp implements SharedState{
 
 	private final double bestLength;
 	
-	public StateTsp() {
-		this(Double.MAX_VALUE);
+	public StateTsp(double[][] cities) {
+		this( Distance.greedyDistance(cities) );
 	}
 	
 	public StateTsp(double bestLength) {

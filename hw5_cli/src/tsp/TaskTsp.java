@@ -7,6 +7,7 @@ import system.ResultTasks;
 import system.ResultValue;
 import system.TaskClosure;
 import util.PermutationEnumerator;
+import util.Distance;
 import api.Result;
 import api.SharedState;
 import api.Task;
@@ -21,10 +22,12 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	private static final boolean ENABLE_BOUNDING = true;
 	
 	
+	private final StateTsp initialState;
 	private StateTsp currentState;
 	
-	public TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
+	private TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
 		super("TSP", fixedCities.size(), NUMBER_OF_INPUTS, LONG_RUNNING, target, targetPort);
+		initialState = null;
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
 		this.setInput(2, toPermute);
@@ -33,6 +36,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	public TaskTsp(double[][] cities){
 		super("TSP-INIT", DEFAULT_PRIORITY, NUMBER_OF_INPUTS, SHORT_RUNNING);
+		initialState = new StateTsp(cities);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();
@@ -68,16 +72,9 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		if(shouldTerminateExecution(fixedCitiesLength)) return TERMINATION_VALUE;
 		
 		if(toPermute.size() <= BASIC_TSP_PROBLEM_SIZE){
-			//compute the shortest distance here
+
 			//Pre-compute distances
-			double[][] distances = new double[cities.length][cities.length];
-		
-			for(int src=0; src < cities.length; src++){
-				//Compute distance to neighbors (that are not already computed)
-				for(int dest=src+1; dest < cities.length; dest++){
-					distances[src][dest] = euclideanDistance(src, dest, cities);
-				}
-			}
+			double[][] distances = Distance.allDistances(cities);
 
 			PermutationEnumerator<Integer> generator = new PermutationEnumerator<Integer>(toPermute);
 
@@ -125,9 +122,9 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				
 				double newfixedCitiesLength = fixedCitiesLength;
 				if(fixedCities.size() > 0){
-					newfixedCitiesLength -= euclideanDistance(fixedCities.get(0),fixedCities.get(fixedCities.size()-1),cities); //Remove start-end distance
-					newfixedCitiesLength += euclideanDistance(fixedCities.size()-1,newCityToAdd,cities);						//Add end to element distance
-					newfixedCitiesLength += euclideanDistance(newCityToAdd,fixedCities.get(0), cities);							//Add start to element distance
+					newfixedCitiesLength -= Distance.euclideanDistance(fixedCities.get(0),fixedCities.get(fixedCities.size()-1),cities); //Remove start-end distance
+					newfixedCitiesLength += Distance.euclideanDistance(fixedCities.size()-1,newCityToAdd,cities);						//Add end to element distance
+					newfixedCitiesLength += Distance.euclideanDistance(newCityToAdd,fixedCities.get(0), cities);							//Add start to element distance
 				}
 				
 				//add a new city to the fixed cities
@@ -153,17 +150,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	@Override
 	public SharedState getInitialState() {
-		return new StateTsp();
+		if(initialState == null)
+			throw new UnsupportedOperationException("Initializing with with wrong constructor");
+		return initialState;
 	}
 	
-	private double euclideanDistance(int city1, int city2, double[][] cities){
-		double x1 = cities[city1][0];
-		double y1 = cities[city1][1];
-		double x2 = cities[city2][0];
-		double y2 = cities[city2][1];
-		return Math.sqrt(Math.pow( (x1-x2), 2) + Math.pow( (y1-y2), 2));
-	}
-
 	private List<Integer> copyList(List<Integer> list){
 		List<Integer> newList = new ArrayList<Integer>();
 		for(int i = 0; i < list.size(); i++){
