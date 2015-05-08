@@ -43,10 +43,12 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();		
+		scheduler = new Scheduler<R>();	
+		scheduler.start();
 		int actualNumberOfThreadsToSet = numLocalThreads>0?numLocalThreads:1;
 		ComputeNodeSpec spec = new ComputeNodeSpec(BUFFER_SIZE_OF_LOCAL_COMPUTER, actualNumberOfThreadsToSet);
-		Proxy<R> localProxy = register(new ComputeNode<R>(spec), spec, LOCAL_PROXY_ID);
-		scheduler = new Scheduler<R>(allProxies, localProxy);	
+		register(new ComputeNode<R>(spec), spec, LOCAL_PROXY_ID, scheduler.getShortTaskPool());
+		
 	}
 	
 	@Override
@@ -68,13 +70,13 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public int register(Computer<R> computer, Capabilities spec) throws RemoteException {
-		return register(computer, spec, PROXY_ID_POOL++).getId();
+		return register(computer, spec, PROXY_ID_POOL++, scheduler.getLongTaskPool()).getId();
 	}
 	
-	public Proxy<R> register(Computer<R> computer, Capabilities spec, int proxyID) throws RemoteException {
+	public Proxy<R> register(Computer<R> computer, Capabilities spec, int proxyID,  BlockingQueue<Task<R>> taskPool) throws RemoteException {
 		computer.assignSpace(this, proxyID);
 		
-		Proxy<R> proxy = new Proxy<R>(computer, spec, proxyID, proxyCallback);
+		Proxy<R> proxy = new Proxy<R>(computer, spec, proxyID, taskPool, proxyCallback);
 		
 		System.out.println("Registering "+proxy);
 		proxy.updateState(state, FORCE_STATE);

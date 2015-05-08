@@ -1,68 +1,45 @@
 package system;
 
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import api.Task;
 
-public class Scheduler<R>{
+public class Scheduler<R> extends Thread{
 	
 	private static final int INITIAL_CAPACITY = 25000;
 	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
-	private BlockingQueue<Task<R>> readyTasks = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
+	private BlockingQueue<Task<R>> shortTaskPool = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
+	private BlockingQueue<Task<R>> longTaskPool = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
 	
-	
-	private Map<Integer, Proxy<R>>  proxies;
-	private Proxy<R> localProxy;
-	
-	public Scheduler(Map<Integer, Proxy<R>>  allProxies, Proxy<R> localProxy){
-		this.proxies = allProxies;
-		this.localProxy = localProxy;
-		new ReadyChecker().start();
-		new Assigner().start();
-	}
 	
 	public void schedule(Task<R> task){
 		waitingTasks.add(task);
 	}
 	
-	class ReadyChecker extends Thread {
-		@Override
-		public void run() {
-			while(true){
-				try {
-					Task<R> task = waitingTasks.take();
-					
-					if(task.isReady()){
-					
-						if(task.isShortRunning())
-							localProxy.enqueue(task); //Enqueue locally
-						else
-							readyTasks.add(task);
-					}
+	
+	public BlockingQueue<Task<R>> getLongTaskPool() { return longTaskPool;}
+	public BlockingQueue<Task<R>> getShortTaskPool() { return shortTaskPool;}
+	
+	@Override
+	public void run() {
+		while(true){
+			try {
+				Task<R> task = waitingTasks.take();
+				
+				if(task.isReady()){
+				
+					if(task.isShortRunning())
+						shortTaskPool.add(task); 
 					else
-						waitingTasks.add(task);
+						longTaskPool.add(task);
 				}
-				catch(InterruptedException e){}
+				else
+					waitingTasks.add(task);
 			}
+			catch(InterruptedException e){}
 		}
 	}
 	
-	class Assigner extends Thread {
-		@Override
-		public void run() {
-			while(true){
-				for(Proxy<R> p: proxies.values()) try {
-
-					if(p == localProxy) continue; //skip local
-					
-					Task<R> task = readyTasks.take();
-					p.enqueue(task);
-					
-				}catch(InterruptedException e){}
-			}
-		}
-	}
 }

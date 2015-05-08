@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import util.Log;
 import api.Capabilities;
@@ -24,18 +23,19 @@ public class Proxy<R> {
 	private final Capabilities spec;
 	
 	private Map<Long, Task<R>> taskRegistry = new ConcurrentHashMap<Long, Task<R>>();
-	private BlockingQueue<Task<R>> assignedTasks = new LinkedBlockingQueue<Task<R>>();
+	private BlockingQueue<Task<R>> assignedTasks ;
 	
 	private boolean isRunning = false;
 	
 
-	public Proxy(Computer<R> computer, Capabilities spec, int computerId, ProxyCallback<R> callback) throws RemoteException{
+	public Proxy(Computer<R> computer, Capabilities spec, int computerId, BlockingQueue<Task<R>> taskPool, ProxyCallback<R> callback) throws RemoteException{
 		this.id = computerId;
 		this.computer = computer;
 		this.spec = spec;
 		this.collector = new Collector();
 		this.dispatcher = new Dispatcher();
 		this.callback = callback;
+		this.assignedTasks = taskPool;
 		
 		isRunning = true;
 		collector.start();
@@ -59,12 +59,7 @@ public class Proxy<R> {
 			System.err.println("Undable to send state "+updatedState+" to "+toString());
 		}
 	}
-	
-	public void enqueue(Task<R> task) {
-		taskRegistry.put(task.getUID(), task);
-		assignedTasks.add(task);
-	}
-	
+
 	public int getId(){ return id;}
 	
 	@Override
@@ -78,7 +73,7 @@ public class Proxy<R> {
 		public void run() {	
 			while(isRunning) try {
 				Task<R> task = assignedTasks.take();
-
+				taskRegistry.put(task.getUID(), task);
 				Log.debug("="+id+"=> "+task);
 				computer.addTask(task);
 			} 
