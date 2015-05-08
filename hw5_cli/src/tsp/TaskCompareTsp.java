@@ -10,11 +10,8 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 
 	private static final long serialVersionUID = -2157191669367268779L;
 	
-	public static final boolean CACHABLE = false;
-	public static final boolean SHORT_RUNNING = true;
-	
 	public TaskCompareTsp(long target, int targetPort, int num_inputs) {
-		super("Compare TSP", 0, num_inputs, CACHABLE, SHORT_RUNNING, target, targetPort);
+		super("Compare TSP", DEFAULT_PRIORITY, num_inputs, SHORT_RUNNING, target, targetPort);
 	}
 
 	@Override
@@ -34,7 +31,7 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 
 	@Override
 	public void updateState(SharedState updatedState) {
-		// don't care about state update for comparing
+		/* don't care about state update for comparing */
 	}
 
 	@Override

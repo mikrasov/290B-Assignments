@@ -16,14 +16,15 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	private static final long serialVersionUID = -2567928535294012341L;
 	
-	public static final boolean CACHABLE = false;
-	public static final boolean SHORT_RUNNING = false;
-	public static final int BASIC_TSP_PROBLEM_SIZE = 11;
+	private static final int BASIC_TSP_PROBLEM_SIZE = 11;
+	private static final int NUMBER_OF_INPUTS = 4;
+	private static final boolean ENABLE_BOUNDING = true;
+	
 	
 	private StateTsp currentState;
 	
 	public TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
-		super("TSP", fixedCities.size(), 4, CACHABLE, SHORT_RUNNING, target, targetPort);
+		super("TSP", fixedCities.size(), NUMBER_OF_INPUTS, LONG_RUNNING, target, targetPort);
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
 		this.setInput(2, toPermute);
@@ -31,7 +32,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP-INIT", 0, 4, CACHABLE, SHORT_RUNNING);
+		super("TSP-INIT", DEFAULT_PRIORITY, NUMBER_OF_INPUTS, SHORT_RUNNING);
 		this.setInput(0, cities);
 		this.setInput(1, new ArrayList<Integer>());
 		List<Integer> toPermute = new ArrayList<Integer>();
@@ -43,7 +44,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	}
 
 	private boolean shouldTerminateExecution(double bestPartialLength){
-		boolean shortut = currentState != null && currentState.isBetterThan(bestPartialLength);
+		boolean shortut = ENABLE_BOUNDING && currentState.isBetterThan(bestPartialLength);
 		
 		if(shortut)
 			System.err.println("Can Shortcut execution "+currentState+" BT "+bestPartialLength);
@@ -171,6 +172,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		return newList;
 	}
 
+	@Override
+	public String toString() {
+		String out = name +"_"+this.getUID()+"("+input[1]+" "+input[3]+" "+input[2]+")";
+		return out+" >["+targetUid+"]";
+	}
 
 
 }

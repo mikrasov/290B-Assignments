@@ -9,8 +9,12 @@ import api.UpdateStateCallback;
 
 public abstract class TaskClosure<R> implements Task<R>{
 	
-	/** Serial ID*/
 	private static final long serialVersionUID = 1894632443394847590L;
+	
+	protected static final boolean SHORT_RUNNING = true;
+	protected static final boolean LONG_RUNNING = false;
+	protected static final int DEFAULT_PRIORITY = 0;
+	
 	
 	/** Id of the task as recognized by scheduler and computers */
 	private long uid;
@@ -25,21 +29,19 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected int targetPort;
 	protected int priority;
 	
-	boolean isCachable = true;
 	boolean isShorRunning = true;
 		
-	public TaskClosure(String name, int priority, int numInputs, boolean isCachable, boolean isShorRunning){
-		this(name, priority, numInputs, isCachable, isShorRunning, -1,-1);
+	public TaskClosure(String name, int priority, int numInputs, boolean isShorRunning){
+		this(name, priority, numInputs, isShorRunning, -1,-1);
 	}
 	
-	public TaskClosure(String name, int priority, int numInputs, boolean isCachable, boolean isShorRunning, long targetUid, int targetPort){
+	public TaskClosure(String name, int priority, int numInputs, boolean isShorRunning, long targetUid, int targetPort){
 		this.name = name;
 		this.input = new Object[numInputs];
 		this.joinCounter = numInputs;
 		this.targetUid = targetUid;
 		this.targetPort = targetPort;
 		
-		this.isCachable = isCachable;
 		this.isShorRunning = isShorRunning;
 		this.priority = priority;
 	}
@@ -71,9 +73,6 @@ public abstract class TaskClosure<R> implements Task<R>{
 	@Override
 	public int getTargetPort(){ return targetPort; }
 	
-	@Override
-	public boolean isCachable() { return isCachable; }
-
 	@Override
 	public boolean isShortRunning() { return isShorRunning; }
 	

@@ -24,8 +24,6 @@ public interface Task<R> extends Serializable {
 	
 	SharedState getInitialState();
 	
-	boolean isCachable();
-	
 	int getPriority();
 	
 	boolean isShortRunning();

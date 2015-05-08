@@ -80,12 +80,9 @@ public class Proxy<R> {
 		public void run() {	
 			while(isRunning) try {
 				Task<R> task = assignedTasks.take();
-				
-				computer.addTask(task);
+
 				if(!isLocal) Log.debug("-"+id+"-> "+task);
-				
-				//Throw back: don't schedule
-				assignedTasks.put(task);		
+				computer.addTask(task);
 			} 
 			catch (InterruptedException e)	{} 
 			catch (RemoteException e)		{stopProxyWithError(); return;}

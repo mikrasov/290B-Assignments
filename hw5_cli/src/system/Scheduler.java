@@ -23,22 +23,24 @@ public class Scheduler<R>{
 		new Assigner().start();
 	}
 	
-	public void enqueue(Task<R> task){
+	public void schedule(Task<R> task){
 		waitingTasks.add(task);
 	}
 	
 	class ReadyChecker extends Thread {
 		@Override
 		public void run() {
-			while(true) try {
-				Task<R> task = waitingTasks.take();
-				
-				if(task.isReady())
-					readyTasks.add(task);
-				else
-					waitingTasks.add(task);
-				
-			}catch(InterruptedException e){}
+			while(true){
+				try {
+					Task<R> task = waitingTasks.take();
+					
+					if(task.isReady())
+						readyTasks.add(task);
+					else
+						waitingTasks.add(task);
+				}
+				catch(InterruptedException e){}
+			}
 		}
 	}
 	
@@ -50,7 +52,8 @@ public class Scheduler<R>{
 				
 					Task<R> task = readyTasks.take();
 				
-					if(!p.isLocal() || (p.isLocal() && task.isShortRunning()))
+					//If local & shortrunning OR not local and not short running
+					if(p.isLocal() == task.isShortRunning())
 						p.enqueue(task);
 					else
 						readyTasks.add(task);

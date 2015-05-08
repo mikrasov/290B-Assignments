@@ -29,6 +29,9 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 	private static final boolean FORCE_STATE = true;
 	private static final boolean SUGGEST_STATE = false;
+	private static final boolean COMPUTER_IS_LOCAL = true;
+	private static final boolean COMPUTER_IS_REMOTE = false;
+	private static final int BUFFER_SIZE_OF_LOCAL_COMPUTER = 1;
 	
 	private Scheduler<R> scheduler;
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
@@ -42,8 +45,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		super();		
 		scheduler = new Scheduler<R>(proxies);
 	
-		if(numLocalThreads > 0)
-			register( new ComputeNode<R>(1, numLocalThreads), true);
+		int actualNumberOfThreadsToSet = numLocalThreads>0?numLocalThreads:1;
+		register( new ComputeNode<R>(BUFFER_SIZE_OF_LOCAL_COMPUTER, actualNumberOfThreadsToSet), COMPUTER_IS_LOCAL);
 	}
 	
 	@Override
@@ -55,7 +58,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		task.setUid(UID_POOL++);
 		task.setTarget(SOLUTION_UID, 0);
 		registeredTasks.put(task.getUID(), task);
-		scheduler.enqueue(task);
+		scheduler.schedule(task);
 	}
 
 	@Override
@@ -65,7 +68,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public void register(Computer<R> computer) throws RemoteException {
-		register(computer, false);
+		register(computer, COMPUTER_IS_REMOTE);
 	}
 	
 	public void register(Computer<R> computer, boolean isLocal) throws RemoteException {
@@ -100,11 +103,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private ProxyCallback<R> proxyCallback = new ProxyCallback<R>() {
 
 		@Override
-		public void doOnError(int proxyId, Collection<Task<R>> leftoverTasks) {
+		public synchronized void doOnError(int proxyId, Collection<Task<R>> leftoverTasks) {
 			System.out.println("Requeing "+leftoverTasks.size()+ " tasks");
 			
 			for(Task<R> task : leftoverTasks)
-				scheduler.enqueue(task);
+				scheduler.schedule(task);
 		}
 
 		@Override
@@ -126,7 +129,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 			//Else Add newly created tasks to waitlist 
 			else{
-				
 				Task<R>[] tasksToAdd = result.getTasks();
 				
 				//First add all new tasks and generate UIDs for them
@@ -149,7 +151,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 						t.setTarget(realTarget.getUID(), t.getTargetPort());
 					}
 					registeredTasks.put(t.getUID(), t);
-					scheduler.enqueue(t);
+					scheduler.schedule(t);
 				}
 			}
 		}
