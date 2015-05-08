@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import util.Log;
+import api.Capabilities;
 import api.Computer;
 import api.ProxyCallback;
 import api.Result;
@@ -17,11 +18,10 @@ public class Proxy<R> {
 
 	private final Computer<R> computer;
 	private final int id;
-	private final int numThreads;
-	private final boolean isLocal;
 	private final Collector collector;
 	private final Dispatcher dispatcher;
 	private final ProxyCallback<R> callback;
+	private final Capabilities spec;
 	
 	private Map<Long, Task<R>> taskRegistry = new ConcurrentHashMap<Long, Task<R>>();
 	private BlockingQueue<Task<R>> assignedTasks = new LinkedBlockingQueue<Task<R>>();
@@ -29,11 +29,10 @@ public class Proxy<R> {
 	private boolean isRunning = false;
 	
 
-	public Proxy(Computer<R> computer, int computerId, boolean isLocal, ProxyCallback<R> callback) throws RemoteException{
+	public Proxy(Computer<R> computer, Capabilities spec, int computerId, ProxyCallback<R> callback) throws RemoteException{
 		this.id = computerId;
 		this.computer = computer;
-		this.isLocal = isLocal;
-		this.numThreads = computer.getNumThreads();
+		this.spec = spec;
 		this.collector = new Collector();
 		this.dispatcher = new Dispatcher();
 		this.callback = callback;
@@ -55,7 +54,7 @@ public class Proxy<R> {
 	public void updateState(SharedState updatedState, boolean force) {
 		try {
 			computer.updateState(updatedState, force);
-			if(!isLocal) Log.debug("==> "+updatedState+(force?" FORCED":""));
+			Log.debug("==> "+updatedState+(force?" FORCED":""));
 		} catch (RemoteException e) {
 			System.err.println("Undable to send state "+updatedState+" to "+toString());
 		}
@@ -67,11 +66,10 @@ public class Proxy<R> {
 	}
 	
 	public int getId(){ return id;}
-	public boolean isLocal(){ return isLocal;}
 	
 	@Override
 	public String toString() {
-		return (isLocal?"Local":"Remote")+" Computer - "+numThreads+" threads as ID: '"+id+"'";
+		return "Computer - "+spec.getNumberOfThreads()+" threads as ID: '"+id+"'";
 	}
 	
 	private class Dispatcher extends Thread {
@@ -81,7 +79,7 @@ public class Proxy<R> {
 			while(isRunning) try {
 				Task<R> task = assignedTasks.take();
 
-				if(!isLocal) Log.debug("-"+id+"-> "+task);
+				Log.debug("="+id+"=> "+task);
 				computer.addTask(task);
 			} 
 			catch (InterruptedException e)	{} 
@@ -95,7 +93,7 @@ public class Proxy<R> {
 			while(isRunning) try {
 				Result<R> result = computer.collectResult();
 				taskRegistry.remove(result.getTaskCreatorId());
-				if(!isLocal) Log.debug("<== "+id+"- "+result);
+				Log.debug("<== "+id+"- "+result);
 				callback.processResult(result);
 			}
 			catch (InterruptedException e)	{} 

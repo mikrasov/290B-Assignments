@@ -21,8 +21,6 @@ import api.UpdateStateCallback;
 public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
 	private static final long serialVersionUID = -4962774042291137071L;
-
-	private static final int BUFFER_DEFAULT_SIZE = 2;
 	
 	private int id;
 	private transient BlockingQueue<Task<R>> tasks;
@@ -32,25 +30,20 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	private transient Space<R> space;
 	private transient SharedState state;
 	
-	public ComputeNode(int desiredPrefetchBufferSize, int desiredNumThreads) throws RemoteException {
+	public ComputeNode(ComputeNodeSpec spec) throws RemoteException {
 		super();
-		int prefetchBufferSize = desiredPrefetchBufferSize>0?desiredPrefetchBufferSize:BUFFER_DEFAULT_SIZE;
-		int numThreads = desiredNumThreads>0?desiredNumThreads:Runtime.getRuntime().availableProcessors();
 
 		results = new LinkedBlockingQueue<Result<R>>();
 		threads = new LinkedList<ComputeThread>();
-		tasks = new LinkedBlockingQueue<Task<R>>(prefetchBufferSize);
-		
-		for(int i=0; i<numThreads; i++){
+		tasks = new LinkedBlockingQueue<Task<R>>(spec.getBufferSize());
+
+		for(int i=0; i<spec.getNumberOfThreads(); i++){
 			ComputeThread thread = new ComputeThread(i);
 			threads.add(thread);
 			thread.start();
 		}
 	}
-	
-	@Override
-	public int getNumThreads() throws RemoteException { return threads.size(); }
-	
+		
 	@Override
 	public void addTask(Task<R> task) throws RemoteException, InterruptedException {
 		Log.debug("--> "+task);
@@ -70,9 +63,6 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		Log.debug("--> "+(updatedState==null?"State NULL":updatedState)+(force?" FORCED":""));
 		this.state = force? updatedState : state.update(updatedState);
 	}
-	
-	@Override
-	public int getID() throws RemoteException { return id;}
 
 	@Override
 	public void assignSpace(Space<R> space, int spaceId) throws RemoteException {
@@ -91,7 +81,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 			System.err.println("Error sending new state to server");
 		}
 	}
-	
+
 	private class ComputeThread extends Thread {
 		
 		private final int id;
@@ -123,31 +113,28 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		String domain = (args.length > 0)? args[0]: "localhost";
 		int desiredPrefetchBufferSize = (args.length > 1)? Integer.parseInt(args[1]): -1;
 		int desiredNumThreads = (args.length > 2)? Integer.parseInt(args[2]): -1;
-		boolean enableCaching = (args.length > 3)? Boolean.parseBoolean(args[3]): false;
 		
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
-        
+		
 		try {
 			System.out.println("Starting Computer on Space @ "+domain);
 
 			Space<Object> space = (Space<Object>) Naming.lookup( url );
-			Computer computer = new ComputeNode(desiredPrefetchBufferSize,desiredNumThreads);
-			space.register(computer);
+			ComputeNodeSpec spec = new ComputeNodeSpec(desiredPrefetchBufferSize,desiredNumThreads);
+			Computer computer = new ComputeNode(spec);
+			int registeredID= space.register(computer, spec);
 			
-			System.out.println("Computer Registered as:\t"+computer.getID());
-			System.out.println("Number Threads:\t\t"+computer.getNumThreads());
+			System.out.println("Computer Registered as:\t"+registeredID);
+			System.out.println("Number Threads:\t\t"+spec.getNumberOfThreads());
 			
-			if(desiredPrefetchBufferSize>1)
-				System.out.println("Amerlioration Enabled with Buffer: "+desiredPrefetchBufferSize);
+			if(spec.getBufferSize()>1)
+				System.out.println("Amerlioration Enabled with Buffer: "+spec.getBufferSize());
 			else
 				System.out.println("Amerlioration Disabled");
-			
-			System.out.println("Caching "+(enableCaching?"Enabled":"Disabled"));
 			
 		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
             System.err.println("Error Connecting to Space at "+url);
             System.err.println(e);
         } 
 	}
-
 }

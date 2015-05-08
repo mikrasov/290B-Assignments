@@ -15,10 +15,11 @@ public class Scheduler<R>{
 	
 	
 	private Map<Integer, Proxy<R>>  proxies;
+	private Proxy<R> localProxy;
 	
-	public Scheduler(Map<Integer, Proxy<R>>  proxies){
-		this.proxies = proxies;
-		
+	public Scheduler(Map<Integer, Proxy<R>>  allProxies, Proxy<R> localProxy){
+		this.proxies = allProxies;
+		this.localProxy = localProxy;
 		new ReadyChecker().start();
 		new Assigner().start();
 	}
@@ -34,8 +35,13 @@ public class Scheduler<R>{
 				try {
 					Task<R> task = waitingTasks.take();
 					
-					if(task.isReady())
-						readyTasks.add(task);
+					if(task.isReady()){
+					
+						if(task.isShortRunning())
+							localProxy.enqueue(task); //Enqueue locally
+						else
+							readyTasks.add(task);
+					}
 					else
 						waitingTasks.add(task);
 				}
@@ -49,14 +55,11 @@ public class Scheduler<R>{
 		public void run() {
 			while(true){
 				for(Proxy<R> p: proxies.values()) try {
-				
+
+					if(p == localProxy) continue; //skip local
+					
 					Task<R> task = readyTasks.take();
-				
-					//If local & shortrunning OR not local and not short running
-					if(p.isLocal() == task.isShortRunning())
-						p.enqueue(task);
-					else
-						readyTasks.add(task);
+					p.enqueue(task);
 					
 				}catch(InterruptedException e){}
 			}

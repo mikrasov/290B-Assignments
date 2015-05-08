@@ -9,11 +9,8 @@ public interface Computer<R> extends Remote {
 	
 	Result<R> collectResult() throws RemoteException, InterruptedException;
 	
-	int getNumThreads() throws RemoteException;
-
 	void updateState(SharedState state, boolean force) throws RemoteException;
-	
-	int getID() throws RemoteException;
-	
+		
 	void assignSpace(Space<R> space, int spaceId) throws RemoteException;
+	
 }
