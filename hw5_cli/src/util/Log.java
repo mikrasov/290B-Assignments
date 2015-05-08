@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Log {
 
-	public static final boolean VERBOSE_DEBUG = false;
+	public static final boolean VERBOSE_DEBUG = true;
 	
 	private static FileWriter log;
 	

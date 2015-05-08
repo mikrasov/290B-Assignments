@@ -4,15 +4,15 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import util.Log;
 import api.Computer;
+import api.ProxyCallback;
 import api.Result;
 import api.SharedState;
 import api.Space;
@@ -27,45 +27,35 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static long UID_POOL = SOLUTION_UID+1;	
 	private static int COMPUTER_ID_POOL = 0;
 
-	private static final int INITIAL_CAPACITY = 100;
 	private static final boolean FORCE_STATE = true;
 	private static final boolean SUGGEST_STATE = false;
 	
-	private Scheduler scheduler = new Scheduler();
+	private Scheduler<R> scheduler;
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
-	private BlockingQueue<Task<R>> waitingTasks = new LinkedBlockingQueue<Task<R>>();
-	private BlockingQueue<Task<R>> readyTasks = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
 	
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
-	private Map<Integer, Proxy> proxies = new ConcurrentHashMap<Integer, Proxy>();
+	private Map<Integer, Proxy<R>> proxies = new ConcurrentHashMap<Integer, Proxy<R>>();
 	
-	private SharedState state;
-	
-	
-	public SpaceImp() throws RemoteException {
-		this(0);
-	}
+	private SharedState state = new StateBlank();
 	
 	public SpaceImp(int numLocalThreads) throws RemoteException {
-		super();
-		
-		scheduler.start();
-		
+		super();		
+		scheduler = new Scheduler<R>(proxies);
+	
 		if(numLocalThreads > 0)
-			new Proxy(this, numLocalThreads);
-		
+			register( new ComputeNode<R>(1, numLocalThreads), true);
 	}
 	
 	@Override
 	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
 		state = task.getInitialState();
-		for(Proxy p: proxies.values()){
+		for(Proxy<R> p: proxies.values()){
 			p.updateState(state, FORCE_STATE);
 		}
 		task.setUid(UID_POOL++);
 		task.setTarget(SOLUTION_UID, 0);
 		registeredTasks.put(task.getUID(), task);
-		waitingTasks.add(task);
+		scheduler.enqueue(task);
 	}
 
 	@Override
@@ -75,193 +65,96 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	
 	@Override
 	public void register(Computer<R> computer) throws RemoteException {
-		new Proxy(this, computer, false);
+		register(computer, false);
+	}
+	
+	public void register(Computer<R> computer, boolean isLocal) throws RemoteException {
+		int proxyID = COMPUTER_ID_POOL++;
+		computer.assignSpace(this, proxyID);
+		
+		Proxy<R> proxy = new Proxy<R>(computer, proxyID, isLocal, proxyCallback);
+		
+		System.out.println("Registering "+proxy);
+		proxy.updateState(state, FORCE_STATE);
+		proxies.put(proxyID, proxy );
 	}
 	
 	@Override
 	public void updateState(int originatorID, SharedState updatedState) throws RemoteException {
-		Log.debug("<== "+updatedState+(updatedState !=null && updatedState.isBetterThan(state)?" New Better":" Local Better") );
-		if(updatedState != null && updatedState.isBetterThan(state)){
+		SharedState original = state;
+		
+		this.state = state.update(updatedState);
+		
+		Log.debug("<== "+updatedState+(updatedState !=null && (original != state)?" Updated":" Kept") );
+		if( original != state){
 			
-			this.state = updatedState;
-			for(Proxy p: proxies.values()){
-				if(p.id != originatorID)
-					p.updateState(updatedState,SUGGEST_STATE);
+			for(Proxy<R> p: proxies.values()){
+				if(p.getId() != originatorID)
+					p.updateState(updatedState, SUGGEST_STATE);
 			}
 		}
 		
 	}
 	
-	/* ------------ Private methods ------------ */
-	private synchronized void proccessResult(Result<R> result){
-
-		Task<R> origin = registeredTasks.get(result.getTaskCreatorId()); //registeredTasks.remove(result.getTaskCreatorId());
-		
-		//If Single value pass it on to target	
-		if(result.isValue()){
-			
-			if(origin.getTargetUid() == SOLUTION_UID){
-				solution.add(result.getValue());
-			}
-			else {
-				Task<R> target = registeredTasks.get(origin.getTargetUid());
-				target.setInput(origin.getTargetPort(), result.getValue());
-			}
-		}
 	
-		//Else Add newly created tasks to waitlist 
-		else{
-			
-			Task<R>[] tasksToAdd = result.getTasks();
-			
-			//First add all new tasks and generate UIDs for them
-			for(Task<R> t: tasksToAdd){
-				t.setUid(UID_POOL++);
-			}
-			
-			/*
-			 * Tasks can reference other tasks in the set via a negative UID.
-			 * For example to set the target to another element in the set
-			 * -1 would set to the 0th element
-			 * -2 would set to the 1st element
-			 * etc..
-			 */
-			for(Task<R> t: tasksToAdd){
-				
-				long targetUid = t.getTargetUid();
-				if(targetUid <0){
-					Task<R> realTarget = tasksToAdd[ Math.abs((int)targetUid)-1];
-					t.setTarget(realTarget.getUID(), t.getTargetPort());
-				}
-				registeredTasks.put(t.getUID(), t);
-				waitingTasks.add(t);
-			}
-		}
-	}
-	
-	/* ------------ Proxies ------------ */
-	private class Proxy {
+	private ProxyCallback<R> proxyCallback = new ProxyCallback<R>() {
 
-		final Computer<R> computer;
-		final int id;
-		final int numThreads;
-		final boolean isLocal;
-		final Collector collector;
-		final Dispatcher dispatcher;
-		
-		Map<Long, Task<R>> inProgressTasks = new ConcurrentHashMap<Long, Task<R>>();
-		
-		boolean isRunning = false;
-		
-		Proxy(Space<R> space, int numLocalThreads) throws RemoteException{
-			this(space, new ComputeNode<R>(1, numLocalThreads, false),true);
-		}
-		
-		Proxy(Space<R> space, Computer<R> computer, boolean isLocal) throws RemoteException{
-			this.id = COMPUTER_ID_POOL++;
-			this.computer = computer;
-			this.isLocal = isLocal;
-			this.numThreads = computer.getNumThreads();
-			this.collector = new Collector();
-			this.dispatcher = new Dispatcher();
-			
-			System.out.println("Registered "+this);
-			computer.assignSpace(space, this.id);
-			updateState(state, true);
-			
-			proxies.put(id, this );
-			
-			isRunning = true;
-			collector.start();
-			dispatcher.start();
-		}
-		
-		synchronized void stopProxyWithError(){
-			if(!isRunning) return;
-			
-			isRunning = false;
-			System.out.println("Error accessing "+toString());
-			proxies.remove(id);
-
-			System.out.println("Requeing "+inProgressTasks.size()+ " tasks");
-			
-			for(Task<R> task : inProgressTasks.values())
-				waitingTasks.add(task);
-		}
-		
-		void updateState(SharedState updatedState, boolean force) {
-			try {
-				computer.updateState(updatedState, force);
-				if(!isLocal) Log.debug("==> "+updatedState+(force?" FORCED":""));
-			} catch (RemoteException e) {
-				System.err.println("Undable to send state "+updatedState+" to "+toString());
-			}
-		}
-		
 		@Override
-		public String toString() {
-			return (isLocal?"Local":"Remote")+" Computer - "+numThreads+" threads as ID: '"+id+"'";
-		}
-		
-		class Dispatcher extends Thread {
-			void enqueue(Task<R> task) throws RemoteException, InterruptedException{
-				inProgressTasks.put(task.getUID(), task);
-				computer.addTask(task);
-				if(!isLocal) Log.debug("-"+id+"-> "+task);
-			}
+		public void doOnError(int proxyId, Collection<Task<R>> leftoverTasks) {
+			System.out.println("Requeing "+leftoverTasks.size()+ " tasks");
 			
-			@Override
-			public void run() {	
-				while(isRunning) try {
-					Task<R> task = readyTasks.take();
-					
-					if(!isLocal){	//Remote Computer
-						enqueue(task);
-						continue;
-					}
-					else if(task.isShortRunning() || proxies.size() == 1){ //Local but task is short or no others
-						enqueue(task);
-						continue;
-					}
-					
-					//Throw back: don't schedule
-					readyTasks.put(task);		
-				} 
-				catch (InterruptedException e)	{} 
-				catch (RemoteException e)		{stopProxyWithError(); return;}
-			}
+			for(Task<R> task : leftoverTasks)
+				scheduler.enqueue(task);
 		}
-		
-		class Collector extends Thread {
-			@Override
-			public void run() {
-				while(isRunning) try {
-					Result<R> result = computer.collectResult();
-					inProgressTasks.remove(result.getTaskCreatorId());
-					if(!isLocal) Log.debug("<== "+id+"- "+result);
-					proccessResult(result);
-				}
-				catch (InterruptedException e)	{} 
-				catch (RemoteException e)		{stopProxyWithError(); return;}
-			}
-		}
-	}
-	
-	private class Scheduler extends Thread{
-		
-		@Override
-		public void run() {
-			while(true) try {
-				Task<R> task = waitingTasks.take();
-				if(task.isReady())
-					readyTasks.add(task);
-				else
-					waitingTasks.add(task);
-				
-			}catch(InterruptedException e){}
-		}
-	}
 
+		@Override
+		public synchronized void processResult(Result<R> result) {
+
+			Task<R> origin = registeredTasks.get(result.getTaskCreatorId()); //registeredTasks.remove(result.getTaskCreatorId());
+			
+			//If Single value pass it on to target	
+			if(result.isValue()){
+				
+				if(origin.getTargetUid() == SOLUTION_UID){
+					solution.add(result.getValue());
+				}
+				else {
+					Task<R> target = registeredTasks.get(origin.getTargetUid());
+					target.setInput(origin.getTargetPort(), result.getValue());
+				}
+			}
+		
+			//Else Add newly created tasks to waitlist 
+			else{
+				
+				Task<R>[] tasksToAdd = result.getTasks();
+				
+				//First add all new tasks and generate UIDs for them
+				for(Task<R> t: tasksToAdd){
+					t.setUid(UID_POOL++);
+				}
+				
+				/*
+				 * Tasks can reference other tasks in the set via a negative UID.
+				 * For example to set the target to another element in the set
+				 * -1 would set to the 0th element
+				 * -2 would set to the 1st element
+				 * etc..
+				 */
+				for(Task<R> t: tasksToAdd){
+					
+					long targetUid = t.getTargetUid();
+					if(targetUid <0){
+						Task<R> realTarget = tasksToAdd[ Math.abs((int)targetUid)-1];
+						t.setTarget(realTarget.getUID(), t.getTargetPort());
+					}
+					registeredTasks.put(t.getUID(), t);
+					scheduler.enqueue(t);
+				}
+			}
+		}
+	};
+	
 	/* ------------ Main Method ------------ */
 	public static void main(String[] args) throws RemoteException {
 		int numLocalThreads = (args.length > 0)? Integer.parseInt(args[0]) : 0;

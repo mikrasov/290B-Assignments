@@ -18,7 +18,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	
 	public static final boolean CACHABLE = false;
 	public static final boolean SHORT_RUNNING = false;
-	public static final int BASIC_TSP_PROBLEM_SIZE = 8;
+	public static final int BASIC_TSP_PROBLEM_SIZE = 11;
 	
 	private StateTsp currentState;
 	

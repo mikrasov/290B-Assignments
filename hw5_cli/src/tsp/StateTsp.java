@@ -16,18 +16,10 @@ public class StateTsp implements SharedState{
 		this.bestLength = bestLength;
 	}
 
-	// a negative integer		as this object is worse than the specified object.
-	// zero, 					as this object is equal to the specified object.
-	// or a positive integer 	as this object is better than the specified object.
-
-	@Override
-	public boolean isBetterThan(SharedState other) {
-		
-		if(other == null)
-			return false;
-		else
-			return ((StateTsp)other).bestLength > bestLength;
-		
+	
+	
+	public boolean isBetterThan(StateTsp other) {
+			return other.bestLength > bestLength;		
 	}
 	
 	
@@ -38,6 +30,14 @@ public class StateTsp implements SharedState{
 	@Override
 	public String toString() {
 		return "State: ["+bestLength+"]";
+	}
+
+	@Override
+	public SharedState update(SharedState newState) {
+		if( ((StateTsp)newState).isBetterThan(bestLength) )
+			return newState;
+		else 
+			return this;
 	}
 	
 }
