@@ -7,7 +7,6 @@ import java.util.List;
 import system.ResultTasks;
 import system.ResultValue;
 import system.TaskClosure;
-import util.Distance;
 import api.Result;
 import api.SharedState;
 import api.Task;
@@ -18,50 +17,45 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	private static final long serialVersionUID = -2567928535294012341L;
 	
 	private static final int BASIC_TSP_PROBLEM_SIZE = 13;
-	private static final int NUMBER_OF_INPUTS = 4;
-
+	
 	private StateTsp currentState;
 	
-	private TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
-		super("TSP", fixedCities.size(), NUMBER_OF_INPUTS, toPermute.size()>BASIC_TSP_PROBLEM_SIZE, target, targetPort);
-		this.setInput(0, cities);
-		this.setInput(1, fixedCities);
-		this.setInput(2, toPermute);
-		this.setInput(3, fixedCitiesLength);
+	private final List<Integer> fixedCities;
+	private final List<Integer> toPermute;
+	private final double fixedCitiesLength;
+	
+	private TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute) {
+		super("TSP", fixedCities.size(), NO_INPUTS, toPermute.size()>BASIC_TSP_PROBLEM_SIZE, target, targetPort);
+		
+		this.fixedCities = fixedCities;
+		this.toPermute = toPermute;
+		this.fixedCitiesLength = fixedCitiesLength;
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP-INIT", DEFAULT_PRIORITY, NUMBER_OF_INPUTS, SHORT_RUNNING);
+		super("TSP-INIT", DEFAULT_PRIORITY, NO_INPUTS, SHORT_RUNNING);
 		
-		List<Integer> toPermute = new ArrayList<Integer>();
+		toPermute = new ArrayList<Integer>();
 		for(int i = 0; i < cities.length; i++){
 			toPermute.add(i);
 		}
 		
-		List<Integer> fixedList =new ArrayList<Integer>();
-		fixedList.add( toPermute.remove(0));
+		fixedCities = new ArrayList<Integer>();
+		fixedCities.add( toPermute.remove(0));
 		
-		this.setInput(0, cities);
-		this.setInput(1, fixedList);
-		this.setInput(2, toPermute);
-		this.setInput(3, 0.0);
+		fixedCitiesLength = 0;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Result<ChunkTsp> execute(SharedState initialState, UpdateStateCallback callback) {
-		double[][] cities = (double[][])input[0];
-		List<Integer> fixedCities = (List<Integer>)input[1];
-		List<Integer> toPermute = (List<Integer>)input[2];
-		double fixedCitiesLength = (Double)input[3];
-		
+	public Result<ChunkTsp> execute(SharedState initialState, UpdateStateCallback callback) {	
 		currentState = (StateTsp)initialState;
 		
 		//Shortcut Computation
 		if(currentState.isBetterThan(fixedCitiesLength)) return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(fixedCities, Double.MAX_VALUE));
 
 		if(toPermute.size() <= BASIC_TSP_PROBLEM_SIZE){	
-			ChunkTsp best = solve(fixedCities,fixedCitiesLength, toPermute,cities, callback);
+			ChunkTsp best = solve(fixedCities,fixedCitiesLength, toPermute, callback);
 			return new ResultValue<ChunkTsp>(getUID(), best);
 		}
 		else {
@@ -79,11 +73,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				
 				double newfixedCitiesLength = fixedCitiesLength;
 				if(fixedCities.size() > 1){
-					newfixedCitiesLength -= Distance.euclideanDistance(fixedCities.get(0),fixedCities.get(fixedCities.size()-1),cities); 	//Remove start-end distance
+					newfixedCitiesLength -= currentState.distanceBetween(fixedCities.get(0),fixedCities.get(fixedCities.size()-1)); //Remove start-end distance
 				}
 				if(fixedCities.size() > 0){
-					newfixedCitiesLength += Distance.euclideanDistance(fixedCities.get(fixedCities.size()-1),newCityToAdd,cities);			//Add end to element distance
-					newfixedCitiesLength += Distance.euclideanDistance(newCityToAdd,fixedCities.get(0), cities);							//Add start to element distance
+					newfixedCitiesLength += currentState.distanceBetween(fixedCities.get(fixedCities.size()-1),newCityToAdd);		//Add end to element distance
+					newfixedCitiesLength += currentState.distanceBetween(newCityToAdd,fixedCities.get(0));							//Add start to element distance
 				}
 				
 				//add a new city to the fixed cities
@@ -92,7 +86,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				//now delete that city from the new toPermute list
 				new_toPermute.remove(i-1);
 				
-				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, newfixedCitiesLength, new_toPermute, cities);
+				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, newfixedCitiesLength, new_toPermute);
 			}
 
 			return new ResultTasks<ChunkTsp>(getUID(), tasks);
@@ -114,11 +108,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	@Override
 	public String toString() {
-		String out = name +"_"+this.getUID()+"("+input[1]+" "+input[3]+" "+input[2]+")";
+		String out = name +"_"+this.getUID()+"("+fixedCities+":"+fixedCitiesLength+" | "+toPermute+")";
 		return out+" >["+targetUid+"]";
 	}
 	
-	private ChunkTsp solve(final List<Integer> fixedCities, final double fixedCitiesLength, final List<Integer> toPermute, final double[][] cities, UpdateStateCallback callback){
+	private ChunkTsp solve(final List<Integer> fixedCities, final double fixedCitiesLength, final List<Integer> toPermute,  UpdateStateCallback callback){
 	
 		if(toPermute.size() == 0){
 			
@@ -141,14 +135,14 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				
 				double expandedfixedCitiesLength = fixedCitiesLength;
 				if(fixedCities.size() > 1){
-					expandedfixedCitiesLength -= Distance.euclideanDistance(fixedCities.get(0),fixedCities.get(fixedCities.size()-1),cities);	//Remove start-end distance
+					expandedfixedCitiesLength -= currentState.distanceBetween(fixedCities.get(0),fixedCities.get(fixedCities.size()-1));//Remove start-end distance
 				}
 				if(fixedCities.size() > 0){
-					expandedfixedCitiesLength += Distance.euclideanDistance(cityToAdd, fixedCities.get(fixedCities.size()-1),cities);			//Add end to element distance
-					expandedfixedCitiesLength += Distance.euclideanDistance(cityToAdd, fixedCities.get(0), cities);								//Add start to element distance
+					expandedfixedCitiesLength += currentState.distanceBetween(cityToAdd, fixedCities.get(fixedCities.size()-1));		//Add end to element distance
+					expandedfixedCitiesLength += currentState.distanceBetween(cityToAdd, fixedCities.get(0));							//Add start to element distance
 				}
 				
-				ChunkTsp current = solve(expandedFixedCities, expandedfixedCitiesLength, expandedToPermute, cities, callback);
+				ChunkTsp current = solve(expandedFixedCities, expandedfixedCitiesLength, expandedToPermute, callback);
 				
 				if(current.getBestLength() < best.getBestLength()){
 					best = current;

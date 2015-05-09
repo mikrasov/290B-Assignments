@@ -1,28 +1,30 @@
 package tsp;
 
 import api.SharedState;
-import util.Distance;
+import util.Distances;
 
 public class StateTsp implements SharedState{
 
 	private static final long serialVersionUID = 8361224589256034886L;
 
-	private final double bestLength;
+	protected Distances distances;
+	protected final double bestLength;
 	
 	public StateTsp(double[][] cities) {
-		this( Distance.greedyDistance(cities) );
+		this.distances = new Distances(cities);
+		this.bestLength = distances.greedyDistance(cities);
 	}
 	
 	public StateTsp(double bestLength) {
 		this.bestLength = bestLength;
 	}
-
-	public boolean isBetterThan(StateTsp other) {
-		return other.bestLength > bestLength;		
-	}
 	
 	public boolean isBetterThan(double other) {
 		return other > bestLength;
+	}
+	
+	public double distanceBetween(int src, int dest){
+		return distances.between(src, dest);
 	}
 	
 	@Override
@@ -32,10 +34,16 @@ public class StateTsp implements SharedState{
 
 	@Override
 	public SharedState update(SharedState newState) {
-		if( ((StateTsp)newState).isBetterThan(bestLength) )
+		StateTsp newTspState = (StateTsp)newState;
+		if( newTspState.isBetterThan(bestLength) ){
+			if(newTspState.distances == null) 
+				newTspState.distances = distances;
 			return newState;
+		}
 		else 
 			return this;
 	}
+	
+	
 	
 }

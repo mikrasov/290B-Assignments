@@ -14,6 +14,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected static final boolean SHORT_RUNNING = true;
 	protected static final boolean LONG_RUNNING = false;
 	protected static final int DEFAULT_PRIORITY = 0;
+	protected static final int NO_INPUTS = 0;	
 	
 	/** Id of the task as recognized by scheduler and computers */
 	private long uid;

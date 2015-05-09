@@ -169,7 +169,7 @@ public class ClientTsp extends JFrame{
     
 		long clientStartTime = System.nanoTime();
 		
-		SharedState initial = branchAndBound? new StateTsp(cities): new StateTspStatic();
+		SharedState initial = branchAndBound? new StateTsp(cities): new StateTspStatic(cities);
 		space.setTask( new TaskTsp(cities), initial);
 		ChunkTsp result =  space.getSolution();
          

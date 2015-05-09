@@ -1,13 +1,15 @@
 package tsp;
 
+import util.Distances;
 import api.SharedState;
 
 public class StateTspStatic extends StateTsp {
 
 	private static final long serialVersionUID = -282423071866310163L;
 
-	public StateTspStatic() {
+	public StateTspStatic(double[][] cities) {
 		super(Double.MAX_VALUE);
+		this.distances = new Distances(cities);
 	}
 
 	@Override
