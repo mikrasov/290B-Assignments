@@ -25,21 +25,26 @@ public class ClientTsp extends JFrame{
 	/** Serial ID	 */
 	private static final long serialVersionUID = 6911008092238762097L;
 	private static final int NUM_PIXALS = 600;
+  
     
 	private static final double[][] CITIES_12 = 
     {
-        { 1, 1 },
-        { 8, 1 },
-        { 8, 8 },
-        { 1, 8 },
-        { 2, 2 },
-        { 7, 2 },
-        { 7, 7 },
-        { 2, 7 },
-        { 3, 3 },
-        { 6, 3 },
-        { 6, 6 },
-        { 3, 6 }
+		{ 1, 1 },
+		{ 8, 1 },
+		{ 8, 8 },
+		{ 1, 8 },
+		{ 2, 2 },
+		{ 7, 2 },
+		{ 7, 7 },
+		{ 2, 7 },
+		{ 3, 3 },
+		{ 6, 3 },
+		{ 6, 6 },
+		{ 3, 6 },
+		{ 4, 4 },
+		{ 5, 4 },
+		{ 5, 5 },
+		{ 4, 5 }
     };
 	
 	private static final double[][] CITIES_16 = 
