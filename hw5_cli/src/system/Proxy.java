@@ -54,7 +54,7 @@ public class Proxy<R> {
 	public void updateState(SharedState updatedState, boolean force) {
 		try {
 			computer.updateState(updatedState, force);
-			Log.debug("==> "+updatedState+(force?" FORCED":""));
+			Log.verbose("==> "+updatedState+(force?" FORCED":""));
 		} catch (RemoteException e) {
 			System.err.println("Undable to send state "+updatedState+" to "+toString());
 		}
@@ -74,7 +74,7 @@ public class Proxy<R> {
 			while(isRunning) try {
 				Task<R> task = assignedTasks.take();
 				taskRegistry.put(task.getUID(), task);
-				Log.debug("="+id+"=> "+task);
+				Log.verbose("="+id+"=> "+task);
 				computer.addTask(task);
 			} 
 			catch (InterruptedException e)	{} 
@@ -88,7 +88,7 @@ public class Proxy<R> {
 			while(isRunning) try {
 				Result<R> result = computer.collectResult();
 				taskRegistry.remove(result.getTaskCreatorId());
-				Log.debug("<== "+id+"- "+result);
+				Log.verbose("<== "+id+"- "+result);
 				callback.processResult(result);
 			}
 			catch (InterruptedException e)	{} 

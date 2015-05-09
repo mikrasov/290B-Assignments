@@ -94,7 +94,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		Log.debug("<== "+updatedState+(updatedState !=null && (original != state)?" Updated":" Kept") );
 		if( original != state){
 			
-			
 			for(Proxy<R> p: allProxies.values()){
 				if(p.getId() != originatorID)
 					p.updateState(updatedState, SUGGEST_STATE);

@@ -46,7 +46,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		
 	@Override
 	public void addTask(Task<R> task) throws RemoteException, InterruptedException {
-		Log.debug("--> "+task);
+		Log.verbose("--> "+task);
 		
 		tasks.put(task);
 	}
@@ -54,13 +54,13 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	@Override
 	public Result<R> collectResult() throws RemoteException, InterruptedException {
 		Result<R> result = results.take();
-		Log.debug("<-- "+result);
+		Log.verbose("<-- "+result);
 		return result;
 	}
 	
 	@Override
 	public void updateState(SharedState updatedState, boolean force) throws RemoteException {
-		Log.debug("--> "+(updatedState==null?"State NULL":updatedState)+(force?" FORCED":""));
+		Log.verbose("--> "+(updatedState==null?"State NULL":updatedState)+(force?" FORCED":""));
 		this.state = force? updatedState : state.update(updatedState);
 	}
 
@@ -75,7 +75,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 		SharedState original = state;
 		state = state.update(updatedState);
 		if(original != state) try {
-			Log.debug("<-- "+updatedState);
+			Log.verbose("<-- "+updatedState);
 			space.updateState(id, state);
 		} catch (RemoteException e) {
 			System.err.println("Error sending new state to server");
@@ -101,7 +101,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 					}
 				});
 				
-				Log.debug("-"+id+"- "+task+" = "+result);
+				Log.verbose("-"+id+"- "+task+" = "+result);
 				
 				results.put(result);
 			}catch(InterruptedException e){	}

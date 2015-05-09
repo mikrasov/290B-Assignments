@@ -5,7 +5,8 @@ import java.io.IOException;
 
 public class Log {
 
-	public static final boolean VERBOSE_DEBUG = false;
+	public static final boolean VERBOSE = false;
+	public static final boolean DEBUG = false;
 	
 	private static FileWriter log;
 	
@@ -28,7 +29,10 @@ public class Log {
     }
 	
 	public static void debug(String str){
-		if(VERBOSE_DEBUG) System.err.println(" "+str);
+		if(DEBUG) System.err.println(" "+str);
+	}
+	public static void verbose(String str){
+		if(VERBOSE) System.err.println(" "+str);
 	}
 	
 	public static void close(){
@@ -37,7 +41,7 @@ public class Log {
 		} catch (IOException e) {
 			System.err.println("Error closing log");
 		}
-		debug("Ended log");
+		verbose("Ended log");
 	}
 	
 	public static void flush(){
