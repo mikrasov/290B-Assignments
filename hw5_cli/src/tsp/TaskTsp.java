@@ -16,7 +16,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	private static final long serialVersionUID = -2567928535294012341L;
 	
-	private static final int BASIC_TSP_PROBLEM_SIZE = 13;
+	private static final int BASIC_TSP_PROBLEM_SIZE = 12;
 	
 	private StateTsp currentState;
 	

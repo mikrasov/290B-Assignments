@@ -40,4 +40,8 @@ public class Scheduler<R> extends Thread{
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return longTaskPool.size()+" remote, "+shortTaskPool.size()+" local, "+waitingTasks.size()+" waiting ";
+	}
 }

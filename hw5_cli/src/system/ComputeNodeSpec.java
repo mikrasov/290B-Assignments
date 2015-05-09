@@ -6,9 +6,8 @@ import api.Capabilities;
 public class ComputeNodeSpec implements Capabilities{
 
 	private static final long serialVersionUID = -4800920412924232081L;
-	
 
-	private static final int BUFFER_DEFAULT_SIZE = 2;
+	private static final int BUFFER_DEFAULT_SIZE = 5;
 	
 	private final int numThreads,prefetchBufferSize;
 	

@@ -27,14 +27,18 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	/** Serial ID */
 	private static final long serialVersionUID = -1147376615845722661L;
 
+	private static final int STATUS_OUTPUT_INTERVAL = 1000;
+	
 	private static final long SOLUTION_UID = 0;
 	private static long UID_POOL = SOLUTION_UID+1;	
+	
 	private static final int LOCAL_PROXY_ID = 0;
 	private static int PROXY_ID_POOL = LOCAL_PROXY_ID+1;
 
 	private static final boolean FORCE_STATE = true;
 	private static final boolean SUGGEST_STATE = false;
 	private static final int BUFFER_SIZE_OF_LOCAL_COMPUTER = 1;
+	
 	
 	private Scheduler<R> scheduler;
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
@@ -52,6 +56,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		super();		
 		scheduler = new Scheduler<R>();	
 		scheduler.start();
+		new StatusPrinter().start();
 		int actualNumberOfThreadsToSet = numLocalThreads>0?numLocalThreads:1;
 		ComputeNodeSpec spec = new ComputeNodeSpec(BUFFER_SIZE_OF_LOCAL_COMPUTER, actualNumberOfThreadsToSet);
 		register(new ComputeNode<R>(spec), spec, LOCAL_PROXY_ID, scheduler.getShortTaskPool());
@@ -160,6 +165,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			
 			for(Task<R> task : leftoverTasks)
 				scheduler.schedule(task);
+			
+			allProxies.remove(proxyId);
 		}
 
 		@Override
@@ -218,6 +225,26 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			}
 		}
 	};
+	
+	class StatusPrinter extends Thread{
+		
+		String last = "";
+		@Override
+		public void run() {
+			while(true){
+				try { Thread.sleep(STATUS_OUTPUT_INTERVAL); } catch (InterruptedException e) {}
+				
+				String newOutput = "Progress: "+scheduler+" Computers:";
+				
+				for(Proxy<R> p: allProxies.values())
+					newOutput+= " ["+p.getId()+":"+p.getNumDispatched()+"|"+p.getNumCollected()+"]";
+				if(!last.equals(newOutput)){
+					last = newOutput;
+					Log.debug(newOutput);
+				}
+			}
+		}
+	}
 	
 	/* ------------ Main Method ------------ */
 	public static void main(String[] args) throws RemoteException {

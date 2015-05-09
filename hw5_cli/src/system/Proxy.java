@@ -28,6 +28,9 @@ public class Proxy<R> {
 	private boolean isRunning = false;
 	
 
+	private int numDispatched =0;
+	private int numCollected = 0;
+	
 	public Proxy(Computer<R> computer, Capabilities spec, int computerId, BlockingQueue<Task<R>> taskPool, ProxyCallback<R> callback) throws RemoteException{
 		this.id = computerId;
 		this.computer = computer;
@@ -52,7 +55,7 @@ public class Proxy<R> {
 	}
 	
 	public void updateState(SharedState updatedState, boolean force) {
-		try {
+		if(isRunning) try {
 			computer.updateState(updatedState, force);
 			Log.verbose("==> "+updatedState+(force?" FORCED":""));
 		} catch (RemoteException e) {
@@ -61,6 +64,10 @@ public class Proxy<R> {
 	}
 
 	public int getId(){ return id;}
+	
+	public int getNumDispatched() {	return numDispatched; }
+
+	public int getNumCollected() { return numCollected; }
 	
 	@Override
 	public String toString() {
@@ -76,6 +83,7 @@ public class Proxy<R> {
 				taskRegistry.put(task.getUID(), task);
 				Log.verbose("="+id+"=> "+task);
 				computer.addTask(task);
+				numDispatched++;
 			} 
 			catch (InterruptedException e)	{} 
 			catch (RemoteException e)		{stopProxyWithError(); return;}
@@ -90,6 +98,7 @@ public class Proxy<R> {
 				taskRegistry.remove(result.getTaskCreatorId());
 				Log.verbose("<== "+id+"- "+result);
 				callback.processResult(result);
+				numCollected++;
 			}
 			catch (InterruptedException e)	{} 
 			catch (RemoteException e)		{stopProxyWithError(); return;}
