@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
 import util.Log;
+import api.SharedState;
 import api.Space;
 
 public class ClientTsp extends JFrame{
@@ -26,25 +27,20 @@ public class ClientTsp extends JFrame{
 	private static final long serialVersionUID = 6911008092238762097L;
 	private static final int NUM_PIXALS = 600;
   
-    
 	private static final double[][] CITIES_12 = 
     {
-		{ 1, 1 },
-		{ 8, 1 },
-		{ 8, 8 },
-		{ 1, 8 },
-		{ 2, 2 },
-		{ 7, 2 },
-		{ 7, 7 },
-		{ 2, 7 },
-		{ 3, 3 },
-		{ 6, 3 },
-		{ 6, 6 },
-		{ 3, 6 },
-		{ 4, 4 },
-		{ 5, 4 },
-		{ 5, 5 },
-		{ 4, 5 }
+        { 1, 1 },
+        { 8, 1 },
+        { 8, 8 },
+        { 1, 8 },
+        { 2, 2 },
+        { 7, 2 },
+        { 7, 7 },
+        { 2, 7 },
+        { 3, 3 },
+        { 6, 3 },
+        { 6, 6 },
+        { 3, 6 }
     };
 	
 	private static final double[][] CITIES_16 = 
@@ -66,23 +62,18 @@ public class ClientTsp extends JFrame{
 		{ 5, 5 },
 		{ 4, 5 }
 	};
-	
-	
-	
+		
 	protected Space<ChunkTsp> space;
 	protected double[][] cities;
 	
-	@SuppressWarnings("unchecked")
-	public ClientTsp(String domain, double[][] cities) throws MalformedURLException, RemoteException, NotBoundException {
+	public ClientTsp(Space<ChunkTsp> space, double[][] cities) {
 		setTitle( "TSP" );
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
-		space = (Space<ChunkTsp>) Naming.lookup(url);  
+		this.space = space;
 		this.cities = cities;
 	}
 
-	public JLabel getLabel( final Integer[] tour )
-    {
+	public JLabel getLabel( final Integer[] tour ) {
         // display the graph graphically, as it were
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins
         double minX = cities[0][0], maxX = cities[0][0];
@@ -148,43 +139,39 @@ public class ClientTsp extends JFrame{
         return new JLabel( imageIcon );
     }
 	
-	 
-    public void add( final JLabel jLabel )
-    {
+    public void add( final JLabel jLabel ) {
         final Container container = getContentPane();
         container.setLayout( new BorderLayout() );
         container.add( new JScrollPane( jLabel ), BorderLayout.CENTER );
         pack();
         setVisible( true );
     }
-    
-    public int numCities() { return cities.length; }
-    
-    public ChunkTsp runTask() throws RemoteException, InterruptedException{
-    	space.setTask( new TaskTsp(cities));
-        return space.getSolution();
-    }
 
-	public static void main(String[] args) throws RemoteException, InterruptedException{
+    @SuppressWarnings("unchecked")
+	public static void main(String[] args) throws RemoteException, InterruptedException, MalformedURLException, NotBoundException{
 		String domain = (args.length > 0)? args[0] : "localhost";
 		int numCities = (args.length > 1)? Integer.parseInt(args[1]) : CITIES_16.length;
+		boolean branchAndBound = (args.length > 2)? Boolean.parseBoolean(args[2]) : true;
 		
-		ClientTsp client = null;
-		try {
-			client = new ClientTsp(domain, (numCities == 12? CITIES_12 : CITIES_16) );
-		} catch (MalformedURLException | RemoteException | NotBoundException e)  {
-            System.err.println("Error Connecting to Space at '"+domain+"'");
-            System.err.println(e);
-            System.exit(0);
-        } 
-
 		Log.startLog("tsp-client.csv");
 		System.out.println("Starting Client Targeting Space @ "+domain);
-		System.out.println("Number of Cities:\t"+client.numCities());
+
+		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
+		
+		Space<ChunkTsp> space = (Space<ChunkTsp>) Naming.lookup(url);  
+		double[][] cities = (numCities == 12? CITIES_12 : CITIES_16);
+		
+		ClientTsp client = new ClientTsp(space, cities );
+		
+		System.out.println("Number of Cities:\t"+cities.length);
+
 		Log.log("Component, Time (ms)");
     
-		long clientStartTime = System.nanoTime(); 
-		ChunkTsp result = client.runTask();
+		long clientStartTime = System.nanoTime();
+		
+		SharedState initial = branchAndBound? new StateTsp(cities): new StateTspStatic();
+		space.setTask( new TaskTsp(cities), initial);
+		ChunkTsp result =  space.getSolution();
          
 		List<Integer> finalCities = result.getBestOrder();
 		client.add( client.getLabel( finalCities.toArray( new Integer[0] ) ) );

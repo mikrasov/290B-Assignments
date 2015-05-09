@@ -20,14 +20,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	private static final int BASIC_TSP_PROBLEM_SIZE = 13;
 	private static final int NUMBER_OF_INPUTS = 4;
 	private static final boolean ENABLE_BOUNDING = true;
-	
-	
-	private final StateTsp initialState;
+
 	private StateTsp currentState;
 	
 	private TaskTsp(long target, int targetPort, List<Integer> fixedCities, double fixedCitiesLength, List<Integer> toPermute, double[][] cities) {
 		super("TSP", fixedCities.size(), NUMBER_OF_INPUTS, toPermute.size()>BASIC_TSP_PROBLEM_SIZE, target, targetPort);
-		initialState = null;
 		this.setInput(0, cities);
 		this.setInput(1, fixedCities);
 		this.setInput(2, toPermute);
@@ -36,13 +33,17 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 
 	public TaskTsp(double[][] cities){
 		super("TSP-INIT", DEFAULT_PRIORITY, NUMBER_OF_INPUTS, SHORT_RUNNING);
-		initialState = new StateTsp(cities);
-		this.setInput(0, cities);
-		this.setInput(1, new ArrayList<Integer>());
+		
 		List<Integer> toPermute = new ArrayList<Integer>();
 		for(int i = 0; i < cities.length; i++){
 			toPermute.add(i);
 		}
+		
+		List<Integer> fixedList =new ArrayList<Integer>();
+		fixedList.add( toPermute.remove(0));
+		
+		this.setInput(0, cities);
+		this.setInput(1, fixedList);
 		this.setInput(2, toPermute);
 		this.setInput(3, 0.0);
 	}
@@ -109,13 +110,6 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	@Override
 	public void updateState(SharedState updatedState) {
 		this.currentState = (StateTsp)updatedState;
-	}
-
-	@Override
-	public SharedState getInitialState() {
-		if(initialState == null)
-			throw new UnsupportedOperationException("Initializing with with wrong constructor");
-		return initialState;
 	}
 	
 	private List<Integer> copyList(List<Integer> list){

@@ -33,10 +33,5 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 	public void updateState(SharedState updatedState) {
 		/* don't care about state update for comparing */
 	}
-
-	@Override
-	public SharedState getInitialState() {
-		throw new UnsupportedOperationException("Should not initialize with comparator");
-	}
-
+	
 }

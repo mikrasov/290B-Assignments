@@ -1,18 +1,19 @@
 package util;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class Log {
 
 	public static final boolean VERBOSE = false;
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	
-	private static FileWriter log;
+	private static BufferedWriter log;
 	
 	public static void startLog(String filename){
 		try {
-			log = new FileWriter(filename);
+			log = new BufferedWriter(new FileWriter(filename));
 		} catch (IOException e) {
 			System.err.println("Error starting log '"+filename+"'");
 		}
