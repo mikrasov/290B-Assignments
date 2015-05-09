@@ -15,7 +15,6 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected static final boolean LONG_RUNNING = false;
 	protected static final int DEFAULT_PRIORITY = 0;
 	
-	
 	/** Id of the task as recognized by scheduler and computers */
 	private long uid;
 	
@@ -134,6 +133,5 @@ public abstract class TaskClosure<R> implements Task<R>{
 	 * @return ResultTasks OR ResultValue
 	 */
 	protected abstract Result<R> execute(SharedState currentState, UpdateStateCallback callback);
-
 
 }

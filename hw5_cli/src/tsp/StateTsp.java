@@ -18,7 +18,7 @@ public class StateTsp implements SharedState{
 	}
 
 	public boolean isBetterThan(StateTsp other) {
-			return other.bestLength > bestLength;		
+		return other.bestLength > bestLength;		
 	}
 	
 	public boolean isBetterThan(double other) {

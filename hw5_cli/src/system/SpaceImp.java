@@ -49,10 +49,16 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		ComputeNodeSpec spec = new ComputeNodeSpec(BUFFER_SIZE_OF_LOCAL_COMPUTER, actualNumberOfThreadsToSet);
 		register(new ComputeNode<R>(spec), spec, LOCAL_PROXY_ID, scheduler.getShortTaskPool());
 	}
+
+	@Override
+	public void setTask(Task<R> task) throws RemoteException, InterruptedException {
+		setTask(task, new StateBlank());
+	}
 	
 	@Override
 	public void setTask(Task<R> task, SharedState initialState) throws RemoteException, InterruptedException {
 		state = initialState;
+		
 		for(Proxy<R> p: allProxies.values()){
 			p.updateState(state, FORCE_STATE);
 		}
@@ -90,7 +96,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 		
 		this.state = state.update(updatedState);
 		
-		Log.debug("<== "+updatedState+(updatedState !=null && (original != state)?" Updated":" Kept") );
+		Log.debug("<="+originatorID+"= "+updatedState+(updatedState !=null && (original != state)?" Updated":" Kept") );
 		if( original != state){
 			
 			for(Proxy<R> p: allProxies.values()){

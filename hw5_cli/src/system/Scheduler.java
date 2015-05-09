@@ -13,11 +13,9 @@ public class Scheduler<R> extends Thread{
 	private BlockingQueue<Task<R>> shortTaskPool = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
 	private BlockingQueue<Task<R>> longTaskPool = new PriorityBlockingQueue<Task<R>>(INITIAL_CAPACITY, new TaskComparator());
 	
-	
 	public void schedule(Task<R> task){
 		waitingTasks.add(task);
 	}
-	
 	
 	public BlockingQueue<Task<R>> getLongTaskPool() { return longTaskPool;}
 	public BlockingQueue<Task<R>> getShortTaskPool() { return shortTaskPool;}

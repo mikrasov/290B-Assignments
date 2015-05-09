@@ -19,7 +19,6 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	
 	private static final int BASIC_TSP_PROBLEM_SIZE = 13;
 	private static final int NUMBER_OF_INPUTS = 4;
-	private static final boolean ENABLE_BOUNDING = true;
 
 	private StateTsp currentState;
 	
@@ -48,12 +47,6 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		this.setInput(3, 0.0);
 	}
 
-	private boolean shouldTerminateExecution(double bestPartialLength){
-		boolean shortut = ENABLE_BOUNDING && currentState.isBetterThan(bestPartialLength);
-		
-		return shortut;
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Result<ChunkTsp> execute(SharedState initialState, UpdateStateCallback callback) {
@@ -65,7 +58,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		currentState = (StateTsp)initialState;
 		
 		//Shortcut Computation
-		if(shouldTerminateExecution(fixedCitiesLength)) return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(fixedCities, Double.MAX_VALUE));
+		if(currentState.isBetterThan(fixedCitiesLength)) return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(fixedCities, Double.MAX_VALUE));
 
 		if(toPermute.size() <= BASIC_TSP_PROBLEM_SIZE){	
 			ChunkTsp best = solve(fixedCities,fixedCitiesLength, toPermute,cities, callback);
@@ -100,7 +93,6 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				new_toPermute.remove(i-1);
 				
 				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, newfixedCitiesLength, new_toPermute, cities);
-				
 			}
 
 			return new ResultTasks<ChunkTsp>(getUID(), tasks);
@@ -138,7 +130,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 			for(int i=0; i<toPermute.size(); i++){
 				
 				//Shortcut Computation
-				if(shouldTerminateExecution(fixedCitiesLength)) return new ChunkTsp(fixedCities, Double.MAX_VALUE);
+				if(currentState.isBetterThan(fixedCitiesLength)) return new ChunkTsp(fixedCities, Double.MAX_VALUE);
 				
 				int cityToAdd = toPermute.get(i);
 				List<Integer> expandedFixedCities = new LinkedList<Integer>(fixedCities);
@@ -165,6 +157,5 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 			}
 			return best;
 		}
-		
 	}
 }

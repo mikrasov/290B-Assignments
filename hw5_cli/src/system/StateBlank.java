@@ -8,7 +8,7 @@ public class StateBlank implements SharedState {
 
 	@Override
 	public SharedState update( SharedState newState) {
-		return newState;
+		return this;
 	}
 
 	@Override

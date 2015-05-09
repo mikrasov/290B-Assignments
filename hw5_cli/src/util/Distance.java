@@ -23,7 +23,6 @@ public class Distance {
 				distances[src][dest] = Distance.euclideanDistance(src, dest, cities);
 			}
 		}
-		
 		return distances;
 	}
 	
@@ -46,7 +45,6 @@ public class Distance {
 					bestDestIndex = i;
 				}
 			}
-			
 			src = unvisited.remove(bestDestIndex);
 			totalDistance += bestDistance;
 		}

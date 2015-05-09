@@ -22,7 +22,7 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 
 	private static final long serialVersionUID = -4962774042291137071L;
 	
-	private int id;
+	private int id = -1;
 	private transient BlockingQueue<Task<R>> tasks;
 	private transient BlockingQueue<Result<R>> results;
 	private transient List<ComputeThread> threads;
@@ -68,19 +68,22 @@ public class ComputeNode<R> extends UnicastRemoteObject implements Computer<R> {
 	public void assignSpace(Space<R> space, int spaceId) throws RemoteException {
 		this.space = space;
 		this.id = spaceId;
-		
 	}
 
 	private void updateStateLocally(SharedState updatedState) {
 		SharedState original = state;
 		state = state.update(updatedState);
-		if(original != state) try {
+		if(space == null){
+			System.err.println("Computer does not know what space it is registered on");
+		}
+		else if(original != state) try {
 			Log.verbose("<-- "+updatedState);
 			space.updateState(id, state);
 		} catch (RemoteException e) {
 			System.err.println("Error sending new state to server");
 		}
 	}
+	
 
 	private class ComputeThread extends Thread {
 		
