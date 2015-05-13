@@ -42,7 +42,7 @@
     </jar>
     
     <!-- Make client jar file -->
-    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tasks/** util/**">
+    <jar jarfile="${dist}/client.jar" basedir="${build}" includes="client/** api/** tsp/** util/**">
 
     </jar>
 
@@ -54,9 +54,10 @@
   </target>
   
   <target name="runComputer" description="run computer" >
-    <java classpath="${build}" classname="system.ComputerImp" fork="true">
+    <java classpath="${build}" classname="system.ComputeNode" fork="true">
       <arg value="${arg0}"/>
       <arg value="${arg1}"/>
+      <arg value="${arg2}"/>
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <jvmarg value="-Xmx1g"/>
       <classpath>
@@ -67,6 +68,7 @@
   
   <target name="runSpace" description="run space" >
     <java classpath="${build}" classname="system.SpaceImp" fork="true">
+      <arg value="${arg0}"/>
       <jvmarg value="-Djava.security.policy=policy/policy"/>
       <classpath>
         <pathelement location="dist/space.jar"/>
@@ -75,18 +77,7 @@
   </target>
 
   <target name="runTspClient" description="run tsp client" >
-    <java classpath="${build}" classname="client.ClientTsp" fork="true">
-      <arg value="${arg0}"/>
-      <arg value="${arg1}"/>
-      <jvmarg value="-Djava.security.policy=policy/policy"/>
-      <classpath>
-        <pathelement location="dist/client.jar"/>
-      </classpath>
-    </java>
-  </target>
-
-  <target name="runFibClient" description="run fib client" >
-    <java classpath="${build}" classname="client.ClientFib" fork="true">
+    <java classpath="${build}" classname="tsp.ClientTsp" fork="true">
       <arg value="${arg0}"/>
       <arg value="${arg1}"/>
       <arg value="${arg2}"/>

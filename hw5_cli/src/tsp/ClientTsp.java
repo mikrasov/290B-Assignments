@@ -78,16 +78,16 @@ public class ClientTsp extends JFrame{
         // get minX, maxX, minY, maxY, assuming they 0.0 <= mins
         double minX = cities[0][0], maxX = cities[0][0];
         double minY = cities[0][1], maxY = cities[0][1];
-        for ( double[] cities : cities ) 
+        for ( double[] city : cities )
         {
-            if ( cities[0] < minX ) 
-                minX = cities[0];
-            if ( cities[0] > maxX ) 
-                maxX = cities[0];
-            if ( cities[1] < minY ) 
-                minY = cities[1];
-            if ( cities[1] > maxY ) 
-                maxY = cities[1];
+            if ( city[0] < minX )
+                minX = city[0];
+            if ( city[0] > maxX )
+                maxX = city[0];
+            if ( city[1] < minY )
+                minY = city[1];
+            if ( city[1] > maxY )
+                maxY = city[1];
         }
 
         // scale points to fit in unit square

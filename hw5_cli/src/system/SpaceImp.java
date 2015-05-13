@@ -37,6 +37,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private BlockingQueue<R> solution = new SynchronousQueue<R>();
 	
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
+    //private Map<Long, Task<R>, parentId, time> timeTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private Map<Integer, Proxy<R>> allProxies = new ConcurrentHashMap<Integer, Proxy<R>>();
 	
 	private SharedState state = new StateBlank();
@@ -63,6 +64,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			p.updateState(state, FORCE_STATE);
 		}
 		task.setUid(UID_POOL++);
+//        rootId = task.getUID();
 		task.setTarget(SOLUTION_UID, 0);
 		registeredTasks.put(task.getUID(), task);
 		scheduler.schedule(task);
@@ -72,6 +74,19 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	public R getSolution() throws RemoteException, InterruptedException {
 		return solution.take();
 	}
+
+//    public R getTInf() {
+//
+//           double time = 0;
+//
+//           int solutionId = solutionId;
+//            time += timeTasks.get(solutionId) would return a list of parents
+//
+//
+//
+//
+//
+//    }
 	
 	@Override
 	public int register(Computer<R> computer, Capabilities spec) throws RemoteException {
@@ -166,7 +181,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	/* ------------ Main Method ------------ */
 	public static void main(String[] args) throws RemoteException {
 		int numLocalThreads = (args.length > 0)? Integer.parseInt(args[0]) : 0;
-		String logFile = (args.length > 1)? args[1] : "space";
+		String logFile = "space";
 
 		Log.startLog(logFile);
 		
