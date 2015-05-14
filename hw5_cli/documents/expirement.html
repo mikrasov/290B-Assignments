@@ -4,6 +4,11 @@
 
 <h2>TSP</h2>
 <br>
+Tour: 0 1 5 9 13 14 10 6 2 3 7 11 15 12 8 4 | Length: 32.97056274847714
+<br>
+<br>
+<img src="tsp_solution.png"/>
+<br>
 <br>
 <table border="1" style="width:100%">
     <tbody><tr>
@@ -31,6 +36,14 @@
 
 
     </tbody></table>
+
+<br>
+<br>
+<h3>Experiment Analysis</h3>
+While running TSP on one computer takes about 90 seconds, we can see that adding 3 more computers divides the time by 4.
+The paralle efficiency for 4 computers is ~1 at %93. Adding 12 more computers (c = 16) we see the time drop to 18 seconds. For
+16 cities, this is quite fast! The parallel efficiency plot shows that that PE is %120 for c = 16 - therefore it looks like using
+that many computers actually paid off.
 
 </body>
 </html>
