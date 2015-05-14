@@ -25,6 +25,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected int joinCounter;
 	
 	// ID of closure to send result to and input port on that closure
+    protected transient long parentUid;
 	protected long targetUid;
 	protected int targetPort;
 	protected int priority;
