@@ -4,15 +4,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
 
-import tsp.TInf;
 import util.Log;
 import api.Capabilities;
 import api.Computer;
@@ -39,18 +36,15 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	private static final boolean SUGGEST_STATE = false;
 	private static final int BUFFER_SIZE_OF_LOCAL_COMPUTER = 1;
 	
-	
 	private Scheduler<R> scheduler;
-	private BlockingQueue<R> solution = new SynchronousQueue<R>();
+	private BlockingQueue<Result<R>> solution = new SynchronousQueue<Result<R>>();
 	
 	private Map<Long, Task<R>> registeredTasks = new ConcurrentHashMap<Long, Task<R>>();
 	private Map<Integer, Proxy<R>> allProxies = new ConcurrentHashMap<Integer, Proxy<R>>();
 	
 	private SharedState state = new StateBlank();
 
-    //Tinf
-    private Map<Long, TInf> timeTasks = new HashMap<Long, TInf>();
-    private long rootNodeId;
+	private double totalRuntime = 0;
 	
 	public SpaceImp(int numLocalThreads) throws RemoteException {
 		super();		
@@ -75,54 +69,16 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			p.updateState(state, FORCE_STATE);
 		}
 		task.setUid(UID_POOL++);
-        //Tinf
-        rootNodeId = task.getUID();
+        
 		task.setTarget(SOLUTION_UID, 0);
 		registeredTasks.put(task.getUID(), task);
 		scheduler.schedule(task);
 	}
 
 	@Override
-	public R getSolution() throws RemoteException, InterruptedException {
+	public Result<R> getSolution() throws RemoteException, InterruptedException {
 		return solution.take();
 	}
-
-    @Override
-    public double getTinf() {
-
-        double total = 0;
-
-        //Starting from the bottom. get the TInf object that corresponds to solutionUID node, aka the last leaf node
-        TInf node = timeTasks.get(SOLUTION_UID);
-        //add it's time to the total
-        total += node.getRuntime();
-
-        while(true) {
-            //loop through parent list, retaining the parent with the greatest run time
-            TInf parent = null;
-            TInf bestParent = null;
-            double greatestRunTime = Double.MIN_VALUE;
-            for (int i = 0; i < node.getParentUids().size(); i++) {
-                long parentUid = node.getParentUids().get(i);
-                parent = timeTasks.get(parentUid);
-                if (parent.getRuntime() > greatestRunTime) {
-                    greatestRunTime = parent.getRuntime();
-                    bestParent = parent;
-                }
-            }
-
-            //At this point, we know we have found the parent with the largest run time. Add it to total
-            total += greatestRunTime;
-            //Set node equal to the parent we chose, and keep looping
-            node = bestParent;
-
-            //TODO: how to know when to stop and return total time?
-
-        }
-
-        return total;
-
-    }
 	
 	@Override
 	public int register(Computer<R> computer, Capabilities spec) throws RemoteException {
@@ -174,23 +130,20 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 
 			Task<R> origin = registeredTasks.get(result.getTaskCreatorId()); //registeredTasks.remove(result.getTaskCreatorId());
 			
+			totalRuntime += result.getRunTime();
+			
 			//If Single value pass it on to target	
 			if(result.isValue()){
 				
 				if(origin.getTargetUid() == SOLUTION_UID){
-					solution.add(result.getValue());
+					result.setRunTime(totalRuntime);
+					solution.add(result);
 				}
 				else {
 					Task<R> target = registeredTasks.get(origin.getTargetUid());
 					target.setInput(origin.getTargetPort(), result.getValue());
+					target.addCriticalLengthOfParent(result.getCriticalLengthOfParents() + result.getRunTime());
 				}
-
-                //Tinf: The parent is origin, so add to time tasks map
-                ArrayList<Long> parentUids = new ArrayList<Long>();
-                parentUids.add(result.getTaskCreatorId());
-                TInf tinf = new TInf(result.getRunTime(), parentUids);
-                //TODO: How to get the UID of the result task to add it to the map though?
-                timeTasks.put(result.getUid?, tinf);
 
 			}
 		
@@ -201,6 +154,7 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 				//First add all new tasks and generate UIDs for them
 				for(Task<R> t: tasksToAdd){
 					t.setUid(UID_POOL++);
+					t.addCriticalLengthOfParent(result.getCriticalLengthOfParents() + result.getRunTime());
 				}
 				
 				/*
@@ -217,11 +171,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 						Task<R> realTarget = tasksToAdd[ Math.abs((int)targetUid)-1];
 						t.setTarget(realTarget.getUID(), t.getTargetPort());
 					}
+					
 					registeredTasks.put(t.getUID(), t);
 					scheduler.schedule(t);
 				}
 
-                //TODO: ??
 			}
 		}
 	};

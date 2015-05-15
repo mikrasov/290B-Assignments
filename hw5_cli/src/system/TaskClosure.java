@@ -1,6 +1,8 @@
 package system;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import api.Result;
 import api.SharedState;
@@ -16,6 +18,7 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected static final int DEFAULT_PRIORITY = 0;
 	protected static final int NO_INPUTS = 0;	
 	
+	
 	/** Id of the task as recognized by scheduler and computers */
 	private long uid;
 	
@@ -30,8 +33,12 @@ public abstract class TaskClosure<R> implements Task<R>{
 	protected int targetPort;
 	protected int priority;
 	
+	//Properties
 	boolean isShorRunning = true;
 		
+	// Metrics
+	List<Double> criticalLengthsOfParents = new LinkedList<Double>();
+	
 	public TaskClosure(String name, int priority, int numInputs, boolean isShorRunning){
 		this(name, priority, numInputs, isShorRunning, -1,-1);
 	}
@@ -125,6 +132,18 @@ public abstract class TaskClosure<R> implements Task<R>{
 		return result;
 	}
 	
+	@Override
+	public void addCriticalLengthOfParent(double timeInf) {
+		criticalLengthsOfParents.add(timeInf);
+	}
+	
+	protected double getMaxCriticalLength(){
+		double max = -1;
+		for(double leng: criticalLengthsOfParents)
+			if(leng > max) max = leng;
+		
+		return max;
+	}
 	/**
 	 * To be implemented by inheriting tasks:
 	 * Execute the task code that take inputs and do ONE of 2 things:

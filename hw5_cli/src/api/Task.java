@@ -10,6 +10,8 @@ public interface Task<R> extends Serializable {
 
 	void setInput(int num, Object value);
 
+	void addCriticalLengthOfParent(double timeInf);
+	
 	void setUid(long uid);
 
 	long getUID();

@@ -26,7 +26,7 @@ public class TaskCompareTsp extends TaskClosure<ChunkTsp>{
 		}
 		
 		callback.updateState(new StateTsp(bestChunk.getBestLength()));
-		return new ResultValue<ChunkTsp>(getUID(), bestChunk);
+		return new ResultValue<ChunkTsp>(getUID(), bestChunk, this.getMaxCriticalLength());
 	}
 
 	@Override

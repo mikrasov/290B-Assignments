@@ -12,10 +12,12 @@ public class ResultTasks<R> implements Result<R> {
 	private Task<R>[] tasks;
 	
 	private final long creatorId;
+	private final double criticalLength;
 	
-	public ResultTasks(long creatorId, Task<R>[] tasks) {
+	public ResultTasks(long creatorId, Task<R>[] tasks, double criticalLength) {
 		this.tasks = tasks;
 		this.creatorId = creatorId;
+		this.criticalLength = criticalLength;
 	}
 
 	@Override
@@ -45,5 +47,10 @@ public class ResultTasks<R> implements Result<R> {
 	@Override
 	public R getValue() {
 		throw new UnsupportedOperationException("This result is a list of tasks");
+	}
+
+	@Override
+	public double getCriticalLengthOfParents() {
+		return criticalLength;
 	}
 }

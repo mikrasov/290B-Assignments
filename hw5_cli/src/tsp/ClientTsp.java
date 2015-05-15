@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
 import util.Log;
+import api.Result;
 import api.SharedState;
 import api.Space;
 
@@ -171,13 +172,16 @@ public class ClientTsp extends JFrame{
 		
 		SharedState initial = branchAndBound? new StateTsp(cities): new StateTspStatic(cities);
 		space.setTask( new TaskTsp(cities), initial);
-		ChunkTsp result =  space.getSolution();
+		Result<ChunkTsp> result =  space.getSolution();
          
-		List<Integer> finalCities = result.getBestOrder();
+		
+		List<Integer> finalCities = result.getValue().getBestOrder();
 		client.add( client.getLabel( finalCities.toArray( new Integer[0] ) ) );
 		
-		Log.log("TSP, Result: "+result);
-		Log.log( "Client Total,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
+		Log.log("TSP, Result: "+result.getValue());
+		Log.log( "Client Time,"+( System.nanoTime() - clientStartTime) / 1000000.0 );
+		Log.log("T1, "+result.getRunTime());
+		Log.log("Tinf, "+result.getCriticalLengthOfParents());
 		Log.close();
 	}
 }

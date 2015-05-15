@@ -33,7 +33,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 	}
 
 	public TaskTsp(double[][] cities){
-		super("TSP-INIT", DEFAULT_PRIORITY, NO_INPUTS, SHORT_RUNNING);
+		super("TSP-INIT", DEFAULT_PRIORITY, NO_INPUTS, cities.length>BASIC_TSP_PROBLEM_SIZE);
 		
 		toPermute = new ArrayList<Integer>();
 		for(int i = 0; i < cities.length; i++){
@@ -52,11 +52,11 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 		currentState = (StateTsp)initialState;
 		
 		//Shortcut Computation
-		if(currentState.isBetterThan(fixedCitiesLength)) return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(fixedCities, Double.MAX_VALUE));
+		if(currentState.isBetterThan(fixedCitiesLength)) return new ResultValue<ChunkTsp>(getUID(), new ChunkTsp(fixedCities, Double.MAX_VALUE), this.getMaxCriticalLength());
 
 		if(toPermute.size() <= BASIC_TSP_PROBLEM_SIZE){	
 			ChunkTsp best = solve(fixedCities,fixedCitiesLength, toPermute, callback);
-			return new ResultValue<ChunkTsp>(getUID(), best);
+			return new ResultValue<ChunkTsp>(getUID(), best, this.getMaxCriticalLength());
 		}
 		else {
 			
@@ -89,7 +89,7 @@ public class TaskTsp extends TaskClosure<ChunkTsp> {
 				tasks[i] = new TaskTsp(-1, i-1, new_fixedCities, newfixedCitiesLength, new_toPermute);
 			}
 
-			return new ResultTasks<ChunkTsp>(getUID(), tasks);
+			return new ResultTasks<ChunkTsp>(getUID(), tasks, this.getMaxCriticalLength());
 		}
 	}
 	
