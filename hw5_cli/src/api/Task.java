@@ -27,4 +27,6 @@ public interface Task<R> extends Serializable {
 	int getPriority();
 	
 	boolean isShortRunning();
+	
+	String getName();
 }

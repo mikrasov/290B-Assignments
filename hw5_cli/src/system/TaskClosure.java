@@ -136,9 +136,13 @@ public abstract class TaskClosure<R> implements Task<R>{
 	public void addCriticalLengthOfParent(double timeInf) {
 		criticalLengthsOfParents.add(timeInf);
 	}
-	
+
+	@Override
+	public String getName() {
+		return this.name+"_"+uid;
+	}
 	protected double getMaxCriticalLength(){
-		double max = -1;
+		double max = 0;
 		for(double leng: criticalLengthsOfParents)
 			if(leng > max) max = leng;
 		

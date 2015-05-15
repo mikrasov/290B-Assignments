@@ -64,7 +64,8 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 	@Override
 	public void setTask(Task<R> task, SharedState initialState) throws RemoteException, InterruptedException {
 		state = initialState;
-		
+		totalRuntime = 0;
+				
 		for(Proxy<R> p: allProxies.values()){
 			p.updateState(state, FORCE_STATE);
 		}
@@ -136,8 +137,11 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 			if(result.isValue()){
 				
 				if(origin.getTargetUid() == SOLUTION_UID){
-					result.setRunTime(totalRuntime);
-					solution.add(result);
+					
+					ResultValue<R> terminalResult = new ResultValue<R>(SOLUTION_UID, result.getValue(), result.getCriticalLengthOfParents()+result.getRunTime());
+					terminalResult.setRunTime(totalRuntime);
+					
+					solution.add(terminalResult);
 				}
 				else {
 					Task<R> target = registeredTasks.get(origin.getTargetUid());
@@ -175,7 +179,6 @@ public class SpaceImp<R> extends UnicastRemoteObject implements Space<R>{
 					registeredTasks.put(t.getUID(), t);
 					scheduler.schedule(t);
 				}
-
 			}
 		}
 	};

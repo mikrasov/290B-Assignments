@@ -51,7 +51,7 @@ public class ResultValue<R> implements Result<R> {
 
 	@Override
 	public double getCriticalLengthOfParents() {
-		return criticalLength+getRunTime();
+		return criticalLength;
 	}
 
 }

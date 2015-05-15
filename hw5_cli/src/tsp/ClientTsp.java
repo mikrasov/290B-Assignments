@@ -44,6 +44,23 @@ public class ClientTsp extends JFrame{
         { 3, 6 }
     };
 	
+	private static final double[][] CITIES_13 = 
+    {
+        { 1, 1 },
+        { 8, 1 },
+        { 8, 8 },
+        { 1, 8 },
+        { 2, 2 },
+        { 7, 2 },
+        { 7, 7 },
+        { 2, 7 },
+        { 3, 3 },
+        { 6, 3 },
+        { 6, 6 },
+        { 3, 6 },
+		{ 4, 4 },
+    };
+	
 	private static final double[][] CITIES_16 = 
 	{
 		{ 1, 1 },
@@ -160,7 +177,7 @@ public class ClientTsp extends JFrame{
 		String url = "rmi://" + domain + ":" + Space.DEFAULT_PORT + "/" + Space.DEFAULT_NAME;
 		
 		Space<ChunkTsp> space = (Space<ChunkTsp>) Naming.lookup(url);  
-		double[][] cities = (numCities == 12? CITIES_12 : CITIES_16);
+		double[][] cities = (numCities == 12? CITIES_12: (numCities == 13?CITIES_13: CITIES_16));
 		
 		ClientTsp client = new ClientTsp(space, cities );
 		
