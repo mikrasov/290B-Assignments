@@ -28,9 +28,9 @@ Tour: 0 1 5 9 13 14 10 6 2 3 7 11 15 12 8 4 | Length: 32.97056274847714
     </tr>
     <tr>
         <td>Tinf</td>
-        <td> ms</td>
-        <td> ms</td>
-        <td> ms</td>
+        <td>530.863589 ms</td>
+        <td>848.4974679 ms</td>
+        <td>546.912178 ms</td>
 
     </tr>
 
@@ -44,6 +44,8 @@ While running TSP on one computer takes about 90 seconds, we can see that adding
 The paralle efficiency for 4 computers is ~1 at %93. Adding 12 more computers (c = 16) we see the time drop to 18 seconds. For
 16 cities, this is quite fast! The parallel efficiency plot shows that that PE is %120 for c = 16 - therefore it looks like using
 that many computers actually paid off.
+
+We can see that Tinf is significantly less than T1. This makes sense, since Tinf is just the time of the critical path.
 
 </body>
 </html>
